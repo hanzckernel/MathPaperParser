@@ -84,7 +84,7 @@ dashboard/                          # Source code (this repo)
 
 prompts/                            # Class B: webchat prompt suite
 ├── README.md                       # Usage instructions
-├── 00_overview.md                  # Paper ingestion + skeleton
+├── 00_skeleton.md                  # Paper ingestion + skeleton
 ├── 01_bird_eye.md                  # Bird's-eye analysis
 ├── 02_dependency_graph.md          # Mermaid.js dependency graph
 ├── 03_frog_eye.md                  # Frog's-eye proof strategies

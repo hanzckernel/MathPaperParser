@@ -1,0 +1,306 @@
+{
+  "schema_version": "0.1.0",
+  "problem_statement": {
+    "question": "When does the embedding of a weighted Sobolev space into weighted Lebesgue spaces become compact, and how do boundary effects and weight regularity control compactness?",
+    "motivation": "Compact embeddings are a central tool for existence results in nonlinear PDE and variational problems; in weighted settings they control concentration near the boundary and degeneracy/singularity of coefficients.",
+    "context": "The paper builds on classical Sobolev embedding theory (e.g., Adams–Fournier) and on the structure theory of Muckenhoupt $A_p$ weights, extending compactness criteria to a weighted, boundary-sensitive setting."
+  },
+  "innovation_assessment": {
+    "summary": "The core contribution is a compactness framework for weighted Sobolev embeddings that separates interior compactness from boundary tail control, and propagates compactness across a range of exponents using weight self-improvement.",
+    "main_innovations": [
+      {
+        "description": "A boundary tail estimate that quantifies how weighted mass can escape near the boundary and turns tightness into compactness.",
+        "calibration": "significant",
+        "related_nodes": ["sec3::lem:boundary-tail-estimate"]
+      },
+      {
+        "description": "A compact embedding theorem into weighted $L^p$ that combines local compactness with uniform integrability and a weighted Poincaré inequality.",
+        "calibration": "significant",
+        "related_nodes": ["sec4::thm:compact-embedding-lp", "sec4::lem:uniform-integrability"]
+      },
+      {
+        "description": "A subcritical exponent extension to weighted $L^q$ obtained by combining the $L^p$ compactness theorem with weight self-improvement and maximal function bounds.",
+        "calibration": "incremental",
+        "related_nodes": ["sec4::thm:compact-embedding-lq", "sec2::lem:weight-self-improvement", "secA::lem:maximal-function-bound"]
+      }
+    ],
+    "prior_work_comparison": "Relative to the classical unweighted compact embedding results, the key novelty is making boundary leakage explicit (via a tail estimate) and combining it with $A_p$-weight technology. Compared to existing weighted embedding statements, the paper emphasizes a modular proof architecture (local compactness + tail control + self-improvement) that is reusable for nonlinear applications."
+  },
+  "clusters": [
+    {
+      "id": "cluster:introduction",
+      "label": "Problem Setup and Standing Assumptions",
+      "section": "1",
+      "members": [
+        "sec1::asm:domain-regularity",
+        "sec1::asm:weight-class",
+        "sec1::not:weighted-lp"
+      ],
+      "description": "States the geometric and weight hypotheses and fixes the weighted function space notation used throughout."
+    },
+    {
+      "id": "cluster:preliminaries",
+      "label": "Weighted Sobolev Preliminaries",
+      "section": "2",
+      "members": [
+        "sec2::def:weighted-sobolev-space",
+        "sec2::def:zero-boundary-sobolev",
+        "sec2::def:ap-constant",
+        "sec2::lem:weight-self-improvement",
+        "sec2::prop:weighted-poincare",
+        "sec2::not:embedding-arrow"
+      ],
+      "description": "Defines the weighted spaces and records structural consequences of the $A_p$ condition needed later (self-improvement and weighted Poincaré)."
+    },
+    {
+      "id": "cluster:compactness-core",
+      "label": "Compactness Mechanism",
+      "section": "3",
+      "members": [
+        "sec3::lem:local-compactness",
+        "sec3::lem:boundary-tail-estimate",
+        "sec3::def:weight-exponent-gap"
+      ],
+      "description": "Provides the local compactness input and the boundary tail estimate that prevents escape of mass."
+    },
+    {
+      "id": "cluster:main-results",
+      "label": "Main Compact Embedding Results",
+      "section": "4",
+      "members": [
+        "sec4::thm:compact-embedding-lp",
+        "sec4::lem:uniform-integrability",
+        "sec4::thm:compact-embedding-lq",
+        "sec4::cor:zero-boundary-compact"
+      ],
+      "description": "Proves compact embedding theorems in the critical and subcritical weighted Lebesgue scales, plus a corollary for zero-boundary spaces."
+    },
+    {
+      "id": "cluster:applications",
+      "label": "Nonlinear Application",
+      "section": "5",
+      "members": ["sec5::prop:spectral-gap", "sec5::thm:nonlinear-existence"],
+      "description": "Uses compactness to establish an existence theorem for a weighted semilinear problem."
+    }
+  ],
+  "main_results": [
+    {
+      "node_id": "sec4::thm:compact-embedding-lp",
+      "headline": "A compact embedding theorem into weighted $L^p$ under $A_p$-type hypotheses and boundary control.",
+      "significance": "Establishes the core compactness statement used to pass to limits in nonlinear problems; it decomposes compactness into local compactness plus boundary tail control."
+    },
+    {
+      "node_id": "sec4::thm:compact-embedding-lq",
+      "headline": "A subcritical compact embedding into weighted $L^q$ obtained by propagating the $L^p$ compactness across exponents.",
+      "significance": "Extends the main compactness statement to a family of target spaces, enabling applications that require subcritical integrability."
+    },
+    {
+      "node_id": "sec5::thm:nonlinear-existence",
+      "headline": "Existence of solutions for a weighted semilinear variational problem using the compact embedding theory.",
+      "significance": "Demonstrates that the compactness framework is strong enough to produce existence results beyond the linear setting."
+    }
+  ],
+  "proof_strategies": [
+    {
+      "target_node": "sec4::thm:compact-embedding-lp",
+      "strategy_summary": "Reduce compactness to (i) local compactness away from the boundary, (ii) uniform integrability to prevent oscillation/concentration, and (iii) a boundary tail estimate to prevent mass escape near the boundary. Combine these with a weighted Poincaré inequality and the standing $A_p$ hypotheses to pass from local to global compactness.",
+      "key_steps": [
+        {
+          "step": 1,
+          "description": "Establish local compactness on interior subdomains using a Rellich-type argument adapted to weighted spaces.",
+          "uses": ["sec3::lem:local-compactness", "sec2::def:weighted-sobolev-space"]
+        },
+        {
+          "step": 2,
+          "description": "Control boundary leakage by proving a boundary tail estimate that bounds weighted mass in a shrinking boundary collar.",
+          "uses": ["sec3::lem:boundary-tail-estimate", "sec1::asm:domain-regularity"]
+        },
+        {
+          "step": 3,
+          "description": "Upgrade tightness + uniform integrability into compactness in the weighted $L^p$ target space.",
+          "uses": ["sec4::lem:uniform-integrability", "sec2::prop:weighted-poincare", "sec1::asm:weight-class"]
+        }
+      ],
+      "noise_removed": "Routine cutoff-function estimates and standard manipulations of weighted norms (e.g., bookkeeping of constants under the $A_p$ characteristic) can typically be skipped on first reading."
+    },
+    {
+      "target_node": "sec4::thm:compact-embedding-lq",
+      "strategy_summary": "Derive the $L^q$ compact embedding from the $L^p$ case by introducing an exponent-gap parameter and exploiting self-improvement of $A_p$ weights, together with a maximal-function bound from the appendix to control the change of exponent.",
+      "key_steps": [
+        {
+          "step": 1,
+          "description": "Invoke the compact embedding into weighted $L^p$ as the base case.",
+          "uses": ["sec4::thm:compact-embedding-lp"]
+        },
+        {
+          "step": 2,
+          "description": "Use weight self-improvement and the exponent-gap definition to transfer estimates to the subcritical exponent regime.",
+          "uses": ["sec2::lem:weight-self-improvement", "sec3::def:weight-exponent-gap"]
+        },
+        {
+          "step": 3,
+          "description": "Apply a weighted maximal-function bound to control the passage from $p$ to $q$ and close the compactness argument.",
+          "uses": ["secA::lem:maximal-function-bound"]
+        }
+      ],
+      "noise_removed": "Case splits over exponent ranges and standard maximal-function estimates are largely technical; focus on where self-improvement is invoked and where the boundary tail estimate enters."
+    },
+    {
+      "target_node": "sec5::thm:nonlinear-existence",
+      "strategy_summary": "Set up a variational functional, extract a minimizing sequence, and use the compact embedding to obtain strong convergence in the nonlinear term. Conclude by lower semicontinuity and a spectral-gap-type coercivity input.",
+      "key_steps": [
+        {
+          "step": 1,
+          "description": "Establish coercivity and boundedness of minimizing sequences using the spectral gap and weighted Poincaré inequality.",
+          "uses": ["sec5::prop:spectral-gap", "sec2::prop:weighted-poincare"]
+        },
+        {
+          "step": 2,
+          "description": "Apply the subcritical compact embedding to get strong convergence needed for the nonlinear term.",
+          "uses": ["sec4::thm:compact-embedding-lq", "sec4::cor:zero-boundary-compact"]
+        },
+        {
+          "step": 3,
+          "description": "Pass to the limit in the Euler–Lagrange equation to obtain a weak solution, then bootstrap regularity if applicable.",
+          "uses": ["sec1::asm:domain-regularity", "sec1::asm:weight-class"]
+        }
+      ]
+    }
+  ],
+  "summaries": [
+    {
+      "section": "0",
+      "section_title": "External Dependencies",
+      "summary": "Collects classical background results (Sobolev embedding, $A_p$-weight theory, and weighted potential estimates) that are treated as black boxes and referenced throughout the paper."
+    },
+    {
+      "section": "1",
+      "section_title": "Introduction",
+      "summary": "States the main compact embedding goals, fixes the geometric and weight hypotheses, and introduces the weighted function space notation. The section highlights which compactness phenomena are new in the weighted/boundary-sensitive setting."
+    },
+    {
+      "section": "2",
+      "section_title": "Preliminaries",
+      "summary": "Defines the weighted Sobolev spaces and records core structural tools: self-improvement of $A_p$ weights and a weighted Poincaré inequality. These are the basic dependencies used in all later compactness arguments."
+    },
+    {
+      "section": "3",
+      "section_title": "Key Estimates",
+      "summary": "Develops the compactness mechanism by combining local compactness with a boundary tail estimate. The section also introduces an exponent-gap parameter that later supports extrapolation to subcritical $L^q$ targets."
+    },
+    {
+      "section": "4",
+      "section_title": "Main Results",
+      "summary": "Proves the main compact embedding theorems into weighted $L^p$ and weighted $L^q$ spaces, and derives a corollary for zero-boundary spaces. The proofs are modular and reuse the key estimates from Section 3."
+    },
+    {
+      "section": "5",
+      "section_title": "Applications",
+      "summary": "Applies the compact embedding theory to a weighted semilinear problem via a variational/minimization argument. Compactness is used to pass to limits in nonlinear terms and obtain existence."
+    },
+    {
+      "section": "A",
+      "section_title": "Appendix",
+      "summary": "Provides technical analytic tools (e.g., a weighted maximal-function bound and reverse Hölder-type inequalities) that support the subcritical extension and weight-regularity arguments."
+    }
+  ],
+  "attention": {
+    "high_dependency_nodes": [
+      {
+        "node_id": "sec1::asm:weight-class",
+        "in_degree": 6,
+        "out_degree": 0,
+        "note": "The $A_p$ weight hypothesis is used across all major results; weakening it would require reworking multiple proofs."
+      },
+      {
+        "node_id": "sec2::prop:weighted-poincare",
+        "in_degree": 5,
+        "out_degree": 4,
+        "note": "This inequality appears repeatedly as the coercivity/compactness bridge; errors here propagate widely."
+      }
+    ],
+    "demanding_proofs": [
+      {
+        "node_id": "sec4::thm:compact-embedding-lq",
+        "reason": "Long proof with multiple interacting tools (self-improvement, exponent-gap bookkeeping, and maximal-function bounds).",
+        "estimated_difficulty": "high"
+      },
+      {
+        "node_id": "sec4::thm:compact-embedding-lp",
+        "reason": "Central argument combining local compactness, boundary tail estimates, and uniform integrability; technical but foundational.",
+        "estimated_difficulty": "high"
+      }
+    ]
+  },
+  "unknowns": [
+    {
+      "id": "unknown:1",
+      "description": "The sharpness of the boundary tail estimate constants is unclear; it is not obvious whether the quantitative dependence on the $A_p$ characteristic can be improved.",
+      "search_hint": "Track constant dependencies through the proof of the boundary tail estimate and compare to known sharp weighted inequalities for similar domains.",
+      "scope": "section",
+      "related_nodes": ["sec3::lem:boundary-tail-estimate", "sec2::def:ap-constant"]
+    },
+    {
+      "id": "unknown:2",
+      "description": "The necessity of the exponent-gap hypothesis for the $L^q$ compact embedding is not fully justified; it may be an artifact of the extrapolation method.",
+      "search_hint": "Look for counterexamples in the weighted embedding literature when the exponent gap closes; compare to classical limiting Sobolev exponents.",
+      "scope": "paper",
+      "related_nodes": ["sec4::thm:compact-embedding-lq", "sec3::def:weight-exponent-gap"]
+    },
+    {
+      "id": "unknown:3",
+      "description": "The nonlinear application depends on coercivity assumptions that may hide subtle boundary effects; the minimal hypotheses for existence are not clearly isolated.",
+      "search_hint": "Check where the spectral gap proposition is used in the variational argument and whether boundary terms can be controlled under weaker domain regularity.",
+      "scope": "proof_step",
+      "related_nodes": ["sec5::thm:nonlinear-existence", "sec5::prop:spectral-gap", "sec1::asm:domain-regularity"]
+    }
+  ],
+  "notation_index": [
+    {
+      "symbol": "$L^p_w(\\Omega)$",
+      "meaning": "Weighted Lebesgue space with weight $w$ on the domain $\\Omega$.",
+      "introduced_in": "sec1::not:weighted-lp"
+    },
+    {
+      "symbol": "$W^{1,p}_w(\\Omega)$",
+      "meaning": "Weighted Sobolev space with one weak derivative in weighted $L^p$.",
+      "introduced_in": "sec2::def:weighted-sobolev-space"
+    },
+    {
+      "symbol": "$\\hookrightarrow$",
+      "meaning": "Continuous (or compact) embedding between function spaces.",
+      "introduced_in": "sec2::not:embedding-arrow"
+    }
+  ],
+  "stats": {
+    "node_counts": {
+      "definition": 4,
+      "theorem": 3,
+      "lemma": 7,
+      "proposition": 2,
+      "corollary": 2,
+      "assumption": 2,
+      "remark": 3,
+      "example": 2,
+      "conjecture": 1,
+      "notation": 2,
+      "external_dependency": 3,
+      "total": 31
+    },
+    "edge_counts": {
+      "uses_in_proof": 52,
+      "extends": 1,
+      "generalizes": 1,
+      "specializes": 2,
+      "equivalent_to": 0,
+      "cites_external": 6,
+      "total": 62
+    },
+    "evidence_breakdown": {
+      "explicit_ref": 42,
+      "inferred": 14,
+      "external": 6
+    }
+  }
+}
+

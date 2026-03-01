@@ -37,7 +37,10 @@
   --kind-corollary: #79c0ff;    /* light blue */
   --kind-assumption: #f85149;   /* red */
   --kind-remark: #8b949e;       /* gray */
-  --kind-external: #6e7681;     /* dim gray */
+  --kind-example: #39c5bb;      /* teal */
+  --kind-conjecture: #ff7b72;   /* salmon */
+  --kind-notation: #c9d1d9;     /* light gray */
+  --kind-external_dependency: #6e7681; /* dim gray */
 
   /* Evidence colors */
   --evidence-explicit: #58a6ff;
@@ -50,10 +53,10 @@
   --novelty-extended: #d29922;
   --novelty-folklore: #6e7681;
 
-  /* Severity colors */
-  --severity-high: #f85149;
-  --severity-medium: #d29922;
-  --severity-low: #8b949e;
+  /* Difficulty colors (for attention badges) */
+  --difficulty-high: #f85149;
+  --difficulty-medium: #d29922;
+  --difficulty-low: #8b949e;
 
   /* Calibration colors */
   --calibration-significant: #3fb950;
@@ -160,6 +163,8 @@ The dashboard consumes three JSON files produced by the PaperParser analysis age
 
 ### manifest.json
 
+The dashboard treats `/schema/*.schema.json` (and `docs/schema_spec.md`) as the single source of truth for JSON shape.
+
 ```jsonc
 {
   "schema_version": "0.1.0",
@@ -168,19 +173,23 @@ The dashboard consumes three JSON files produced by the PaperParser analysis age
   "paper": {
     "title": "On the Existence of Solutions to ...",
     "authors": ["A. Author", "B. Coauthor"],
-    "arxiv_id": "2501.12345",               // optional
-    "source_file": "paper.tex"              // or "paper.pdf"
+    "arxiv_id": "2501.12345v2",             // optional
+    "doi": "10.1234/example.2026.1",        // optional
+    "year": 2026,
+    "subject_area": "Functional Analysis",
+    "source_type": "latex",                 // "latex" | "pdf"
+    "source_files": ["main.tex", "appendix.tex"],
+    "version_note": "arXiv v2 (Jan 2026)"   // optional
   },
 
   "scope": {
-    "sections_analyzed": ["1", "2", "3", "4", "5"],
-    "exclude": []                            // sections skipped, if any
+    "sections_included": ["all"],           // or ["1","2","A"]
+    "analysis_level": "both"                // "bird_eye" | "frog_eye" | "both"
   },
 
   "producer": {
     "agent": "claude-opus-4-20250514",
     "schema_version": "0.1.0",
-    "tools_used": [],
     "timestamp_start": "2026-03-01T10:00:00Z",
     "timestamp_end": "2026-03-01T10:05:00Z"
   }
@@ -191,37 +200,39 @@ The dashboard consumes three JSON files produced by the PaperParser analysis age
 
 ```jsonc
 {
+  "schema_version": "0.1.0",
+
   "nodes": [
     {
-      "id": "thm_4_1",                        // unique stable ID
-      "kind": "theorem",                      // enum: theorem | definition | lemma |
-                                               //       proposition | corollary |
-                                               //       assumption | remark | external
-      "label": "Theorem 4.1",                 // display name
-      "section": "4",                          // paper section number/ID
-      "number": "4.1",                         // original numbering in paper
-      "statement": "For every $\\epsilon > 0$, there exists...",  // LaTeX source
-      "proof_status": "full",                  // full | sketch | omitted | none
-      "novelty": "new",                        // new | classical | extended | folklore
-      "is_main_result": true,                  // boolean
-      "metadata": {}                           // optional extras
+      "id": "sec4::thm:main",                // canonical ID: sec{N}::{kind_abbrev}:{slug}
+      "kind": "theorem",
+      "label": "Theorem 4.1 (Main convergence result)",
+      "section": "4",
+      "section_title": "Main Results",
+      "number": "4.1",
+      "latex_label": "thm:main",             // null if unavailable
+      "statement": "Under Assumptions 1.1–1.3, the scheme $(x_n)$ converges ...",
+      "proof_status": "full",                // full | sketch | deferred | external | not_applicable
+      "is_main_result": true,
+      "novelty": "new",                      // new | classical | extended | folklore
+      "metadata": { "proof_length_lines": 120 }
     }
   ],
 
   "edges": [
     {
-      "source": "thm_4_1",                    // node ID (the result being proved)
-      "target": "lem_3_2",                     // node ID (the dependency used)
-      "kind": "uses",                          // uses | generalizes | specializes | equivalent
-      "evidence": "explicit_ref",              // explicit_ref | inferred | external
-      "detail": "Applied in proof of Thm 4.1, step 3",  // optional human-readable note
-      "metadata": {}
+      "source": "sec4::thm:main",
+      "target": "sec2::lem:key-estimate",
+      "kind": "uses_in_proof",               // uses_in_proof | extends | generalizes | specializes | equivalent_to | cites_external
+      "evidence": "explicit_ref",            // explicit_ref | inferred | external
+      "detail": "Applied in Step 3 to bound iterate differences.",
+      "metadata": { "proof_step": "step 3" }
     }
   ]
 }
 ```
 
-**Edge direction convention:** `source` --uses--> `target` means "source depends on target". In the force graph, arrows point from the result toward its dependencies.
+**Edge direction convention:** `source` --> `target` means "source depends on target". In the force graph, arrows point from the result toward its dependencies.
 
 **Node kind enum:**
 
@@ -234,16 +245,21 @@ The dashboard consumes three JSON files produced by the PaperParser analysis age
 | `corollary` | Corollary | `--kind-corollary` |
 | `assumption` | Standing assumption or axiom | `--kind-assumption` |
 | `remark` | Remark or observation | `--kind-remark` |
-| `external` | Result cited from another paper (not proved here) | `--kind-external` |
+| `example` | Example or worked-out special case | `--kind-example` |
+| `conjecture` | Open problem / question / conjecture | `--kind-conjecture` |
+| `notation` | Notation / symbol convention | `--kind-notation` |
+| `external_dependency` | Result cited from another paper (not proved here) | `--kind-external_dependency` |
 
 **Edge kind enum:**
 
 | Kind | Description |
 |------|-------------|
-| `uses` | Logical dependency: source's proof uses target |
+| `uses_in_proof` | Logical dependency: source's proof uses target |
+| `extends` | Source extends target |
 | `generalizes` | Source generalizes target |
 | `specializes` | Source is a special case of target |
-| `equivalent` | Bidirectional logical equivalence |
+| `equivalent_to` | Bidirectional logical equivalence (store both directions) |
+| `cites_external` | Source depends on an external result (target is an `external_dependency` node) |
 
 **Evidence enum:**
 
@@ -251,104 +267,137 @@ The dashboard consumes three JSON files produced by the PaperParser analysis age
 |-------|---------|
 | `explicit_ref` | Paper explicitly cites this dependency (e.g., "by Lemma 3.2") |
 | `inferred` | Agent inferred the dependency from proof structure |
-| `external` | Dependency on a result from another paper |
+| `external` | Dependency on an external reference (book/paper) |
 
 ### index.json
 
 ```jsonc
 {
+  "schema_version": "0.1.0",
+
   "problem_statement": {
-    "summary": "This paper studies the existence and regularity of solutions to...",
-    "formal": "Given $X$ satisfying (A1)--(A3), does there exist...",  // LaTeX
-    "context": "This is a long-standing open problem in..."
+    "question": "Under what conditions ... ?",
+    "motivation": "Why the question matters ...",
+    "context": "How this relates to prior work ..."
   },
 
-  "main_results": [
+  "innovation_assessment": {
+    "summary": "One-paragraph summary of what is new (or not).",
+    "main_innovations": [
+      {
+        "description": "Key new idea / technique ...",
+        "calibration": "significant",        // significant | incremental | straightforward_extension
+        "related_nodes": ["sec3::lem:key-estimate"]
+      }
+    ],
+    "prior_work_comparison": "Explicit comparison to the most relevant prior work ..."
+  },
+
+  "clusters": [
     {
-      "node_id": "thm_4_1",
-      "summary": "Existence of weak solutions under minimal regularity assumptions",
-      "significance": "Resolves the conjecture of Smith (2019) in dimension n >= 3"
+      "id": "cluster:preliminaries",
+      "label": "Preliminaries and Setup",
+      "section": "2",
+      "members": ["sec2::def:banach-space", "sec2::lem:key-estimate"],
+      "description": "Background definitions and the key estimate."
     }
   ],
 
-  "sections": [
+  "main_results": [
     {
-      "id": "1",
-      "title": "Introduction",
-      "summary": "Motivates the problem, states main results informally.",
-      "members": ["thm_1_1"]                  // node IDs in this section
+      "node_id": "sec4::thm:main",
+      "headline": "Iterative schemes converge at rate $O(n^{-\\beta})$ under asymptotic contractivity.",
+      "significance": "Removes a uniform convexity hypothesis while achieving an optimal rate bound."
     }
   ],
 
   "proof_strategies": [
     {
-      "node_id": "thm_4_1",
-      "strategy": "Proof by contradiction using compactness + key estimate from Lemma 3.2",
+      "target_node": "sec4::thm:main",
+      "strategy_summary": "High-level proof strategy summary ...",
       "key_steps": [
-        "Assume negation: no solution in the given class",
-        "Construct approximate solutions via Galerkin method",
-        "Apply compactness (Lem 3.2) to extract convergent subsequence",
-        "Derive contradiction with energy bound (Lem 3.5)"
+        {
+          "step": 1,
+          "description": "Establish boundedness of iterates under standing assumptions.",
+          "uses": ["sec1::asm:boundedness"]
+        }
       ],
-      "noise_removed": "Routine epsilon-delta estimates and standard Sobolev embeddings"
+      "noise_removed": "Routine epsilon–delta estimates and standard embeddings."
     }
   ],
 
-  "innovation_assessment": {
-    "summary": "The paper introduces a genuinely new compactness argument...",
-    "calibration": "significant",              // significant | incremental | straightforward
-    "innovations": [
+  "summaries": [
+    {
+      "section": "1",
+      "section_title": "Introduction",
+      "summary": "Motivates the problem and states the main results."
+    }
+  ],
+
+  "attention": {
+    "high_dependency_nodes": [
       {
-        "claim": "Novel compactness criterion for degenerate operators",
-        "calibration": "significant",
-        "evidence_node": "lem_3_2",
-        "detail": "Extends classical Aubin-Lions lemma to the degenerate setting"
+        "node_id": "sec2::lem:key-estimate",
+        "in_degree": 5,
+        "out_degree": 2,
+        "note": "Central lemma used by many later results."
       }
     ],
-    "prior_work": [
+    "demanding_proofs": [
       {
-        "reference": "[12] Smith, 2019",
-        "relation": "extends",                 // extends | improves | alternative | contradicts
-        "target_node": "thm_4_1",
-        "detail": "Smith proved the n=2 case; this paper handles n >= 3"
+        "node_id": "sec4::thm:main",
+        "reason": "Longest and most technically layered proof in the paper.",
+        "estimated_difficulty": "high"
       }
     ]
   },
 
-  "attention": [
+  "unknowns": [
     {
-      "target": "lem_3_5",
-      "reason": "Energy estimate with unclear constant dependence on dimension",
-      "severity": "high"                       // high | medium | low
+      "id": "unknown:1",
+      "description": "Is the regularity assumption (A3) necessary, or an artifact of the proof method?",
+      "search_hint": "Check Smith 2019 Remark 3.4 for discussion of (A3).",
+      "scope": "paper",                      // proof_step | section | paper
+      "related_nodes": ["sec4::thm:main", "sec1::asm:rate-exponent"]
     }
   ],
 
-  "unknowns": [
+  "notation_index": [
     {
-      "id": "u1",
-      "question": "Is the regularity assumption (A3) necessary, or an artifact of the proof method?",
-      "scope": "paper",                        // proof_step | section | paper
-      "severity": "important",                 // low | important | critical
-      "related": ["thm_4_1", "asm_1"],
-      "search_hint": "Check Smith 2019 Remark 3.4 for discussion of (A3)"
+      "symbol": "$T$",
+      "meaning": "Iteration operator $T: X \\to X$.",
+      "introduced_in": "sec1::asm:operator"
     }
   ],
 
   "stats": {
-    "definitions": 8,
-    "theorems": 3,
-    "lemmas": 12,
-    "propositions": 2,
-    "corollaries": 4,
-    "assumptions": 3,
-    "remarks": 5,
-    "external": 6,
-    "edges": 67,
-    "sections": 6,
+    "node_counts": {
+      "definition": 8,
+      "theorem": 3,
+      "lemma": 12,
+      "proposition": 2,
+      "corollary": 4,
+      "assumption": 3,
+      "remark": 5,
+      "example": 0,
+      "conjecture": 0,
+      "notation": 4,
+      "external_dependency": 6,
+      "total": 47
+    },
+    "edge_counts": {
+      "uses_in_proof": 67,
+      "extends": 0,
+      "generalizes": 0,
+      "specializes": 0,
+      "equivalent_to": 0,
+      "cites_external": 5,
+      "total": 72
+    },
     "evidence_breakdown": {
       "explicit_ref": 48,
       "inferred": 14,
-      "external": 5
+      "external": 10
     }
   }
 }
@@ -383,16 +432,16 @@ The dashboard consumes three JSON files produced by the PaperParser analysis age
 
 #### StatsBar
 
-A horizontal row of stat cards. Each card shows a count and label. Data source: `index.json.stats`.
+A horizontal row of stat cards. Each card shows a count and label. Data source: `index.json.stats` (plus a derived section count from `graph.json.nodes`).
 
 Cards displayed (in order):
-1. Definitions -- count = `stats.definitions`
-2. Theorems -- count = `stats.theorems`
-3. Lemmas -- count = `stats.lemmas`
-4. Propositions -- count = `stats.propositions`
-5. Corollaries -- count = `stats.corollaries`
-6. Edges -- count = `stats.edges`
-7. Sections -- count = `stats.sections`
+1. Definitions -- count = `stats.node_counts.definition`
+2. Theorems -- count = `stats.node_counts.theorem`
+3. Lemmas -- count = `stats.node_counts.lemma`
+4. Propositions -- count = `stats.node_counts.proposition`
+5. Corollaries -- count = `stats.node_counts.corollary`
+6. Edges -- count = `stats.edge_counts.total`
+7. Sections -- count = number of unique `node.section` values in `graph.json.nodes` excluding `"0"`
 
 Each card: `var(--bg-surface)` background, `var(--radius-md)` corners, `var(--gap-md)` padding. Count in 24px font-weight 600, label in 12px `var(--text-secondary)`. Cards colored by corresponding `--kind-*` variable for the node type (e.g., theorem card has `--kind-theorem` accent). Edges and Sections cards use `var(--accent)`.
 
@@ -401,32 +450,28 @@ Each card: `var(--bg-surface)` background, `var(--radius-md)` corners, `var(--ga
 Left column, 50% width. Data source: `index.json.problem_statement`.
 
 - **Header:** "Problem Statement" with subtle icon
-- **Summary:** `problem_statement.summary` in body text
-- **Formal statement:** `problem_statement.formal` rendered via KaTeX in a highlighted block (`var(--bg-secondary)` background, `var(--border)` left border 3px)
+- **Question:** `problem_statement.question` in body text (KaTeX inline supported)
+- **Motivation:** `problem_statement.motivation` in `var(--text-secondary)`
 - **Context:** `problem_statement.context` in `var(--text-secondary)`
 
 #### Innovation Assessment Card
 
 Right column, 50% width. Data source: `index.json.innovation_assessment`.
 
-- **Header:** "Innovation Assessment" with calibration badge
-- **Calibration badge:** colored pill next to header
-  - `significant` -- `var(--calibration-significant)` background, white text
-  - `incremental` -- `var(--calibration-incremental)` background, dark text
-  - `straightforward` -- `var(--calibration-straightforward)` background, dark text
+- **Header:** "Innovation Assessment"
 - **Summary:** `innovation_assessment.summary` in body text
-- **Innovation count:** e.g., "3 innovation claims" as a subtitle
+- **Innovation count:** e.g., "3 innovations" as a subtitle (from `innovation_assessment.main_innovations.length`)
 - **Link:** "See details -->" navigates to `#/innovation`
 
 #### BubbleChart (Section Map)
 
-D3 packed circle layout (`d3.pack()`). Data source: `index.json.sections`.
+D3 packed circle layout (`d3.pack()`). Data source: section groups derived from `graph.json.nodes` (optionally enriched with titles from `index.json.summaries`).
 
 - Each section is a bubble
-- **Size:** proportional to `section.members.length` (number of nodes in section)
-- **Color:** determined by the dominant node kind among `section.members`. Look up each member's `kind` in `graph.json.nodes`, find the most frequent kind, and use its `--kind-*` color variable
-- **Label:** `section.title` centered in bubble. Truncate if too long; full title on hover tooltip
-- **Click:** `navigateToSection(section.id)` -- navigates to ProofGraph filtered by that section
+- **Size:** proportional to the number of nodes with `node.section === sectionId`
+- **Color:** determined by the dominant node kind among nodes in that section
+- **Label:** section title (from `index.json.summaries` where `summaries[].section === sectionId`, fallback to sectionId)
+- **Click:** `navigateToSection(sectionId)` -- navigates to ProofGraph filtered by that section
 - **Hover tooltip:** section title, member count, dominant kind
 
 Minimum bubble size: 40px diameter (so small sections remain clickable).
@@ -438,19 +483,21 @@ Below the BubbleChart. Data source: `index.json.main_results`.
 Each item is a horizontal card:
 - Left: colored dot using the node's `--kind-*` color
 - **Label:** node label (e.g., "Theorem 4.1") in font-weight 600
-- **Summary:** `main_results[].summary`
+- **Headline:** `main_results[].headline`
 - **Significance:** `main_results[].significance` in `var(--text-secondary)`
 - **Click:** `navigateToNode(main_results[].node_id)`
 
 #### Top Attention Items
 
-Below Main Results. Show the first 3 items from `index.json.attention`, sorted by severity (high first).
+Below Main Results. Show a short combined list derived from `index.json.attention`:
+- Top 2 `attention.high_dependency_nodes`
+- Top 1 `attention.demanding_proofs`
 
 Each item:
-- Severity badge: colored pill (`--severity-high` / `--severity-medium` / `--severity-low`)
-- Target label (look up node in `graph.json` to get label)
-- Reason text (truncated to 2 lines)
-- Click: `navigateToNode(attention[].target)`
+- Badge: either "High dependency" or difficulty badge (`low`/`medium`/`high`)
+- Target label (resolve node_id in `graph.json.nodes`)
+- Note/reason text (truncated to 2 lines)
+- Click: `navigateToNode(node_id)`
 
 ---
 
@@ -489,13 +536,16 @@ Each item:
 Positioned above the graph area. Horizontal flex layout.
 
 **Kind multi-select:**
-- Options: `theorem`, `definition`, `lemma`, `proposition`, `corollary`, `assumption`, `remark`, `external`
+- Options: `theorem`, `definition`, `lemma`, `proposition`, `corollary`, `assumption`, `remark`, `example`, `conjecture`, `notation`, `external_dependency`
 - Each option shows a colored dot matching `--kind-*`
 - Default: all selected
 - Behavior: hide nodes whose `kind` is not selected; hide edges connected to hidden nodes
 
 **Section dropdown:**
-- Options: "All sections" + each section from `index.json.sections`
+- Options: "All sections" + each section derived from `graph.json.nodes` (unique `node.section` values excluding `"0"`). Display labels use the best available title:
+  - Prefer `index.json.summaries[].section_title` where `summaries[].section === sectionId`
+  - Fallback to `graph.json.nodes[0].section_title` for that section (if present)
+  - Fallback to raw sectionId
 - Default: "All sections"
 - Behavior: show only nodes whose `section` matches; show edges between visible nodes
 
@@ -578,8 +628,9 @@ Fixed width: 280px. Right side of the ProofGraph page. Scrollable if content ove
 - **Proof status badge:** colored text
   - `full`: green "Full proof"
   - `sketch`: amber "Proof sketch"
-  - `omitted`: red "Proof omitted"
-  - `none`: gray "No proof" (for definitions, assumptions)
+  - `deferred`: purple "Proof deferred"
+  - `external`: gray "External proof"
+  - `not_applicable`: gray "Not applicable" (definitions, assumptions, notation, etc.)
 - **Novelty badge:** colored pill
   - `new`: `var(--novelty-new)` "New"
   - `classical`: `var(--novelty-classical)` "Classical"
@@ -632,11 +683,11 @@ Fixed width: 280px. Right side of the ProofGraph page. Scrollable if content ove
 
 #### SectionTree (left panel, 280px)
 
-A collapsible tree built from `index.json.sections` and `graph.json.nodes`.
+A collapsible tree built from `graph.json.nodes` grouped by `node.section`, with narrative summaries from `index.json.summaries`.
 
 **Structure:**
-- Top-level items: sections from `index.json.sections`, ordered by `section.id`
-- Each section expands to show its member nodes (from `section.members`, resolved against `graph.json.nodes`)
+- Top-level items: sections derived from unique `node.section` values in `graph.json.nodes` (excluding `"0"`), ordered by natural section order
+- Each section expands to show its member nodes (those with `node.section === sectionId`)
 - Nodes within a section are ordered by `node.number` (natural sort: "2.1" before "2.10")
 
 **Section row:**
@@ -660,7 +711,7 @@ A collapsible tree built from `index.json.sections` and `graph.json.nodes`.
 
 **Section view** (when a section row is clicked):
 - **Header:** "Section {id}: {title}" in 20px font-weight 600
-- **Summary:** `section.summary` in body text
+- **Summary:** resolve from `index.json.summaries` where `summaries[].section === sectionId` and display `summaries[].summary` (empty-state text if missing)
 - **Results list:** all member nodes listed as cards:
   - Kind icon (colored circle) + label + kind badge
   - `node.statement` rendered via KaTeX (first 2 lines, expandable)
@@ -669,11 +720,11 @@ A collapsible tree built from `index.json.sections` and `graph.json.nodes`.
 **Node view** (when a node row is clicked):
 - **Header:** `node.label` in 20px font-weight 600, with kind badge and novelty badge
 - **Statement:** `node.statement` rendered via KaTeX in a highlighted block (same styling as DetailSidebar)
-- **Proof Strategy card** (if `index.json.proof_strategies` has an entry with matching `node_id`):
+- **Proof Strategy card** (if `index.json.proof_strategies` has an entry with matching `target_node`):
   - Card with `var(--bg-secondary)` background, `var(--radius-md)` corners
   - **Header:** "Proof Strategy"
-  - **Strategy text:** `proof_strategies[].strategy`
-  - **Key steps:** ordered list of `proof_strategies[].key_steps[]`
+  - **Strategy text:** `proof_strategies[].strategy_summary`
+  - **Key steps:** ordered list of `proof_strategies[].key_steps[]` (each step shows `step`, `description`, and the `uses[]` dependencies as clickable chips)
   - **Noise removed:** if present, a subtle de-emphasized block: "Noise removed: {text}" in `var(--text-secondary)` italic
 - **Dependency list:**
   - **Uses:** outgoing edges, each as "-> {target label} ({evidence})"
@@ -699,20 +750,17 @@ A collapsible tree built from `index.json.sections` and `graph.json.nodes`.
 |  +------------------------------------------+|
 |  | [SIGNIFICANT] Novel compactness criterion ||
 |  | "Extends classical Aubin-Lions lemma..."  ||
-|  | Evidence: Lem 3.2          [View ->]      ||
+|  | Related: Lem 3.2, Thm 4.1                 ||
 |  +------------------------------------------+|
 |  +------------------------------------------+|
 |  | [INCREMENTAL] Improved regularity bound   ||
 |  | "Sharpens constant in Smith's estimate"   ||
-|  | Evidence: Thm 4.1          [View ->]      ||
+|  | Related: Thm 4.1                          ||
 |  +------------------------------------------+|
 +----------------------------------------------+
-|  Prior Work Comparison (table)               |
-|  [12] Smith 2019 -> extends -> Thm 4.1      |
-|  [7]  Jones 2020 -> improves -> Lem 3.2     |
+|  Prior Work Comparison (text)                |
 +----------------------------------------------+
-|  Attention Items (high-severity first)       |
-|  Cards sorted by severity                    |
+|  Attention Items (dependency + difficulty)   |
 +----------------------------------------------+
 ```
 
@@ -721,50 +769,41 @@ A collapsible tree built from `index.json.sections` and `graph.json.nodes`.
 Full-width card at top. Data source: `index.json.innovation_assessment`.
 
 - **Header:** "Innovation Assessment" in 20px font-weight 600
-- **Calibration badge:** (same as Overview card) next to header
+- **Overall calibration badge:** derived from `innovation_assessment.main_innovations[].calibration` by precedence `significant` > `incremental` > `straightforward_extension` (omit if there are no innovations)
 - **Summary text:** `innovation_assessment.summary`
-- Background: `var(--bg-surface)`, border-left 4px using the calibration color
+- Background: `var(--bg-surface)`, border-left 4px using the derived overall calibration color (fallback: `var(--accent)`)
 
 #### Innovation Items (card list)
 
-Each item from `index.json.innovation_assessment.innovations`. Displayed as vertical card list.
+Each item from `index.json.innovation_assessment.main_innovations`. Displayed as vertical card list.
 
 **Card content:**
 - **Calibration badge:** colored pill
   - `significant`: `var(--calibration-significant)`, text "SIGNIFICANT"
   - `incremental`: `var(--calibration-incremental)`, text "INCREMENTAL"
-  - `straightforward`: `var(--calibration-straightforward)`, text "STRAIGHTFORWARD"
-- **Claim text:** `innovations[].claim` in font-weight 600
-- **Detail:** `innovations[].detail` in body text
-- **Evidence link:** "Evidence: {node label}" -- resolve `innovations[].evidence_node` against `graph.json.nodes` to get label. Clickable: `navigateToNode(evidence_node)`
-- **"View -->" button:** same as evidence link navigation
+  - `straightforward_extension`: `var(--calibration-straightforward)`, text "STRAIGHTFORWARD EXTENSION"
+- **Description:** `main_innovations[].description` in body text
+- **Related nodes:** render `main_innovations[].related_nodes` as clickable chips; click runs `navigateToNode(nodeId)`
 
 Card background: `var(--bg-surface)`. Border-left: 3px using the item's calibration color.
 
-#### Prior Work Comparison Table
+#### Prior Work Comparison
 
-Data source: `index.json.innovation_assessment.prior_work`.
+Data source: `index.json.innovation_assessment.prior_work_comparison`.
 
-| Column | Width | Content |
-|--------|-------|---------|
-| Reference | 30% | `prior_work[].reference` (e.g., "[12] Smith, 2019") |
-| Relation | 15% | `prior_work[].relation` as a colored badge: `extends` = blue, `improves` = green, `alternative` = amber, `contradicts` = red |
-| Target | 25% | Target node label (resolved from `prior_work[].target_node`), clickable |
-| Detail | 30% | `prior_work[].detail` |
-
-Click target node: `navigateToNode(target_node)`.
-
-Table styling: `var(--bg-surface)` header row, alternating row backgrounds `var(--bg-primary)` / `var(--bg-secondary)`.
+Render as a full-width text block under a "Prior Work Comparison" header.
 
 #### Attention Items
 
-Below the prior work table. Shows ALL items from `index.json.attention`, sorted by severity (high -> medium -> low).
+Below the prior work comparison. Show `index.json.attention.high_dependency_nodes` and `index.json.attention.demanding_proofs`.
 
 **Card content** (same design as Overview attention cards but full-width):
-- Severity badge: colored pill
+- Badge:
+  - For `high_dependency_nodes`: "High dependency"
+  - For `demanding_proofs`: difficulty badge using `estimated_difficulty` (`low`/`medium`/`high`) colored by `--difficulty-*`
 - Target label: resolved from `graph.json.nodes`
-- Reason text: full text (not truncated)
-- Click: `navigateToNode(attention[].target)`
+- Note/reason text: full text (not truncated)
+- Click: `navigateToNode(node_id)`
 
 ---
 
@@ -781,24 +820,18 @@ Below the prior work table. Shows ALL items from `index.json.attention`, sorted 
    - Default: "All scopes"
    - Behavior: filter rows where `unknowns[].scope` matches selection
 
-2. **Severity dropdown:**
-   - Options: "All severities", `critical`, `important`, `low`
-   - Default: "All severities"
-   - Behavior: filter rows where `unknowns[].severity` matches selection
-
 **Table columns:**
 
 | Column | Width | Source | Rendering |
 |--------|-------|--------|-----------|
-| Question | 40% | `unknowns[].question` | Body text, word-wrap |
+| Unknown | 45% | `unknowns[].description` | Body text, word-wrap |
 | Scope | 10% | `unknowns[].scope` | Badge: `proof_step` = blue, `section` = amber, `paper` = purple |
-| Severity | 10% | `unknowns[].severity` | Colored badge: `critical` = `var(--severity-high)`, `important` = `var(--severity-medium)`, `low` = `var(--severity-low)` |
-| Related | 20% | `unknowns[].related[]` | Comma-separated clickable node labels. Resolve each ID against `graph.json.nodes` to get the display label |
-| Search Hint | 20% | `unknowns[].search_hint` | `var(--text-secondary)` italic text. Provides guidance on where to look for answers |
+| Related | 20% | `unknowns[].related_nodes[]` | Comma-separated clickable node labels. Resolve each ID against `graph.json.nodes` to get the display label |
+| Search Hint | 25% | `unknowns[].search_hint` | `var(--text-secondary)` italic text. Provides guidance on where to look for answers |
 
 **Interactions:**
 - Click a related node label: `navigateToNode(nodeId)` -- navigates to ProofGraph, selects + centers on that node
-- Sort: click column header to sort. Default sort: severity descending (critical first), then scope
+- Sort: click column header to sort. Default sort: scope, then id
 - Empty state (no unknowns match filters): "No unknowns match the current filters" centered in `var(--text-secondary)`
 
 **Table styling:**
@@ -841,14 +874,14 @@ const nodeMap = new Map(graph.nodes.map(n => [n.id, n]));
 const outEdges = new Map();  // nodeId -> [edges where source === nodeId]
 const inEdges = new Map();   // nodeId -> [edges where target === nodeId]
 
-// Section -> nodes mapping (from index.sections)
+// Section -> nodes mapping (derived from graph.nodes)
 const sectionNodes = new Map();  // sectionId -> [node objects]
 
 // Main results set
 const mainResultIds = new Set(graph.nodes.filter(n => n.is_main_result).map(n => n.id));
 
 // Proof strategy lookup
-const proofStrategyMap = new Map(index.proof_strategies.map(ps => [ps.node_id, ps]));
+const proofStrategyMap = new Map(index.proof_strategies.map(ps => [ps.target_node, ps]));
 ```
 
 These derived structures avoid repeated lookups during rendering.
@@ -876,11 +909,9 @@ These derived structures avoid repeated lookups during rendering.
 | Click node row (TheoremExplorer) | TheoremExplorer | Show node details + proof strategy in detail panel |
 | Click dependency in detail panel (TheoremExplorer) | TheoremExplorer | Navigate to ProofGraph, select that node |
 | Click "View in graph" (TheoremExplorer) | TheoremExplorer | Navigate to ProofGraph, select that node |
-| Click evidence node (InnovationMap) | InnovationMap | Navigate to ProofGraph, select that node |
-| Click prior work target (InnovationMap) | InnovationMap | Navigate to ProofGraph, select that node |
+| Click related node (InnovationMap) | InnovationMap | Navigate to ProofGraph, select that node |
 | Click attention item (InnovationMap) | InnovationMap | Navigate to ProofGraph, select that node |
 | Change scope filter (Unknowns) | Unknowns | Filter table rows by scope |
-| Change severity filter (Unknowns) | Unknowns | Filter table rows by severity |
 | Click related node (Unknowns) | Unknowns | Navigate to ProofGraph, select that node |
 | Click column header (Unknowns) | Unknowns | Sort table by that column |
 

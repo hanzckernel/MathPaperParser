@@ -1,0 +1,15 @@
+.DS_Store
+
+# Node / frontend
+node_modules/
+dist/
+.cache/
+
+# Dashboard (when dependencies are installed)
+dashboard/node_modules/
+dashboard/dist/
+
+# Local-only paper fixtures + runs (do not commit)
+ref/papers/*
+!ref/papers/README.md
+ref/runs/

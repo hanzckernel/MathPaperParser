@@ -62,7 +62,7 @@ parser-run/
 ```
 
 All three JSON files MUST validate against the PaperParser JSON schemas
-(see `/schemas/` directory if available, otherwise follow the structures
+(see `/schema/` directory if available, otherwise follow the structures
 defined in this protocol).
 
 ---
