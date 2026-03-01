@@ -6,7 +6,12 @@ PaperParser is a math-paper analysis project with:
 - a prompt suite for webchat workflows (`prompts/`)
 - helper tools for LaTeX prep and bundle consistency checks (`tools/`)
 
-At the **current stage (Phase 0 demo)**, the most practical path is the prompt-suite workflow.
+At the current stage:
+- Phase 0 (prompt suite) is stable for static review prototypes.
+- Phase 3 tooling can generate **schema-valid bundles** from LaTeX for dashboard testing.
+- The dashboard itself is being developed separately.
+
+In practice, the most reliable path right now is still the prompt-suite workflow.
 
 ---
 
@@ -30,7 +35,7 @@ Reference guide: `prompts/README.md`
 
 ### Step A — pick a paper input
 
-Start with one fixture in `ref/papers/`:
+Start with one fixture in `ref/papers/` (these are **local-only** and may not exist in a fresh clone; see `ref/papers/README.md`):
 - `ref/papers/short_Petri.tex` (best first run)
 - `ref/papers/medium_Mueller.gz`
 - `ref/papers/long_nalini/arXiv-2502.12268v2/main.tex`
@@ -64,6 +69,8 @@ python3 tools/fix_markdown_latex_backslashes.py <report.md> --inplace
 ```
 
 ### Copy/paste demo run (short_Petri)
+
+If you have the local demo bundle under `ref/runs/short_petri/` (not tracked in git), sanity-check it with:
 
 ```bash
 python3 tools/prepare_latex.py ref/papers/short_Petri.tex
@@ -109,6 +116,12 @@ Example:
 python3 tools/check_bundle_consistency.py ref/runs/short_petri/parser-run
 ```
 
+To also validate JSON Schema:
+
+```bash
+python3 tools/validate_bundle_schema.py ref/runs/short_petri/parser-run
+```
+
 ---
 
 ## 5) Existing demo artifacts
@@ -122,7 +135,13 @@ Note: `ref/runs/` is treated as **local-only** and is typically ignored by git (
 
 ---
 
-## 6) Repo map
+## 6) Phase 3 runbook
+
+- `docs/phase3_runbook.md`
+
+---
+
+## 7) Repo map
 
 - `prompts/` — copy-paste prompt pipeline for webchat users
 - `docs/` — protocol/spec docs
