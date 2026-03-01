@@ -1,30 +1,42 @@
 <script>
-  import { bundle } from "../stores/graph.js";
+  import DetailSidebar from "../components/DetailSidebar.svelte";
+  import FilterBar from "../components/FilterBar.svelte";
+  import ForceGraph from "../components/ForceGraph.svelte";
 </script>
 
 <h1>Proof Graph</h1>
 
-{#if $bundle.graph}
-  <div class="card">
-    <div><strong>Nodes:</strong> {$bundle.graph.nodes.length}</div>
-    <div><strong>Edges:</strong> {$bundle.graph.edges.length}</div>
-    <div class="muted">Phase 1 scaffold: force-directed graph comes in Phase 2.</div>
+<FilterBar />
+
+<div class="layout">
+  <div class="graph">
+    <ForceGraph />
   </div>
-{/if}
+  <DetailSidebar />
+</div>
 
 <style>
   h1 {
     margin: 0 0 var(--gap-lg);
     font-size: 22px;
   }
-  .card {
-    background: var(--bg-secondary);
-    border: 1px solid var(--border);
-    border-radius: var(--radius-md);
-    padding: var(--gap-lg);
+
+  .layout {
+    margin-top: var(--gap-md);
+    display: grid;
+    grid-template-columns: 1fr auto;
+    gap: var(--gap-lg);
+    align-items: start;
+    min-height: 0;
   }
-  .muted {
-    color: var(--text-secondary);
+
+  .graph {
+    min-height: 0;
+  }
+
+  @media (max-width: 1100px) {
+    .layout {
+      grid-template-columns: 1fr;
+    }
   }
 </style>
-
