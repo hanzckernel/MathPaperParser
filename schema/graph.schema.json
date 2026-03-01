@@ -1,0 +1,177 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/agent4math/paper-parser/schema/graph.schema.json",
+  "title": "PaperParser graph.json schema",
+  "description": "Schema for the graph file of a PaperParser bundle. Encodes mathematical objects (nodes) and logical dependencies (edges) as a directed graph.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema_version", "nodes", "edges"],
+  "properties": {
+    "schema_version": {
+      "type": "string",
+      "const": "0.1.0",
+      "description": "Semver version of the PaperParser schema specification."
+    },
+    "nodes": {
+      "type": "array",
+      "description": "Mathematical objects extracted from the paper.",
+      "items": { "$ref": "#/$defs/node" }
+    },
+    "edges": {
+      "type": "array",
+      "description": "Logical dependencies between mathematical objects.",
+      "items": { "$ref": "#/$defs/edge" }
+    }
+  },
+  "$defs": {
+    "node_id": {
+      "type": "string",
+      "pattern": "^sec[0-9A-Za-z]+(\\.[0-9A-Za-z]+)*::(def|thm|lem|prop|cor|asm|rem|ex|conj|not|ext):[a-z0-9]([a-z0-9-]*[a-z0-9])?$",
+      "description": "Canonical node ID in the format sec{N}::{kind_abbrev}:{label}. The label component must use only lowercase ASCII letters, digits, and hyphens."
+    },
+    "node_kind": {
+      "type": "string",
+      "enum": [
+        "definition",
+        "theorem",
+        "lemma",
+        "proposition",
+        "corollary",
+        "assumption",
+        "remark",
+        "example",
+        "conjecture",
+        "notation",
+        "external_dependency"
+      ],
+      "description": "The type of mathematical object."
+    },
+    "edge_kind": {
+      "type": "string",
+      "enum": [
+        "uses_in_proof",
+        "extends",
+        "generalizes",
+        "specializes",
+        "equivalent_to",
+        "cites_external"
+      ],
+      "description": "The type of logical dependency between nodes."
+    },
+    "evidence_level": {
+      "type": "string",
+      "enum": ["explicit_ref", "inferred", "external"],
+      "description": "How the dependency was determined: 'explicit_ref' (stated in text), 'inferred' (logically necessary but not cited), 'external' (references an outside source)."
+    },
+    "proof_status": {
+      "type": "string",
+      "enum": ["full", "sketch", "deferred", "external", "not_applicable"],
+      "description": "Status of the proof: 'full' (complete proof given), 'sketch' (proof sketch only), 'deferred' (proof in appendix or later), 'external' (proved elsewhere), 'not_applicable' (definitions, assumptions, etc.)."
+    },
+    "novelty": {
+      "type": "string",
+      "enum": ["new", "classical", "extended", "folklore"],
+      "description": "Novelty classification: 'new' (first in this paper), 'classical' (well-known), 'extended' (known with new proof/extension), 'folklore' (widely believed but not formally published)."
+    },
+    "node": {
+      "type": "object",
+      "description": "A mathematical object extracted from the paper.",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "kind",
+        "label",
+        "section",
+        "section_title",
+        "number",
+        "statement",
+        "proof_status",
+        "is_main_result",
+        "novelty",
+        "metadata"
+      ],
+      "properties": {
+        "id": {
+          "$ref": "#/$defs/node_id",
+          "description": "Globally unique canonical node ID."
+        },
+        "kind": {
+          "$ref": "#/$defs/node_kind"
+        },
+        "label": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Human-readable label as it appears in the paper (e.g., 'Theorem 4.1 (Main convergence result)'). Include the parenthetical name if the paper provides one."
+        },
+        "section": {
+          "type": "string",
+          "description": "Section number (e.g., '2', '3.1', 'A'). Use '0' for preamble/front matter."
+        },
+        "section_title": {
+          "type": "string",
+          "description": "Title of the section. Empty string if the section is untitled."
+        },
+        "number": {
+          "type": "string",
+          "description": "The theorem/definition number as printed in the paper (e.g., '2.1', 'A.3'). Empty string if unnumbered."
+        },
+        "latex_label": {
+          "type": ["string", "null"],
+          "description": "The LaTeX \\label{} tag if available from source. null if unavailable (e.g., PDF source)."
+        },
+        "statement": {
+          "type": "string",
+          "minLength": 1,
+          "description": "The full mathematical statement in LaTeX-flavored plain text. Include all quantifiers, hypotheses, and conclusions."
+        },
+        "proof_status": {
+          "$ref": "#/$defs/proof_status"
+        },
+        "is_main_result": {
+          "type": "boolean",
+          "description": "true if this is one of the paper's headline results (typically mentioned in the abstract or introduction)."
+        },
+        "novelty": {
+          "$ref": "#/$defs/novelty"
+        },
+        "metadata": {
+          "type": "object",
+          "additionalProperties": true,
+          "description": "Free-form object for additional information (e.g., proof_length_lines, original_label, source, page, tags). May be empty {}."
+        }
+      }
+    },
+    "edge": {
+      "type": "object",
+      "description": "A logical dependency between two mathematical objects.",
+      "additionalProperties": false,
+      "required": ["source", "target", "kind", "evidence", "detail", "metadata"],
+      "properties": {
+        "source": {
+          "$ref": "#/$defs/node_id",
+          "description": "Node ID of the source (the 'from' node). Must reference an existing node."
+        },
+        "target": {
+          "$ref": "#/$defs/node_id",
+          "description": "Node ID of the target (the 'to' node). Must reference an existing node."
+        },
+        "kind": {
+          "$ref": "#/$defs/edge_kind"
+        },
+        "evidence": {
+          "$ref": "#/$defs/evidence_level"
+        },
+        "detail": {
+          "type": "string",
+          "minLength": 1,
+          "description": "A short natural-language explanation of the dependency. Be specific: mention proof steps, equation numbers, or the technique used."
+        },
+        "metadata": {
+          "type": "object",
+          "additionalProperties": true,
+          "description": "Free-form object for additional information (e.g., proof_step, equation_ref). May be empty {}."
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,1007 @@
+{
+  "schema_version": "0.1.0",
+  "nodes": [
+    {
+      "id": "sec0::ext:adams-fournier-sobolev",
+      "kind": "external_dependency",
+      "label": "Adams-Fournier, Sobolev Spaces, Theorem 6.3 (Rellich-Kondrachov)",
+      "section": "0",
+      "section_title": "",
+      "number": "",
+      "latex_label": null,
+      "statement": "Classical Rellich-Kondrachov compact embedding theorem: if $\\Omega \\subset \\mathbb{R}^n$ is bounded with Lipschitz boundary and $kp < n$, then $W^{k,p}(\\Omega) \\hookrightarrow\\hookrightarrow L^q(\\Omega)$ for $1 \\leq q < p^* = np/(n - kp)$.",
+      "proof_status": "external",
+      "is_main_result": false,
+      "novelty": "classical",
+      "metadata": {
+        "source": "R. A. Adams and J. J. F. Fournier, Sobolev Spaces, 2nd ed., Academic Press, 2003, Theorem 6.3"
+      }
+    },
+    {
+      "id": "sec0::ext:muckenhoupt-ap-theory",
+      "kind": "external_dependency",
+      "label": "Muckenhoupt, A_p weight theory",
+      "section": "0",
+      "section_title": "",
+      "number": "",
+      "latex_label": null,
+      "statement": "Theory of Muckenhoupt $A_p$ weights: $w \\in A_p$ if and only if the Hardy-Littlewood maximal operator $M$ is bounded on $L^p(w)$, and the $A_p$ condition reads $\\sup_Q \\left(\\frac{1}{|Q|}\\int_Q w\\right)\\left(\\frac{1}{|Q|}\\int_Q w^{-1/(p-1)}\\right)^{p-1} < \\infty$.",
+      "proof_status": "external",
+      "is_main_result": false,
+      "novelty": "classical",
+      "metadata": {
+        "source": "B. Muckenhoupt, Weighted norm inequalities for the Hardy maximal function, Trans. Amer. Math. Soc. 165 (1972), 207--226"
+      }
+    },
+    {
+      "id": "sec0::ext:turesson-weighted-potential",
+      "kind": "external_dependency",
+      "label": "Turesson, Nonlinear Potential Theory and Weighted Sobolev Spaces, Proposition 3.6",
+      "section": "0",
+      "section_title": "",
+      "number": "",
+      "latex_label": null,
+      "statement": "For $w \\in A_p$ and $\\Omega$ bounded Lipschitz, the space $C^\\infty(\\overline{\\Omega})$ is dense in $W^{1,p}(\\Omega, w)$.",
+      "proof_status": "external",
+      "is_main_result": false,
+      "novelty": "classical",
+      "metadata": {
+        "source": "B. O. Turesson, Nonlinear Potential Theory and Weighted Sobolev Spaces, Lecture Notes in Math. 1736, Springer, 2000, Proposition 3.6"
+      }
+    },
+    {
+      "id": "sec1::asm:domain-regularity",
+      "kind": "assumption",
+      "label": "Assumption 1.1 (Domain regularity)",
+      "section": "1",
+      "section_title": "Introduction",
+      "number": "1.1",
+      "latex_label": "asm:domain",
+      "statement": "Throughout this paper, $\\Omega \\subset \\mathbb{R}^n$ denotes a bounded domain with Lipschitz boundary $\\partial\\Omega$, and $n \\geq 2$.",
+      "proof_status": "not_applicable",
+      "is_main_result": false,
+      "novelty": "classical",
+      "metadata": {}
+    },
+    {
+      "id": "sec1::asm:weight-class",
+      "kind": "assumption",
+      "label": "Assumption 1.2 (Weight class)",
+      "section": "1",
+      "section_title": "Introduction",
+      "number": "1.2",
+      "latex_label": "asm:weight",
+      "statement": "The weight function $w: \\Omega \\to (0,\\infty)$ belongs to the Muckenhoupt class $A_p$ for some $1 < p < \\infty$, with $[w]_{A_p} \\leq K$ for a fixed constant $K > 0$.",
+      "proof_status": "not_applicable",
+      "is_main_result": false,
+      "novelty": "classical",
+      "metadata": {}
+    },
+    {
+      "id": "sec1::not:weighted-lp",
+      "kind": "notation",
+      "label": "Notation 1.3 (Weighted Lebesgue space)",
+      "section": "1",
+      "section_title": "Introduction",
+      "number": "1.3",
+      "latex_label": "not:weighted-lp",
+      "statement": "For $1 \\leq p < \\infty$ and a weight $w$, we write $L^p(\\Omega, w)$ for the space of measurable functions $u$ with $\\|u\\|_{L^p(w)} := \\left(\\int_\\Omega |u(x)|^p w(x)\\,dx\\right)^{1/p} < \\infty$.",
+      "proof_status": "not_applicable",
+      "is_main_result": false,
+      "novelty": "classical",
+      "metadata": {}
+    },
+    {
+      "id": "sec2::def:weighted-sobolev-space",
+      "kind": "definition",
+      "label": "Definition 2.1 (Weighted Sobolev space)",
+      "section": "2",
+      "section_title": "Preliminaries",
+      "number": "2.1",
+      "latex_label": "def:weighted-sobolev",
+      "statement": "For $k \\in \\mathbb{N}_0$, $1 < p < \\infty$, and $w \\in A_p$, the weighted Sobolev space $W^{k,p}(\\Omega, w)$ is the completion of $C^\\infty(\\overline{\\Omega})$ under the norm $\\|u\\|_{W^{k,p}(w)} := \\left(\\sum_{|\\alpha| \\leq k} \\int_\\Omega |D^\\alpha u(x)|^p w(x)\\,dx\\right)^{1/p}$.",
+      "proof_status": "not_applicable",
+      "is_main_result": false,
+      "novelty": "classical",
+      "metadata": {}
+    },
+    {
+      "id": "sec2::def:zero-boundary-sobolev",
+      "kind": "definition",
+      "label": "Definition 2.2 (Weighted Sobolev space with zero boundary values)",
+      "section": "2",
+      "section_title": "Preliminaries",
+      "number": "2.2",
+      "latex_label": "def:sobolev-zero",
+      "statement": "The space $W_0^{k,p}(\\Omega, w)$ is defined as the closure of $C_c^\\infty(\\Omega)$ in $W^{k,p}(\\Omega, w)$.",
+      "proof_status": "not_applicable",
+      "is_main_result": false,
+      "novelty": "classical",
+      "metadata": {}
+    },
+    {
+      "id": "sec2::def:ap-constant",
+      "kind": "definition",
+      "label": "Definition 2.3 ($A_p$ characteristic)",
+      "section": "2",
+      "section_title": "Preliminaries",
+      "number": "2.3",
+      "latex_label": "def:ap-constant",
+      "statement": "For $w \\in A_p$ with $1 < p < \\infty$, the $A_p$ characteristic of $w$ is $[w]_{A_p} := \\sup_Q \\left(\\frac{1}{|Q|}\\int_Q w\\right)\\left(\\frac{1}{|Q|}\\int_Q w^{-p'/p}\\right)^{p/p'}$ where the supremum is over all cubes $Q \\subset \\mathbb{R}^n$ and $p' = p/(p-1)$.",
+      "proof_status": "not_applicable",
+      "is_main_result": false,
+      "novelty": "classical",
+      "metadata": {}
+    },
+    {
+      "id": "sec2::not:embedding-arrow",
+      "kind": "notation",
+      "label": "Notation 2.4 (Embedding arrows)",
+      "section": "2",
+      "section_title": "Preliminaries",
+      "number": "2.4",
+      "latex_label": "not:embedding",
+      "statement": "We write $X \\hookrightarrow Y$ for a continuous embedding and $X \\hookrightarrow\\hookrightarrow Y$ for a compact embedding of Banach spaces.",
+      "proof_status": "not_applicable",
+      "is_main_result": false,
+      "novelty": "classical",
+      "metadata": {}
+    },
+    {
+      "id": "sec2::lem:weight-self-improvement",
+      "kind": "lemma",
+      "label": "Lemma 2.5 (Self-improvement of $A_p$ weights)",
+      "section": "2",
+      "section_title": "Preliminaries",
+      "number": "2.5",
+      "latex_label": "lem:self-improvement",
+      "statement": "If $w \\in A_p$ with $1 < p < \\infty$, then there exists $\\varepsilon = \\varepsilon(n, p, [w]_{A_p}) > 0$ such that $w \\in A_{p - \\varepsilon}$. In particular, $w \\in A_q$ for some $q < p$.",
+      "proof_status": "external",
+      "is_main_result": false,
+      "novelty": "classical",
+      "metadata": {
+        "source": "Coifman-Fefferman (1974), reverse Holder inequality argument"
+      }
+    },
+    {
+      "id": "sec2::rem:doubling",
+      "kind": "remark",
+      "label": "Remark 2.6 (Doubling property)",
+      "section": "2",
+      "section_title": "Preliminaries",
+      "number": "2.6",
+      "latex_label": "rem:doubling",
+      "statement": "Every $A_p$ weight $w$ induces a doubling measure $w\\,dx$: there exists $C_d > 0$ such that $w(2Q) \\leq C_d\\, w(Q)$ for every cube $Q$. This makes $(\\Omega, w\\,dx)$ a space of homogeneous type.",
+      "proof_status": "not_applicable",
+      "is_main_result": false,
+      "novelty": "classical",
+      "metadata": {}
+    },
+    {
+      "id": "sec2::prop:weighted-poincare",
+      "kind": "proposition",
+      "label": "Proposition 2.7 (Weighted Poincare inequality)",
+      "section": "2",
+      "section_title": "Preliminaries",
+      "number": "2.7",
+      "latex_label": "prop:poincare",
+      "statement": "Let $\\Omega$ satisfy Assumption 1.1 and $w \\in A_p$. Then there exists $C = C(n, p, [w]_{A_p}, \\Omega) > 0$ such that for all $u \\in W_0^{1,p}(\\Omega, w)$, $\\|u\\|_{L^p(w)} \\leq C\\,\\mathrm{diam}(\\Omega)\\,\\|\\nabla u\\|_{L^p(w)}$.",
+      "proof_status": "full",
+      "is_main_result": false,
+      "novelty": "extended",
+      "metadata": {
+        "proof_length_lines": 28
+      }
+    },
+    {
+      "id": "sec3::lem:cutoff-estimate",
+      "kind": "lemma",
+      "label": "Lemma 3.1 (Cutoff function estimate)",
+      "section": "3",
+      "section_title": "Key Estimates",
+      "number": "3.1",
+      "latex_label": "lem:cutoff",
+      "statement": "For any $\\delta > 0$, there exists a family of cutoff functions $\\{\\varphi_\\delta\\} \\subset C_c^\\infty(\\Omega)$ with $0 \\leq \\varphi_\\delta \\leq 1$, $\\varphi_\\delta = 1$ on $\\Omega_\\delta := \\{x \\in \\Omega : \\mathrm{dist}(x, \\partial\\Omega) > \\delta\\}$, and $\\|\\nabla \\varphi_\\delta\\|_{L^\\infty} \\leq C/\\delta$ for a constant $C$ depending only on $\\Omega$.",
+      "proof_status": "full",
+      "is_main_result": false,
+      "novelty": "classical",
+      "metadata": {
+        "proof_length_lines": 12
+      }
+    },
+    {
+      "id": "sec3::lem:local-compactness",
+      "kind": "lemma",
+      "label": "Lemma 3.2 (Local compactness)",
+      "section": "3",
+      "section_title": "Key Estimates",
+      "number": "3.2",
+      "latex_label": "lem:local-compact",
+      "statement": "Let $\\Omega' \\Subset \\Omega$ and $w \\in A_p$. Then the restriction map $W^{1,p}(\\Omega, w) \\to L^p(\\Omega', w)$ is compact.",
+      "proof_status": "full",
+      "is_main_result": false,
+      "novelty": "new",
+      "metadata": {
+        "proof_length_lines": 45
+      }
+    },
+    {
+      "id": "sec3::lem:boundary-tail-estimate",
+      "kind": "lemma",
+      "label": "Lemma 3.3 (Boundary tail estimate)",
+      "section": "3",
+      "section_title": "Key Estimates",
+      "number": "3.3",
+      "latex_label": "lem:tail",
+      "statement": "Let $w \\in A_p$ and let $\\Omega_\\delta = \\{x \\in \\Omega : \\mathrm{dist}(x, \\partial\\Omega) > \\delta\\}$. For every bounded sequence $(u_j)$ in $W^{1,p}(\\Omega, w)$, $\\lim_{\\delta \\to 0} \\sup_j \\int_{\\Omega \\setminus \\Omega_\\delta} |u_j|^p w\\,dx = 0$.",
+      "proof_status": "full",
+      "is_main_result": false,
+      "novelty": "new",
+      "metadata": {
+        "proof_length_lines": 55,
+        "tags": ["tail-estimate", "boundary-layer"]
+      }
+    },
+    {
+      "id": "sec3::def:weight-exponent-gap",
+      "kind": "definition",
+      "label": "Definition 3.4 (Weight exponent gap)",
+      "section": "3",
+      "section_title": "Key Estimates",
+      "number": "3.4",
+      "latex_label": "def:exponent-gap",
+      "statement": "Given $w \\in A_p$, define the weight exponent gap $\\gamma(w, p) := p - \\inf\\{q > 1 : w \\in A_q\\}$. By the self-improvement property, $\\gamma(w, p) > 0$ whenever $w \\in A_p$ with $p > 1$.",
+      "proof_status": "not_applicable",
+      "is_main_result": false,
+      "novelty": "new",
+      "metadata": {}
+    },
+    {
+      "id": "sec3::rem:gap-controls-rate",
+      "kind": "remark",
+      "label": "Remark 3.5 (Role of the exponent gap)",
+      "section": "3",
+      "section_title": "Key Estimates",
+      "number": "3.5",
+      "latex_label": "rem:gap-role",
+      "statement": "The quantity $\\gamma(w, p)$ controls how much room is available for the Sobolev embedding to absorb the weight. When $\\gamma$ is large, the weight is far from the critical $A_p$ threshold and compactness arguments have more margin.",
+      "proof_status": "not_applicable",
+      "is_main_result": false,
+      "novelty": "new",
+      "metadata": {}
+    },
+    {
+      "id": "sec4::thm:compact-embedding-lp",
+      "kind": "theorem",
+      "label": "Theorem 4.1 (Compact embedding into weighted $L^p$)",
+      "section": "4",
+      "section_title": "Main Results",
+      "number": "4.1",
+      "latex_label": "thm:compact-lp",
+      "statement": "Let $\\Omega \\subset \\mathbb{R}^n$ be a bounded Lipschitz domain, $1 < p < \\infty$, and $w \\in A_p$. Then $W^{1,p}(\\Omega, w) \\hookrightarrow\\hookrightarrow L^p(\\Omega, w)$.",
+      "proof_status": "full",
+      "is_main_result": true,
+      "novelty": "new",
+      "metadata": {
+        "proof_length_lines": 95,
+        "tags": ["compact-embedding", "weighted-sobolev"]
+      }
+    },
+    {
+      "id": "sec4::thm:compact-embedding-lq",
+      "kind": "theorem",
+      "label": "Theorem 4.3 (Compact embedding into weighted $L^q$ for subcritical $q$)",
+      "section": "4",
+      "section_title": "Main Results",
+      "number": "4.3",
+      "latex_label": "thm:compact-lq",
+      "statement": "Let $\\Omega \\subset \\mathbb{R}^n$ be a bounded Lipschitz domain, $1 < p < n$, and $w \\in A_p$. Then for every $1 \\leq q < p_w^* := np/(n - p + \\gamma(w,p))$, the embedding $W^{1,p}(\\Omega, w) \\hookrightarrow\\hookrightarrow L^q(\\Omega, w)$ is compact.",
+      "proof_status": "full",
+      "is_main_result": true,
+      "novelty": "new",
+      "metadata": {
+        "proof_length_lines": 110,
+        "tags": ["compact-embedding", "subcritical-exponent"]
+      }
+    },
+    {
+      "id": "sec4::lem:uniform-integrability",
+      "kind": "lemma",
+      "label": "Lemma 4.2 (Uniform integrability)",
+      "section": "4",
+      "section_title": "Main Results",
+      "number": "4.2",
+      "latex_label": "lem:unif-int",
+      "statement": "Let $(u_j)$ be a bounded sequence in $W^{1,p}(\\Omega, w)$ with $w \\in A_p$. Then $(|u_j|^p w)$ is uniformly integrable on $\\Omega$.",
+      "proof_status": "full",
+      "is_main_result": false,
+      "novelty": "new",
+      "metadata": {
+        "proof_length_lines": 30
+      }
+    },
+    {
+      "id": "sec4::cor:zero-boundary-compact",
+      "kind": "corollary",
+      "label": "Corollary 4.4 (Compact embedding for $W_0^{1,p}$)",
+      "section": "4",
+      "section_title": "Main Results",
+      "number": "4.4",
+      "latex_label": "cor:zero-compact",
+      "statement": "Under the hypotheses of Theorem 4.1, $W_0^{1,p}(\\Omega, w) \\hookrightarrow\\hookrightarrow L^p(\\Omega, w)$. Moreover, the Poincare inequality (Proposition 2.7) shows that $\\|\\nabla u\\|_{L^p(w)}$ is an equivalent norm on $W_0^{1,p}(\\Omega, w)$.",
+      "proof_status": "full",
+      "is_main_result": false,
+      "novelty": "new",
+      "metadata": {
+        "proof_length_lines": 8
+      }
+    },
+    {
+      "id": "sec4::rem:sharpness-exponent",
+      "kind": "remark",
+      "label": "Remark 4.5 (Sharpness of the critical exponent)",
+      "section": "4",
+      "section_title": "Main Results",
+      "number": "4.5",
+      "latex_label": "rem:sharpness",
+      "statement": "The critical exponent $p_w^* = np/(n - p + \\gamma(w,p))$ in Theorem 4.3 is sharp in the following sense: when $w(x) = |x|^\\alpha$ with $\\alpha = (p-1-\\varepsilon)$ for small $\\varepsilon > 0$, one can construct a sequence in $W^{1,p}(B_1, w)$ that is bounded but has no convergent subsequence in $L^{p_w^*}(B_1, w)$.",
+      "proof_status": "not_applicable",
+      "is_main_result": false,
+      "novelty": "new",
+      "metadata": {}
+    },
+    {
+      "id": "sec5::prop:spectral-gap",
+      "kind": "proposition",
+      "label": "Proposition 5.1 (Spectral gap for weighted Laplacian)",
+      "section": "5",
+      "section_title": "Applications",
+      "number": "5.1",
+      "latex_label": "prop:spectral-gap",
+      "statement": "Let $\\Omega$ and $w$ be as in Assumption 1.1--1.2, and let $-\\Delta_w$ denote the weighted Laplacian on $W_0^{1,2}(\\Omega, w)$. Then $-\\Delta_w$ has compact resolvent and its spectrum consists of a sequence of eigenvalues $0 < \\lambda_1 \\leq \\lambda_2 \\leq \\cdots \\to \\infty$.",
+      "proof_status": "full",
+      "is_main_result": false,
+      "novelty": "extended",
+      "metadata": {
+        "proof_length_lines": 25
+      }
+    },
+    {
+      "id": "sec5::cor:fredholm-alternative",
+      "kind": "corollary",
+      "label": "Corollary 5.2 (Weighted Fredholm alternative)",
+      "section": "5",
+      "section_title": "Applications",
+      "number": "5.2",
+      "latex_label": "cor:fredholm",
+      "statement": "For $f \\in L^2(\\Omega, w)$ and $\\lambda \\notin \\{\\lambda_k\\}_{k=1}^\\infty$, the problem $-\\Delta_w u - \\lambda u = f$ in $\\Omega$, $u = 0$ on $\\partial\\Omega$, has a unique weak solution $u \\in W_0^{1,2}(\\Omega, w)$.",
+      "proof_status": "full",
+      "is_main_result": false,
+      "novelty": "extended",
+      "metadata": {
+        "proof_length_lines": 15
+      }
+    },
+    {
+      "id": "sec5::ex:power-weight",
+      "kind": "example",
+      "label": "Example 5.3 (Power weight on the unit ball)",
+      "section": "5",
+      "section_title": "Applications",
+      "number": "5.3",
+      "latex_label": "ex:power-weight",
+      "statement": "Let $\\Omega = B_1(0) \\subset \\mathbb{R}^n$ and $w(x) = |x|^\\alpha$ with $-n < \\alpha < n(p-1)$. Then $w \\in A_p$ and Theorem 4.1 yields $W^{1,p}(B_1, |x|^\\alpha) \\hookrightarrow\\hookrightarrow L^p(B_1, |x|^\\alpha)$. The weight exponent gap satisfies $\\gamma(w,p) = p - 1 - \\alpha/n$.",
+      "proof_status": "not_applicable",
+      "is_main_result": false,
+      "novelty": "new",
+      "metadata": {}
+    },
+    {
+      "id": "sec5::ex:distance-weight",
+      "kind": "example",
+      "label": "Example 5.4 (Distance-to-boundary weight)",
+      "section": "5",
+      "section_title": "Applications",
+      "number": "5.4",
+      "latex_label": "ex:distance-weight",
+      "statement": "Let $\\Omega$ be a bounded Lipschitz domain and $w(x) = \\mathrm{dist}(x, \\partial\\Omega)^\\beta$ with $-1 < \\beta < p - 1$. Then $w \\in A_p$ and Theorem 4.3 applies with $\\gamma(w,p) = p - 1 - \\beta$.",
+      "proof_status": "not_applicable",
+      "is_main_result": false,
+      "novelty": "new",
+      "metadata": {}
+    },
+    {
+      "id": "sec5::thm:nonlinear-existence",
+      "kind": "theorem",
+      "label": "Theorem 5.5 (Existence for weighted semilinear problem)",
+      "section": "5",
+      "section_title": "Applications",
+      "number": "5.5",
+      "latex_label": "thm:nonlinear",
+      "statement": "Let $\\Omega$, $w$ be as in Assumptions 1.1--1.2, $p = 2$, and let $g: \\mathbb{R} \\to \\mathbb{R}$ be continuous with $|g(t)| \\leq C(1 + |t|^{q-1})$ for some $1 < q < 2_w^*$. Then the problem $-\\Delta_w u = g(u)$ in $\\Omega$, $u = 0$ on $\\partial\\Omega$, admits at least one weak solution in $W_0^{1,2}(\\Omega, w)$.",
+      "proof_status": "sketch",
+      "is_main_result": true,
+      "novelty": "new",
+      "metadata": {
+        "proof_length_lines": 40,
+        "tags": ["variational-methods", "mountain-pass"]
+      }
+    },
+    {
+      "id": "sec5::conj:optimal-regularity",
+      "kind": "conjecture",
+      "label": "Conjecture 5.6 (Optimal Holder regularity)",
+      "section": "5",
+      "section_title": "Applications",
+      "number": "5.6",
+      "latex_label": "conj:regularity",
+      "statement": "Under the hypotheses of Theorem 5.5, the weak solution $u$ belongs to $C^{0,\\alpha}(\\overline{\\Omega})$ for some $\\alpha = \\alpha(n, p, [w]_{A_p}) > 0$.",
+      "proof_status": "not_applicable",
+      "is_main_result": false,
+      "novelty": "new",
+      "metadata": {}
+    },
+    {
+      "id": "secA::lem:reverse-holder",
+      "kind": "lemma",
+      "label": "Lemma A.1 (Reverse Holder inequality for $A_p$ weights)",
+      "section": "A",
+      "section_title": "Appendix",
+      "number": "A.1",
+      "latex_label": "lem:reverse-holder",
+      "statement": "If $w \\in A_p$ with $1 < p < \\infty$, then there exists $r = r(n, p, [w]_{A_p}) > 1$ such that $\\left(\\frac{1}{|Q|}\\int_Q w^r\\right)^{1/r} \\leq \\frac{C}{|Q|}\\int_Q w$ for all cubes $Q$, with $C = C(n, p, [w]_{A_p})$.",
+      "proof_status": "deferred",
+      "is_main_result": false,
+      "novelty": "classical",
+      "metadata": {
+        "proof_length_lines": 60,
+        "source": "Proof adapted from Grafakos, Classical Fourier Analysis, Theorem 9.2.2"
+      }
+    },
+    {
+      "id": "secA::lem:maximal-function-bound",
+      "kind": "lemma",
+      "label": "Lemma A.2 (Weighted maximal function bound)",
+      "section": "A",
+      "section_title": "Appendix",
+      "number": "A.2",
+      "latex_label": "lem:maximal-bound",
+      "statement": "For $w \\in A_p$ with $1 < p < \\infty$, the Hardy-Littlewood maximal operator satisfies $\\|Mf\\|_{L^p(w)} \\leq C_{n,p}\\,[w]_{A_p}^{1/(p-1)}\\,\\|f\\|_{L^p(w)}$ for all $f \\in L^p(\\Omega, w)$.",
+      "proof_status": "deferred",
+      "is_main_result": false,
+      "novelty": "classical",
+      "metadata": {
+        "proof_length_lines": 45,
+        "source": "Sharp constant due to Buckley (1993)"
+      }
+    }
+  ],
+  "edges": [
+    {
+      "source": "sec2::def:weighted-sobolev-space",
+      "target": "sec1::not:weighted-lp",
+      "kind": "uses_in_proof",
+      "evidence": "inferred",
+      "detail": "The norm of $W^{k,p}(\\Omega, w)$ is built from the $L^p(w)$ norms of derivatives, relying on the notation and definition of weighted Lebesgue spaces",
+      "metadata": {}
+    },
+    {
+      "source": "sec2::def:weighted-sobolev-space",
+      "target": "sec1::asm:weight-class",
+      "kind": "uses_in_proof",
+      "evidence": "explicit_ref",
+      "detail": "Definition 2.1 requires $w \\in A_p$, referring explicitly to Assumption 1.2",
+      "metadata": {}
+    },
+    {
+      "source": "sec2::def:zero-boundary-sobolev",
+      "target": "sec2::def:weighted-sobolev-space",
+      "kind": "uses_in_proof",
+      "evidence": "explicit_ref",
+      "detail": "$W_0^{k,p}(\\Omega, w)$ is defined as a closed subspace of $W^{k,p}(\\Omega, w)$",
+      "metadata": {}
+    },
+    {
+      "source": "sec2::def:ap-constant",
+      "target": "sec0::ext:muckenhoupt-ap-theory",
+      "kind": "cites_external",
+      "evidence": "external",
+      "detail": "Definition 2.3 recalls the classical Muckenhoupt $A_p$ condition from [Muc72]",
+      "metadata": {}
+    },
+    {
+      "source": "sec2::lem:weight-self-improvement",
+      "target": "sec2::def:ap-constant",
+      "kind": "uses_in_proof",
+      "evidence": "explicit_ref",
+      "detail": "The self-improvement lemma is stated in terms of the $A_p$ characteristic $[w]_{A_p}$",
+      "metadata": {}
+    },
+    {
+      "source": "sec2::lem:weight-self-improvement",
+      "target": "sec0::ext:muckenhoupt-ap-theory",
+      "kind": "cites_external",
+      "evidence": "external",
+      "detail": "Self-improvement is a consequence of the reverse Holder inequality, part of the classical $A_p$ theory",
+      "metadata": {}
+    },
+    {
+      "source": "sec2::rem:doubling",
+      "target": "sec2::def:ap-constant",
+      "kind": "uses_in_proof",
+      "evidence": "inferred",
+      "detail": "The doubling property follows from the $A_p$ condition; the remark references the $A_p$ characteristic implicitly",
+      "metadata": {}
+    },
+    {
+      "source": "sec2::prop:weighted-poincare",
+      "target": "sec2::def:zero-boundary-sobolev",
+      "kind": "uses_in_proof",
+      "evidence": "explicit_ref",
+      "detail": "The Poincare inequality is stated for functions in $W_0^{1,p}(\\Omega, w)$, citing Definition 2.2",
+      "metadata": {}
+    },
+    {
+      "source": "sec2::prop:weighted-poincare",
+      "target": "sec1::asm:domain-regularity",
+      "kind": "uses_in_proof",
+      "evidence": "explicit_ref",
+      "detail": "Proof begins by invoking the Lipschitz boundary condition from Assumption 1.1",
+      "metadata": {}
+    },
+    {
+      "source": "sec2::prop:weighted-poincare",
+      "target": "sec2::lem:weight-self-improvement",
+      "kind": "uses_in_proof",
+      "evidence": "explicit_ref",
+      "detail": "The proof applies Lemma 2.5 to find $q < p$ with $w \\in A_q$, enabling the use of a chaining argument on cubes",
+      "metadata": {
+        "proof_step": "step 2: self-improvement to pass to a smaller exponent"
+      }
+    },
+    {
+      "source": "sec2::prop:weighted-poincare",
+      "target": "sec0::ext:turesson-weighted-potential",
+      "kind": "cites_external",
+      "evidence": "external",
+      "detail": "Density of $C^\\infty(\\overline{\\Omega})$ in $W^{1,p}(\\Omega, w)$ is cited from Turesson [Tur00, Prop. 3.6]",
+      "metadata": {}
+    },
+    {
+      "source": "sec3::lem:cutoff-estimate",
+      "target": "sec1::asm:domain-regularity",
+      "kind": "uses_in_proof",
+      "evidence": "inferred",
+      "detail": "The Lipschitz regularity of $\\partial\\Omega$ is needed to construct smooth cutoff functions with controlled gradient",
+      "metadata": {}
+    },
+    {
+      "source": "sec3::lem:local-compactness",
+      "target": "sec0::ext:adams-fournier-sobolev",
+      "kind": "cites_external",
+      "evidence": "external",
+      "detail": "The proof reduces to the classical (unweighted) Rellich-Kondrachov theorem on the interior subdomain via weight comparability",
+      "metadata": {}
+    },
+    {
+      "source": "sec3::lem:local-compactness",
+      "target": "sec2::def:weighted-sobolev-space",
+      "kind": "uses_in_proof",
+      "evidence": "explicit_ref",
+      "detail": "The bounded sequence lives in $W^{1,p}(\\Omega, w)$ as defined in Definition 2.1",
+      "metadata": {}
+    },
+    {
+      "source": "sec3::lem:local-compactness",
+      "target": "sec2::rem:doubling",
+      "kind": "uses_in_proof",
+      "evidence": "inferred",
+      "detail": "The doubling property is used to show that $w$ is comparable to a constant on compact subsets of $\\Omega$",
+      "metadata": {}
+    },
+    {
+      "source": "sec3::lem:boundary-tail-estimate",
+      "target": "sec3::lem:cutoff-estimate",
+      "kind": "uses_in_proof",
+      "evidence": "explicit_ref",
+      "detail": "Cutoff functions from Lemma 3.1 are used to isolate the boundary layer",
+      "metadata": {
+        "proof_step": "step 1: localize near the boundary using cutoff functions"
+      }
+    },
+    {
+      "source": "sec3::lem:boundary-tail-estimate",
+      "target": "sec2::prop:weighted-poincare",
+      "kind": "uses_in_proof",
+      "evidence": "explicit_ref",
+      "detail": "The weighted Poincare inequality is applied on thin boundary strips to bound $\\int_{\\Omega \\setminus \\Omega_\\delta} |u|^p w\\,dx$ by the gradient term",
+      "metadata": {
+        "proof_step": "step 2: Poincare on boundary strips",
+        "equation_ref": "(3.7)"
+      }
+    },
+    {
+      "source": "sec3::lem:boundary-tail-estimate",
+      "target": "sec1::asm:weight-class",
+      "kind": "uses_in_proof",
+      "evidence": "explicit_ref",
+      "detail": "The $A_p$ condition on $w$ is essential for the boundary-layer decay estimate",
+      "metadata": {}
+    },
+    {
+      "source": "sec3::lem:boundary-tail-estimate",
+      "target": "secA::lem:reverse-holder",
+      "kind": "uses_in_proof",
+      "evidence": "explicit_ref",
+      "detail": "The reverse Holder inequality (Lemma A.1) provides the higher integrability of $w$ needed in step 3 of the proof",
+      "metadata": {
+        "proof_step": "step 3: higher integrability to close the iteration"
+      }
+    },
+    {
+      "source": "sec3::def:weight-exponent-gap",
+      "target": "sec2::lem:weight-self-improvement",
+      "kind": "uses_in_proof",
+      "evidence": "explicit_ref",
+      "detail": "The positivity $\\gamma(w,p) > 0$ follows immediately from the self-improvement lemma",
+      "metadata": {}
+    },
+    {
+      "source": "sec3::rem:gap-controls-rate",
+      "target": "sec3::def:weight-exponent-gap",
+      "kind": "uses_in_proof",
+      "evidence": "explicit_ref",
+      "detail": "The remark interprets the quantity $\\gamma(w,p)$ defined in Definition 3.4",
+      "metadata": {}
+    },
+    {
+      "source": "sec4::thm:compact-embedding-lp",
+      "target": "sec3::lem:local-compactness",
+      "kind": "uses_in_proof",
+      "evidence": "explicit_ref",
+      "detail": "Step 1 of the proof extracts a subsequence convergent in $L^p(\\Omega', w)$ for every $\\Omega' \\Subset \\Omega$ via Lemma 3.2",
+      "metadata": {
+        "proof_step": "step 1: interior convergence"
+      }
+    },
+    {
+      "source": "sec4::thm:compact-embedding-lp",
+      "target": "sec3::lem:boundary-tail-estimate",
+      "kind": "uses_in_proof",
+      "evidence": "explicit_ref",
+      "detail": "Step 2 uses the boundary tail estimate (Lemma 3.3) to show that the $L^p(w)$-mass near $\\partial\\Omega$ is uniformly small",
+      "metadata": {
+        "proof_step": "step 2: boundary tail control"
+      }
+    },
+    {
+      "source": "sec4::thm:compact-embedding-lp",
+      "target": "sec4::lem:uniform-integrability",
+      "kind": "uses_in_proof",
+      "evidence": "explicit_ref",
+      "detail": "Step 3 invokes uniform integrability (Lemma 4.2) and Vitali's convergence theorem to upgrade a.e. convergence to $L^p(w)$ convergence",
+      "metadata": {
+        "proof_step": "step 3: Vitali convergence",
+        "equation_ref": "(4.5)"
+      }
+    },
+    {
+      "source": "sec4::thm:compact-embedding-lp",
+      "target": "sec1::asm:domain-regularity",
+      "kind": "uses_in_proof",
+      "evidence": "explicit_ref",
+      "detail": "The bounded Lipschitz domain hypothesis is invoked at the start of the proof",
+      "metadata": {}
+    },
+    {
+      "source": "sec4::thm:compact-embedding-lp",
+      "target": "sec1::asm:weight-class",
+      "kind": "uses_in_proof",
+      "evidence": "explicit_ref",
+      "detail": "The $A_p$ condition on $w$ is a standing hypothesis",
+      "metadata": {}
+    },
+    {
+      "source": "sec4::thm:compact-embedding-lp",
+      "target": "sec2::def:weighted-sobolev-space",
+      "kind": "uses_in_proof",
+      "evidence": "inferred",
+      "detail": "The domain and range spaces of the embedding rely on Definition 2.1",
+      "metadata": {}
+    },
+    {
+      "source": "sec4::thm:compact-embedding-lp",
+      "target": "sec0::ext:adams-fournier-sobolev",
+      "kind": "extends",
+      "evidence": "explicit_ref",
+      "detail": "Theorem 4.1 extends the classical Rellich-Kondrachov theorem (Adams-Fournier, Thm 6.3) from unweighted to $A_p$-weighted Sobolev spaces",
+      "metadata": {}
+    },
+    {
+      "source": "sec4::lem:uniform-integrability",
+      "target": "sec2::lem:weight-self-improvement",
+      "kind": "uses_in_proof",
+      "evidence": "explicit_ref",
+      "detail": "Self-improvement yields $w \\in A_{p-\\varepsilon}$, which provides the extra integrability needed for the de la Vallee-Poussin criterion",
+      "metadata": {
+        "proof_step": "step 1: extract higher integrability via self-improvement"
+      }
+    },
+    {
+      "source": "sec4::lem:uniform-integrability",
+      "target": "secA::lem:reverse-holder",
+      "kind": "uses_in_proof",
+      "evidence": "explicit_ref",
+      "detail": "The reverse Holder inequality from Lemma A.1 is applied to bound $\\int |u_j|^{p+\\varepsilon} w\\,dx$ uniformly",
+      "metadata": {
+        "proof_step": "step 2: reverse Holder application"
+      }
+    },
+    {
+      "source": "sec4::thm:compact-embedding-lq",
+      "target": "sec4::thm:compact-embedding-lp",
+      "kind": "uses_in_proof",
+      "evidence": "explicit_ref",
+      "detail": "The $q = p$ case is handled by Theorem 4.1; the proof then interpolates for $q < p$ and bootstraps for $p < q < p_w^*$",
+      "metadata": {
+        "proof_step": "step 1: base case via Theorem 4.1"
+      }
+    },
+    {
+      "source": "sec4::thm:compact-embedding-lq",
+      "target": "sec3::def:weight-exponent-gap",
+      "kind": "uses_in_proof",
+      "evidence": "explicit_ref",
+      "detail": "The critical exponent $p_w^*$ is defined in terms of $\\gamma(w,p)$ from Definition 3.4",
+      "metadata": {}
+    },
+    {
+      "source": "sec4::thm:compact-embedding-lq",
+      "target": "sec2::lem:weight-self-improvement",
+      "kind": "uses_in_proof",
+      "evidence": "explicit_ref",
+      "detail": "Self-improvement is used to shift the integrability exponent, gaining room below the critical threshold",
+      "metadata": {
+        "proof_step": "step 2: exponent shifting"
+      }
+    },
+    {
+      "source": "sec4::thm:compact-embedding-lq",
+      "target": "secA::lem:maximal-function-bound",
+      "kind": "uses_in_proof",
+      "evidence": "explicit_ref",
+      "detail": "The weighted maximal function bound (Lemma A.2) is used to control a truncated Riesz potential in the bootstrapping step",
+      "metadata": {
+        "proof_step": "step 3: bootstrapping via maximal function"
+      }
+    },
+    {
+      "source": "sec4::thm:compact-embedding-lq",
+      "target": "sec3::lem:boundary-tail-estimate",
+      "kind": "uses_in_proof",
+      "evidence": "explicit_ref",
+      "detail": "Boundary tail control from Lemma 3.3 is reused for the higher-exponent compactness argument",
+      "metadata": {}
+    },
+    {
+      "source": "sec4::thm:compact-embedding-lq",
+      "target": "sec1::asm:domain-regularity",
+      "kind": "uses_in_proof",
+      "evidence": "inferred",
+      "detail": "Bounded Lipschitz domain assumption is a standing hypothesis",
+      "metadata": {}
+    },
+    {
+      "source": "sec4::thm:compact-embedding-lq",
+      "target": "sec1::asm:weight-class",
+      "kind": "uses_in_proof",
+      "evidence": "inferred",
+      "detail": "$A_p$ weight assumption is a standing hypothesis",
+      "metadata": {}
+    },
+    {
+      "source": "sec4::thm:compact-embedding-lq",
+      "target": "sec0::ext:adams-fournier-sobolev",
+      "kind": "generalizes",
+      "evidence": "explicit_ref",
+      "detail": "Theorem 4.3 generalizes the classical Rellich-Kondrachov theorem: setting $w \\equiv 1$ recovers $\\gamma = p-1$ and $p_w^* = p^*$",
+      "metadata": {}
+    },
+    {
+      "source": "sec4::cor:zero-boundary-compact",
+      "target": "sec4::thm:compact-embedding-lp",
+      "kind": "specializes",
+      "evidence": "explicit_ref",
+      "detail": "Corollary 4.4 specializes Theorem 4.1 to the closed subspace $W_0^{1,p}(\\Omega, w)$",
+      "metadata": {}
+    },
+    {
+      "source": "sec4::cor:zero-boundary-compact",
+      "target": "sec2::prop:weighted-poincare",
+      "kind": "uses_in_proof",
+      "evidence": "explicit_ref",
+      "detail": "The Poincare inequality from Proposition 2.7 is used to show norm equivalence on $W_0^{1,p}$",
+      "metadata": {}
+    },
+    {
+      "source": "sec4::rem:sharpness-exponent",
+      "target": "sec4::thm:compact-embedding-lq",
+      "kind": "uses_in_proof",
+      "evidence": "explicit_ref",
+      "detail": "The remark demonstrates sharpness of the critical exponent in Theorem 4.3 via an explicit counterexample",
+      "metadata": {}
+    },
+    {
+      "source": "sec4::rem:sharpness-exponent",
+      "target": "sec3::def:weight-exponent-gap",
+      "kind": "uses_in_proof",
+      "evidence": "inferred",
+      "detail": "The counterexample computes $\\gamma(w,p)$ explicitly for the power weight $|x|^\\alpha$",
+      "metadata": {}
+    },
+    {
+      "source": "sec5::prop:spectral-gap",
+      "target": "sec4::cor:zero-boundary-compact",
+      "kind": "uses_in_proof",
+      "evidence": "explicit_ref",
+      "detail": "Compact embedding of $W_0^{1,2}(\\Omega, w)$ into $L^2(\\Omega, w)$ is the key input for the spectral theorem",
+      "metadata": {}
+    },
+    {
+      "source": "sec5::prop:spectral-gap",
+      "target": "sec2::prop:weighted-poincare",
+      "kind": "uses_in_proof",
+      "evidence": "explicit_ref",
+      "detail": "The weighted Poincare inequality ensures coercivity of the bilinear form associated to $-\\Delta_w$",
+      "metadata": {}
+    },
+    {
+      "source": "sec5::cor:fredholm-alternative",
+      "target": "sec5::prop:spectral-gap",
+      "kind": "specializes",
+      "evidence": "explicit_ref",
+      "detail": "The Fredholm alternative is a direct consequence of the compact resolvent established in Proposition 5.1",
+      "metadata": {}
+    },
+    {
+      "source": "sec5::ex:power-weight",
+      "target": "sec4::thm:compact-embedding-lp",
+      "kind": "uses_in_proof",
+      "evidence": "explicit_ref",
+      "detail": "Example 5.3 applies Theorem 4.1 to the specific weight $w(x) = |x|^\\alpha$ on $B_1(0)$",
+      "metadata": {}
+    },
+    {
+      "source": "sec5::ex:power-weight",
+      "target": "sec3::def:weight-exponent-gap",
+      "kind": "uses_in_proof",
+      "evidence": "explicit_ref",
+      "detail": "The weight exponent gap $\\gamma$ is computed explicitly for the power weight",
+      "metadata": {}
+    },
+    {
+      "source": "sec5::ex:distance-weight",
+      "target": "sec4::thm:compact-embedding-lq",
+      "kind": "uses_in_proof",
+      "evidence": "explicit_ref",
+      "detail": "Example 5.4 applies Theorem 4.3 to the distance-to-boundary weight",
+      "metadata": {}
+    },
+    {
+      "source": "sec5::ex:distance-weight",
+      "target": "sec3::def:weight-exponent-gap",
+      "kind": "uses_in_proof",
+      "evidence": "inferred",
+      "detail": "The exponent gap $\\gamma$ is computed for the distance weight $\\mathrm{dist}(x, \\partial\\Omega)^\\beta$",
+      "metadata": {}
+    },
+    {
+      "source": "sec5::thm:nonlinear-existence",
+      "target": "sec4::thm:compact-embedding-lq",
+      "kind": "uses_in_proof",
+      "evidence": "explicit_ref",
+      "detail": "The compact embedding $W_0^{1,2}(\\Omega, w) \\hookrightarrow\\hookrightarrow L^q(\\Omega, w)$ for $q < 2_w^*$ is used to verify the Palais-Smale condition",
+      "metadata": {
+        "proof_step": "step 2: Palais-Smale condition via compact embedding"
+      }
+    },
+    {
+      "source": "sec5::thm:nonlinear-existence",
+      "target": "sec4::cor:zero-boundary-compact",
+      "kind": "uses_in_proof",
+      "evidence": "explicit_ref",
+      "detail": "The coercivity and compact embedding of $W_0^{1,2}(\\Omega, w)$ underlie the variational framework",
+      "metadata": {
+        "proof_step": "step 1: variational setup"
+      }
+    },
+    {
+      "source": "sec5::thm:nonlinear-existence",
+      "target": "sec2::prop:weighted-poincare",
+      "kind": "uses_in_proof",
+      "evidence": "inferred",
+      "detail": "The Poincare inequality ensures that the energy functional is coercive on $W_0^{1,2}(\\Omega, w)$",
+      "metadata": {}
+    },
+    {
+      "source": "sec5::thm:nonlinear-existence",
+      "target": "sec1::asm:domain-regularity",
+      "kind": "uses_in_proof",
+      "evidence": "inferred",
+      "detail": "Domain regularity is a standing hypothesis",
+      "metadata": {}
+    },
+    {
+      "source": "sec5::thm:nonlinear-existence",
+      "target": "sec1::asm:weight-class",
+      "kind": "uses_in_proof",
+      "evidence": "inferred",
+      "detail": "$A_p$ weight assumption is a standing hypothesis",
+      "metadata": {}
+    },
+    {
+      "source": "sec5::conj:optimal-regularity",
+      "target": "sec5::thm:nonlinear-existence",
+      "kind": "uses_in_proof",
+      "evidence": "explicit_ref",
+      "detail": "The conjecture concerns the regularity of solutions produced by Theorem 5.5",
+      "metadata": {}
+    },
+    {
+      "source": "secA::lem:reverse-holder",
+      "target": "sec2::def:ap-constant",
+      "kind": "uses_in_proof",
+      "evidence": "explicit_ref",
+      "detail": "The proof is formulated entirely in terms of the $A_p$ characteristic from Definition 2.3",
+      "metadata": {}
+    },
+    {
+      "source": "secA::lem:reverse-holder",
+      "target": "sec0::ext:muckenhoupt-ap-theory",
+      "kind": "cites_external",
+      "evidence": "external",
+      "detail": "The proof follows the classical Coifman-Fefferman approach to the reverse Holder inequality",
+      "metadata": {}
+    },
+    {
+      "source": "secA::lem:maximal-function-bound",
+      "target": "sec2::def:ap-constant",
+      "kind": "uses_in_proof",
+      "evidence": "explicit_ref",
+      "detail": "The sharp constant $[w]_{A_p}^{1/(p-1)}$ involves the $A_p$ characteristic",
+      "metadata": {}
+    },
+    {
+      "source": "secA::lem:maximal-function-bound",
+      "target": "secA::lem:reverse-holder",
+      "kind": "uses_in_proof",
+      "evidence": "explicit_ref",
+      "detail": "The proof of the sharp weighted bound for $M$ uses the reverse Holder inequality from Lemma A.1",
+      "metadata": {}
+    },
+    {
+      "source": "secA::lem:maximal-function-bound",
+      "target": "sec0::ext:muckenhoupt-ap-theory",
+      "kind": "cites_external",
+      "evidence": "external",
+      "detail": "The sharp constant is attributed to Buckley (1993), building on the original Muckenhoupt theory",
+      "metadata": {}
+    },
+    {
+      "source": "sec4::thm:compact-embedding-lp",
+      "target": "sec2::prop:weighted-poincare",
+      "kind": "uses_in_proof",
+      "evidence": "inferred",
+      "detail": "The weighted Poincare inequality is used implicitly in the passage from gradient control to function control in the interior compactness argument",
+      "metadata": {}
+    },
+    {
+      "source": "sec3::lem:local-compactness",
+      "target": "sec1::asm:weight-class",
+      "kind": "uses_in_proof",
+      "evidence": "inferred",
+      "detail": "The $A_p$ condition ensures weight comparability on compact subsets",
+      "metadata": {}
+    }
+  ]
+}
