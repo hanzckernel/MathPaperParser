@@ -1,0 +1,74 @@
+:root {
+  --bg-primary: #0d1117;
+  --bg-secondary: #161b22;
+  --bg-surface: #21262d;
+  --text-primary: #e6edf3;
+  --text-secondary: #8b949e;
+  --border: #30363d;
+  --accent: #58a6ff;
+
+  --kind-theorem: #58a6ff;
+  --kind-definition: #3fb950;
+  --kind-lemma: #d29922;
+  --kind-proposition: #a371f7;
+  --kind-corollary: #79c0ff;
+  --kind-assumption: #f85149;
+  --kind-remark: #8b949e;
+  --kind-example: #39c5bb;
+  --kind-conjecture: #ff7b72;
+  --kind-notation: #c9d1d9;
+  --kind-external_dependency: #6e7681;
+
+  --evidence-explicit: #58a6ff;
+  --evidence-inferred: #d29922;
+  --evidence-external: #6e7681;
+
+  --novelty-new: #3fb950;
+  --novelty-classical: #8b949e;
+  --novelty-extended: #d29922;
+  --novelty-folklore: #6e7681;
+
+  --difficulty-high: #f85149;
+  --difficulty-medium: #d29922;
+  --difficulty-low: #8b949e;
+
+  --font-sans: Inter, -apple-system, system-ui, sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+
+  --gap-sm: 8px;
+  --gap-md: 16px;
+  --gap-lg: 24px;
+  --gap-xl: 32px;
+
+  --radius-sm: 4px;
+  --radius-md: 8px;
+  --radius-lg: 12px;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  height: 100%;
+}
+
+body {
+  margin: 0;
+  background: var(--bg-primary);
+  color: var(--text-primary);
+  font-family: var(--font-sans);
+  font-size: 14px;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+code,
+pre {
+  font-family: var(--font-mono);
+}
+
