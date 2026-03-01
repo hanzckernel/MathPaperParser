@@ -79,4 +79,4 @@ Append the full Prompt 00 skeleton output verbatim at the end.
 - Keep paragraphs short.
 - Prefer tables/lists over long prose.
 - Every theorem/lemma/etc mentioned should include its ID at least once in the same section.
-
+- Do not double-escape LaTeX backslashes in Markdown: write `\mathbb{E}`, not `\\mathbb{E}`.

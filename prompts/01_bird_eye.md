@@ -115,4 +115,4 @@ Extract 5–20 key symbols and explain them:
 - Use the exact headings above.
 - Every time you mention a theorem/lemma/etc after the OBJECT ID MAP section, include its ID at least once.
 - If something is uncertain, write it under UNKNOWNS rather than guessing.
-
+- Do not double-escape LaTeX backslashes in Markdown: write `\pi`, not `\\pi`.

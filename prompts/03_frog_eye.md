@@ -58,4 +58,4 @@ Provide:
 ## Output hygiene rules
 - Do not invent lemmas. Use only nodes from the ID map.
 - If a proof step relies on an unrecorded dependency, add it to UNKNOWNS.
-
+- Do not double-escape LaTeX backslashes in Markdown: write `\lambda`, not `\\lambda`.

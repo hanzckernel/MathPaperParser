@@ -121,6 +121,8 @@ Follow these rules strictly:
 
 8. **Count as you go.** At the end of each section, state the count: "Section 3 total: 2 definitions, 3 lemmas, 1 theorem, 1 corollary."
 
+9. **Do not double-escape LaTeX backslashes.** In math mode, write `\pi`, `\mathcal{S}`, `\mathbb{E}`, etc. (single backslash), not `\\pi`, `\\mathcal{S}`, `\\mathbb{E}`. Markdown does not require escaping backslashes.
+
 ## Task 4: Summary Statistics
 
 After extracting all objects, provide a summary table:
