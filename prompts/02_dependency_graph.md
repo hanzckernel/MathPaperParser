@@ -78,4 +78,4 @@ Write a short checklist:
 ## Output hygiene rules
 - Use IDs exactly as defined in Prompt 01.
 - Do not invent nodes. If a dependency is plausible but not supported, either mark it as `inferred` with a conservative `detail`, or move it to UNKNOWNS in Prompt 03.
-
+- Do not double-escape LaTeX backslashes in Markdown: write `\pi`, not `\\pi`.

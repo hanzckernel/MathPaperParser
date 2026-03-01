@@ -115,4 +115,5 @@ If you want to manually assemble the report instead, structure it as:
 | Dependency graph is too large to render | Use the condensed (bird's-eye) graph only. The full graph is for reference. |
 | Model refuses to give honest calibration | Re-emphasize: "Do not sugarcoat. If the contribution is incremental, say so." |
 | Output is truncated | Say "continue from where you left off" or reduce scope with focus directives. |
+| KaTeX/MathJax shows LaTeX parse errors like `\\pi` / `\\mathcal{S}` | Tell the model: "Do not double-escape backslashes in Markdown; use `\\pi` → `\pi` (single backslash)". If you already have Markdown with double-escaped LaTeX, run `python3 tools/fix_markdown_latex_backslashes.py <report.md> --inplace`. |
 | Mermaid diagram has syntax errors | Paste into [mermaid.live](https://mermaid.live) and fix manually, or ask the model to correct the syntax. |
