@@ -64,7 +64,7 @@
       {#each index.main_results as mr (mr.node_id)}
         <button class="item" type="button" on:click={() => navigateToNode(mr.node_id)}>
           <div class="row">
-            <span class="dot" style={`--dot-color: var(--accent)`} />
+            <span class="dot" style={`--dot-color: var(--accent)`}></span>
             <div class="label">{($nodeMap.get(mr.node_id)?.label ?? mr.node_id)}</div>
           </div>
           <div class="headline">{mr.headline}</div>

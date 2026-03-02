@@ -71,10 +71,11 @@
         <MathText text={node.statement} />
       </div>
 
+      {@const ps = proofStatusBadge(node.proof_status)}
+      {@const nv = noveltyBadge(node.novelty)}
+
       <div class="row">
-        {@const ps = proofStatusBadge(node.proof_status)}
         <Badge text={ps.text} color={ps.color} />
-        {@const nv = noveltyBadge(node.novelty)}
         <Badge text={nv.text} color={nv.color} />
       </div>
     </Card>
@@ -90,7 +91,7 @@
               <button class="link" type="button" on:click={() => navigateToNode(e.target)}>
                 <span class="arrow">→</span>
                 <span>{($nodeMap.get(e.target)?.label ?? e.target)}</span>
-                <span class="spacer" />
+                <span class="spacer"></span>
                 <Badge text={e.evidence} color={evidenceColorVar(e.evidence)} />
               </button>
             </li>
@@ -110,7 +111,7 @@
               <button class="link" type="button" on:click={() => navigateToNode(e.source)}>
                 <span class="arrow">←</span>
                 <span>{($nodeMap.get(e.source)?.label ?? e.source)}</span>
-                <span class="spacer" />
+                <span class="spacer"></span>
                 <Badge text={e.evidence} color={evidenceColorVar(e.evidence)} />
               </button>
             </li>

@@ -44,7 +44,7 @@
               selectedSectionId.set(s.section);
             }}
           >
-            <span class="dot" style={`--dot-color: ${kindColorVar(n.kind)}`} />
+            <span class="dot" style={`--dot-color: ${kindColorVar(n.kind)}`}></span>
             <span class="nlabel">{n.label}</span>
             {#if n.is_main_result}<span class="star">*</span>{/if}
           </button>
@@ -157,4 +157,3 @@
     font-weight: 800;
   }
 </style>
-

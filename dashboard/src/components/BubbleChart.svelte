@@ -45,7 +45,16 @@
           opacity="0.35"
           stroke="var(--border)"
           stroke-width="1"
+          role="button"
+          tabindex="0"
+          aria-label={`Open section ${leaf.data.section}`}
           on:click={() => navigateToSection(leaf.data.section)}
+          on:keydown={(e) => {
+            if (e.key === "Enter" || e.key === " ") {
+              e.preventDefault();
+              navigateToSection(leaf.data.section);
+            }
+          }}
         />
         <text text-anchor="middle" dominant-baseline="middle" class="label">
           {leaf.data.title || leaf.data.section}
@@ -89,4 +98,3 @@
     user-select: none;
   }
 </style>
-

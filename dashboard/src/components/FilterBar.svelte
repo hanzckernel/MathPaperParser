@@ -37,7 +37,7 @@
           on:click={() => toggleInStore(selectedKinds, k)}
           title={k}
         >
-          <span class="dot" style={`--dot-color: ${kindColorVar(k)}`} />
+          <span class="dot" style={`--dot-color: ${kindColorVar(k)}`}></span>
           {k}
         </button>
       {/each}
@@ -64,7 +64,7 @@
           on:click={() => toggleInStore(selectedEvidence, e)}
           title={e}
         >
-          <span class="dot" style={`--dot-color: ${evidenceColorVar(e)}`} />
+          <span class="dot" style={`--dot-color: ${evidenceColorVar(e)}`}></span>
           {e}
         </button>
       {/each}
@@ -185,4 +185,3 @@
     }
   }
 </style>
-

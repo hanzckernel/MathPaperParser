@@ -34,7 +34,7 @@
     <div>{index.innovation_assessment.summary}</div>
   </Card>
 
-  <div class="spacer" />
+  <div class="spacer"></div>
 
   <Card>
     <h2>Main innovations</h2>
@@ -59,14 +59,14 @@
     </div>
   </Card>
 
-  <div class="spacer" />
+  <div class="spacer"></div>
 
   <Card>
     <h2>Prior work comparison</h2>
     <div class="muted">{index.innovation_assessment.prior_work_comparison}</div>
   </Card>
 
-  <div class="spacer" />
+  <div class="spacer"></div>
 
   <Card>
     <h2>Attention</h2>

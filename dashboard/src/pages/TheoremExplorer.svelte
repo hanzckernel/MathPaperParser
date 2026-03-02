@@ -60,10 +60,12 @@
             </div>
           {/if}
 
+          {@const outs = $outEdges.get(node.id) ?? []}
+          {@const ins = $inEdges.get(node.id) ?? []}
+
           <div class="deps">
             <div class="dep-col">
               <div class="dep-title">Uses</div>
-              {@const outs = $outEdges.get(node.id) ?? []}
               {#if outs.length === 0}
                 <div class="muted">(none)</div>
               {:else}
@@ -73,7 +75,7 @@
                       <button class="dep" type="button" on:click={() => navigateToNode(e.target)}>
                         <span class="arrow">→</span>
                         <span class="txt">{($nodeMap.get(e.target)?.label ?? e.target)}</span>
-                        <span class="spacer" />
+                        <span class="spacer"></span>
                         <Badge text={e.evidence} color={evidenceColorVar(e.evidence)} />
                       </button>
                     </li>
@@ -84,7 +86,6 @@
 
             <div class="dep-col">
               <div class="dep-title">Used by</div>
-              {@const ins = $inEdges.get(node.id) ?? []}
               {#if ins.length === 0}
                 <div class="muted">(none)</div>
               {:else}
@@ -94,7 +95,7 @@
                       <button class="dep" type="button" on:click={() => navigateToNode(e.source)}>
                         <span class="arrow">←</span>
                         <span class="txt">{($nodeMap.get(e.source)?.label ?? e.source)}</span>
-                        <span class="spacer" />
+                        <span class="spacer"></span>
                         <Badge text={e.evidence} color={evidenceColorVar(e.evidence)} />
                       </button>
                     </li>
@@ -126,9 +127,9 @@
           {#each sec.nodes as n (n.id)}
             <button class="result" type="button" on:click={() => selectedNodeId.set(n.id)}>
               <div class="row">
-                <span class="dot" style={`--dot-color: ${kindColorVar(n.kind)}`} />
+                <span class="dot" style={`--dot-color: ${kindColorVar(n.kind)}`}></span>
                 <div class="rlabel">{n.label}</div>
-                <span class="spacer" />
+                <span class="spacer"></span>
                 <Badge text={n.kind} color={kindColorVar(n.kind)} />
               </div>
               <div class="snippet">
