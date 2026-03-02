@@ -12,6 +12,7 @@ dist/
 # Dashboard (when dependencies are installed)
 dashboard/node_modules/
 dashboard/dist/
+dashboard/public/data/_backups/
 
 # Local-only paper fixtures + runs (do not commit)
 ref/papers/*
