@@ -105,6 +105,8 @@ If the paper contains other structures (e.g., algorithms, questions, key equatio
 
 **Repo helper:** `tools/prepare_latex.py` can flatten `.tex`, `.gz`, or a `main.tex` directory into `*.flat.tex` and report missing assets.
 
+**Repo helper (PDF fallback):** `tools/build_bundle_from_pdf.py` can build a **schema-valid** bundle from a PDF via text extraction. It is heuristic and may miss theorem boundaries and dependencies.
+
 ---
 
 ### Step 2 — Extract objects → build `graph.json.nodes`
@@ -216,4 +218,3 @@ PYTHONDONTWRITEBYTECODE=1 python3 tools/sync_bundle_to_dashboard.py <parser-run-
 - Every node ID matches the canonical `sec{...}::{abbr}:{slug}` pattern.
 - `index.main_results[*].node_id` points to nodes with `is_main_result:true`.
 - `index.stats` matches the graph counts (including required zero-count keys).
-

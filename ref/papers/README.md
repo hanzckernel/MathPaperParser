@@ -20,8 +20,13 @@ These files are intentionally **not** meant to be committed or published.
 - `long_nalini/arXiv-2502.12268v2/main.tex`
 - Keep all `\\input{...}` files in the same folder.
 
-### PDF (reserved for next stage)
-- `MS_nextstage.pdf` is **out of scope for this stage**; use only after the LaTeX-based pipeline is solid.
+### PDF (fallback)
+- `MS_nextstage.pdf`
+- Build a bundle via:
+  - `python3 tools/build_bundle_from_pdf.py ref/papers/MS_nextstage.pdf --out ref/runs/ms_nextstage/parser-run`
+- Notes:
+  - PDF extraction is heuristic and will not have reliable `\\label` / `\\ref` cross-references.
+  - Extracted nodes include `node.metadata.page` for manual cross-checking.
 
 ## Preprocessing helper
 
@@ -29,4 +34,3 @@ Use:
 - `python3 tools/prepare_latex.py <path>`
 
 It can take a `.tex`, a `.gz` containing TeX, or a directory containing `main.tex`, and will write a flattened `*.flat.tex` next to the input while reporting missing referenced assets.
-
