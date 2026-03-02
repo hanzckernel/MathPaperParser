@@ -41,6 +41,14 @@ To revert to the tracked mock data:
 git restore dashboard/public/data
 ```
 
+## Export a portable dashboard into a bundle (Phase 4)
+
+After `npm run build`, export the static site into a specific `parser-run/`:
+
+```bash
+PYTHONDONTWRITEBYTECODE=1 python3 tools/export_dashboard_bundle.py ref/runs/medium_mueller/parser-run --overwrite --backup --validate
+```
+
 ## Schema validation (dev)
 
 On load, the dashboard validates the JSON against the canonical schemas in `../schema/*.schema.json` using AJV.
