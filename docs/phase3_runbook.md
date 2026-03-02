@@ -83,8 +83,29 @@ PYTHONPYCACHEPREFIX=/tmp/pycache python3 tools/check_bundle_consistency.py ref/r
 
 The dashboard expects `manifest.json`, `graph.json`, `index.json` in a `data/` folder.
 
-From a run directory:
-- Copy `ref/runs/<run>/parser-run/{manifest,graph,index}.json` into the dashboard worktree’s data location (e.g. `dashboard/public/data/` or whatever the scaffold uses).
+Recommended: use the helper that backs up and overwrites the dashboard data files:
+
+```bash
+# Medium
+PYTHONDONTWRITEBYTECODE=1 python3 tools/sync_bundle_to_dashboard.py \
+  ref/runs/medium_mueller/parser-run \
+  --backup \
+  --validate
+```
+
+Notes:
+- This overwrites `dashboard/public/data/{manifest,graph,index}.json` so the dashboard loads your selected run.
+- Keep these dashboard data swaps **local-only** (don’t commit them).
+- To revert to the repo’s tracked mock data: `git restore dashboard/public/data`.
+
+To load the long run instead:
+
+```bash
+PYTHONDONTWRITEBYTECODE=1 python3 tools/sync_bundle_to_dashboard.py \
+  ref/runs/long_nalini/parser-run \
+  --backup \
+  --validate
+```
 
 ---
 
