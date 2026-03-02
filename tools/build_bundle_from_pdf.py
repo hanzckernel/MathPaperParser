@@ -293,30 +293,102 @@ def iter_lines_by_page(pages: list[str]) -> Iterable[tuple[int, str]]:
             yield page_num, line.rstrip("\n")
 
 
-def extract_title_authors_year(pages: list[str], pdf_name: str) -> tuple[str, list[str], int]:
+def guess_year_from_text(text: str) -> int | None:
+    current = datetime.now(timezone.utc).year
+    years: list[int] = []
+    for m in re.finditer(r"\b(19[0-9]{2}|20[0-9]{2})\b", text):
+        try:
+            y = int(m.group(1))
+        except ValueError:
+            continue
+        if 1900 <= y <= current:
+            years.append(y)
+    if not years:
+        return None
+    counts = Counter(years)
+    top = max(counts.values())
+    candidates = [y for y, c in counts.items() if c == top]
+    return max(candidates) if candidates else None
+
+
+def extract_title_authors_year(
+    pages: list[str],
+    *,
+    pdf_name: str,
+    metadata: dict[str, Any] | None,
+) -> tuple[str, list[str], int]:
     year = datetime.now(timezone.utc).year
     if not pages:
         return f"Untitled ({pdf_name})", ["Unknown"], year
 
+    meta = metadata or {}
+    meta_title = normalize_ws(str(meta.get("title") or "")).strip()
+    meta_author = normalize_ws(str(meta.get("author") or "")).strip()
+
     first = pages[0]
     lines = [normalize_ws(l) for l in first.splitlines()]
     lines = [l for l in lines if l]
-    title = lines[0] if lines else f"Untitled ({pdf_name})"
 
-    # Very rough author heuristic: look for a short non-empty line after title.
+    title = meta_title or (lines[0] if lines else f"Untitled ({pdf_name})")
+
+    # Authors: prefer PDF metadata if present, else try to locate the author line
+    # following the title block on the first page, else fall back to a minimal heuristic.
     authors: list[str] = []
-    for cand in lines[1:10]:
-        if len(cand) > 120:
-            continue
-        if any(k in cand.lower() for k in ["abstract", "contents", "introduction", "keywords"]):
-            continue
-        if re.search(r"\b(university|institute|department|email|@)\b", cand, flags=re.IGNORECASE):
-            continue
-        if len(cand.split()) >= 2:
-            authors = [cand]
-            break
+    if meta_author:
+        parts = [p.strip() for p in re.split(r";|,|\band\b", meta_author) if p.strip()]
+        authors = parts or [meta_author]
+    else:
+        if meta_title:
+            title_idxs = []
+            meta_low = meta_title.lower()
+            for idx, line in enumerate(lines[:40]):
+                low = line.lower()
+                if len(low) < 6:
+                    continue
+                if low in meta_low:
+                    title_idxs.append(idx)
+            if title_idxs:
+                start = max(title_idxs) + 1
+                for cand in lines[start : start + 12]:
+                    if len(cand) > 160:
+                        continue
+                    if any(k in cand.lower() for k in ["abstract", "contents", "introduction", "keywords"]):
+                        continue
+                    if re.search(r"\b(university|institute|department|email|@)\b", cand, flags=re.IGNORECASE):
+                        continue
+                    if len(cand.split()) >= 2:
+                        authors = [cand]
+                        break
+
+        if not authors:
+            for cand in lines[1:12]:
+                if len(cand) > 140:
+                    continue
+                if any(k in cand.lower() for k in ["abstract", "contents", "introduction", "keywords"]):
+                    continue
+                if re.search(r"\b(university|institute|department|email|@)\b", cand, flags=re.IGNORECASE):
+                    continue
+                if len(cand.split()) >= 2:
+                    authors = [cand]
+                    break
     if not authors:
         authors = ["Unknown"]
+
+    # If we captured a single author line, split on "and" and clean common footnote markers.
+    if len(authors) == 1:
+        line = authors[0]
+        parts = [p.strip() for p in re.split(r"\s+\band\b\s+", line, flags=re.IGNORECASE) if p.strip()]
+        cleaned = []
+        for p in parts:
+            p = re.sub(r"[*]+", "", p).strip()
+            p = p.strip(" ,;")
+            if p:
+                cleaned.append(p)
+        authors = cleaned or authors
+
+    y = guess_year_from_text(first)
+    if y is not None:
+        year = y
 
     return title, authors, year
 
@@ -422,7 +494,7 @@ def main(argv: list[str]) -> int:
             markers = extract_section_markers_fallback(pages)
 
         pdf_name = pdf_path.name
-        title, authors, year = extract_title_authors_year(pages, pdf_name=pdf_name)
+        title, authors, year = extract_title_authors_year(pages, pdf_name=pdf_name, metadata=getattr(doc, "metadata", None))
         abstract = extract_abstract(pages)
 
         nodes: list[dict[str, Any]] = []
@@ -793,4 +865,3 @@ def main(argv: list[str]) -> int:
 
 if __name__ == "__main__":
     raise SystemExit(main(sys.argv[1:]))
-
