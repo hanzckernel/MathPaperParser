@@ -6,6 +6,8 @@ PaperParser is a math-paper analysis project with:
 - a prompt suite for webchat workflows (`prompts/`)
 - helper tools for LaTeX prep and bundle consistency checks (`tools/`)
 
+> **V2 migration status:** A new npm-workspaces TypeScript monorepo is being bootstrapped under `packages/`. The current `tools/` and `dashboard/` directories remain the v1 reference implementation until the v2 CLI, React dashboard, and MCP server reach parity. The implementation handoff lives at `docs/plans/2026-03-10-paperparser-v2-gitnexus-rework.md`.
+
 At the current stage:
 - Phase 0 (prompt suite) is stable for static review prototypes.
 - Phase 3 tooling can generate **schema-valid bundles** from LaTeX for dashboard testing.

@@ -3,11 +3,13 @@
 # Python
 __pycache__/
 *.py[cod]
+.venv/
 
 # Node / frontend
 node_modules/
 dist/
 .cache/
+*.tsbuildinfo
 .worktrees/
 
 # Dashboard (when dependencies are installed)
