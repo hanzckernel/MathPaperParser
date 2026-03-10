@@ -8,6 +8,7 @@ __pycache__/
 node_modules/
 dist/
 .cache/
+.worktrees/
 
 # Dashboard (when dependencies are installed)
 dashboard/node_modules/
