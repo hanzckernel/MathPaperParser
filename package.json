@@ -1,7 +1,7 @@
 {
   "name": "paperparser",
   "private": true,
-  "version": "0.2.0-alpha.1",
+  "version": "0.2.0-alpha.2",
   "packageManager": "npm@10.9.3",
   "workspaces": [
     "packages/*"

@@ -299,7 +299,7 @@ export class PaperParserMcpServer {
               },
               serverInfo: {
                 name: PAPERPARSER_MCP_SERVER_NAME,
-                version: '0.2.0-alpha.1',
+                version: '0.2.0-alpha.2',
               },
             },
           };

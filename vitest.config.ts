@@ -6,6 +6,7 @@ export default defineConfig({
   resolve: {
     alias: {
       '@paperparser/core': fileURLToPath(new URL('./packages/core/src/index.ts', import.meta.url)),
+      '@paperparser/mcp': fileURLToPath(new URL('./packages/mcp/src/index.ts', import.meta.url)),
     },
   },
   test: {
