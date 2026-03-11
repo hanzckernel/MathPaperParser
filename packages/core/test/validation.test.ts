@@ -25,6 +25,15 @@ describe('schema and consistency validation', () => {
     expect(() => ConsistencyChecker.checkSerializedBundle(serialized)).not.toThrow();
   });
 
+  it('accepts markdown as a schema-valid source type', () => {
+    const serialized = loadExampleBundle();
+    const validator = new SchemaValidator(resolve(process.cwd(), 'schema'));
+
+    serialized.manifest.paper.source_type = 'markdown';
+
+    expect(() => validator.validateSerializedBundle(serialized)).not.toThrow();
+  });
+
   it('rejects schema-invalid payloads', () => {
     const serialized = loadExampleBundle();
     const validator = new SchemaValidator(resolve(process.cwd(), 'schema'));

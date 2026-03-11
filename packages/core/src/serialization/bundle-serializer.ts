@@ -34,7 +34,7 @@ export interface SerializedManifest {
     doi?: string;
     year: number;
     subject_area: string;
-    source_type: 'latex' | 'pdf';
+    source_type: 'latex' | 'markdown' | 'pdf';
     source_files: string[];
     version_note?: string;
   };

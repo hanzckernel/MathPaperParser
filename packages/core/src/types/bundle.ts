@@ -1,7 +1,7 @@
 import { EDGE_EVIDENCE_VALUES, MATH_EDGE_KINDS, type MathEdge } from './edge.js';
 import { MATH_NODE_KINDS, type MathNode, type NodeId } from './node.js';
 
-export type PaperSourceType = 'latex' | 'pdf';
+export type PaperSourceType = 'latex' | 'markdown' | 'pdf';
 export type AnalysisLevel = 'bird_eye' | 'frog_eye' | 'both';
 export type InnovationCalibration = 'significant' | 'incremental' | 'straightforward_extension';
 export type AttentionDifficulty = 'low' | 'medium' | 'high';
@@ -130,7 +130,7 @@ export interface NotationEntry {
 
 export const BUNDLE_NODE_COUNT_KEYS = [...MATH_NODE_KINDS, 'total'] as const;
 export const BUNDLE_EDGE_COUNT_KEYS = [...MATH_EDGE_KINDS, 'total'] as const;
-export const BUNDLE_EVIDENCE_COUNT_KEYS = [...EDGE_EVIDENCE_VALUES, 'total'] as const;
+export const BUNDLE_EVIDENCE_COUNT_KEYS = [...EDGE_EVIDENCE_VALUES] as const;
 
 export type BundleNodeCounts = Record<(typeof BUNDLE_NODE_COUNT_KEYS)[number], number>;
 export type BundleEdgeCounts = Record<(typeof BUNDLE_EDGE_COUNT_KEYS)[number], number>;
@@ -191,12 +191,11 @@ export function createEmptyBundleStats(): BundleStats {
       explicit_ref: 0,
       inferred: 0,
       external: 0,
-      total: 0,
     },
   };
 }
 
-export function createEmptyIndex(schemaVersion = '0.1.0'): PaperParserIndex {
+export function createEmptyIndex(schemaVersion = '0.2.0'): PaperParserIndex {
   return {
     schemaVersion,
     problemStatement: {

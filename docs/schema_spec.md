@@ -1,8 +1,8 @@
 # PaperParser Bundle Schema Specification
 
-**Version:** 0.1.0
+**Version:** 0.2.0
 **Status:** Draft
-**Last updated:** 2026-03-01
+**Last updated:** 2026-03-11
 
 ---
 
@@ -75,7 +75,7 @@ The manifest captures everything about the paper itself, the scope of analysis, 
 
 ```jsonc
 {
-  "schema_version": "0.1.0",
+  "schema_version": "0.2.0",
   "created_at": "2026-03-01T14:30:00Z",
   "paper": {
     "title": "On the Convergence of Iterative Methods in Banach Spaces",
@@ -84,9 +84,9 @@ The manifest captures everything about the paper itself, the scope of analysis, 
     "doi": "10.1234/jfa.2024.109876",
     "year": 2024,
     "subject_area": "Functional Analysis",
-    "source_type": "latex",
-    "source_files": ["main.tex", "appendix.tex"],
-    "version_note": "arXiv v2, Jan 2024"
+    "source_type": "markdown",
+    "source_files": ["paper.md"],
+    "version_note": "Academic Markdown author draft, Jan 2024"
   },
   "scope": {
     "sections_included": ["all"],
@@ -94,7 +94,7 @@ The manifest captures everything about the paper itself, the scope of analysis, 
   },
   "producer": {
     "agent": "claude-opus-4-6",
-    "schema_version": "0.1.0",
+    "schema_version": "0.2.0",
     "timestamp_start": "2026-03-01T14:25:00Z",
     "timestamp_end": "2026-03-01T14:30:00Z"
   }
@@ -107,7 +107,7 @@ The manifest captures everything about the paper itself, the scope of analysis, 
 
 | Field | Type | Required | Description |
 |-------|------|----------|-------------|
-| `schema_version` | `string` | YES | Semver version of this schema spec. Currently `"0.1.0"`. |
+| `schema_version` | `string` | YES | Semver version of this schema spec. Currently `"0.2.0"`. |
 | `created_at` | `string` | YES | ISO 8601 timestamp of bundle creation. |
 | `paper` | `object` | YES | Metadata about the paper being analyzed. |
 | `scope` | `object` | YES | What was included in the analysis. |
@@ -123,8 +123,8 @@ The manifest captures everything about the paper itself, the scope of analysis, 
 | `doi` | `string` | NO | Digital Object Identifier. |
 | `year` | `integer` | YES | Publication or preprint year. |
 | `subject_area` | `string` | YES | Primary mathematical subject area (free text, but prefer standard MSC-style descriptions like `"Functional Analysis"`, `"Algebraic Geometry"`, `"Probability Theory"`). |
-| `source_type` | `string` | YES | One of: `"latex"`, `"pdf"`. Indicates the source format the agent worked from. |
-| `source_files` | `string[]` | YES | List of source file names analyzed. For PDF input, this is `["paper.pdf"]` or similar. |
+| `source_type` | `string` | YES | One of: `"latex"`, `"markdown"`, `"pdf"`. Indicates the source format the agent worked from. |
+| `source_files` | `string[]` | YES | List of source file names analyzed. For Markdown input, this is typically `["paper.md"]`; for PDF input, this is `["paper.pdf"]` or similar. |
 | `version_note` | `string` | NO | Free-text note about which version of the paper was analyzed. |
 
 #### `scope` object
@@ -153,7 +153,7 @@ The graph file encodes the mathematical content of the paper as a directed graph
 
 ```jsonc
 {
-  "schema_version": "0.1.0",
+  "schema_version": "0.2.0",
   "nodes": [
     {
       "id": "sec2::def:banach-space",
@@ -308,7 +308,7 @@ The graph file encodes the mathematical content of the paper as a directed graph
 | `section` | `string` | YES | Section number (e.g., `"2"`, `"3.1"`, `"A"`). Use `"0"` for preamble/front matter. |
 | `section_title` | `string` | YES | Title of the section. Empty string if the section is untitled. |
 | `number` | `string` | YES | The theorem/definition number as printed in the paper (e.g., `"2.1"`, `"A.3"`). Empty string if unnumbered. |
-| `latex_label` | `string \| null` | NO | The LaTeX `\label{}` tag if available from source. `null` if unavailable (e.g., PDF source). |
+| `latex_label` | `string \| null` | NO | The LaTeX `\label{}` tag if available from source. `null` if unavailable (e.g., Markdown or PDF source). |
 | `statement` | `string` | YES | The full mathematical statement, in LaTeX-flavored plain text. Include all quantifiers, hypotheses, and conclusions. For definitions, include the full definition. For notation nodes, include the symbol and its meaning. |
 | `proof_status` | `string` | YES | One of: `"full"` (complete proof given), `"sketch"` (proof sketch only), `"deferred"` (proof deferred to appendix or later section), `"external"` (proved elsewhere, e.g., in a cited reference), `"not_applicable"` (definitions, assumptions, remarks, notation, conjectures). |
 | `is_main_result` | `boolean` | YES | `true` if this is one of the paper's headline results (typically mentioned in the abstract or introduction). |
@@ -353,7 +353,7 @@ The index file provides narrative enrichment layered on top of the graph. It is 
 
 ```jsonc
 {
-  "schema_version": "0.1.0",
+  "schema_version": "0.2.0",
 
   "problem_statement": {
     "question": "Under what conditions do iterative fixed-point schemes converge in Banach spaces, and at what rate?",
@@ -744,8 +744,8 @@ For quick reference, all controlled vocabularies in the schema:
 ### Analysis level (3)
 `bird_eye`, `frog_eye`, `both`
 
-### Source type (2)
-`latex`, `pdf`
+### Source type (3)
+`latex`, `markdown`, `pdf`
 
 ### Innovation calibration (3)
 `significant`, `incremental`, `straightforward_extension`
@@ -762,4 +762,5 @@ For quick reference, all controlled vocabularies in the schema:
 
 | Version | Date | Description |
 |---------|------|-------------|
+| 0.2.0 | 2026-03-11 | Added truthful Markdown support to `paper.source_type`; graph and index shapes unchanged. |
 | 0.1.0 | 2026-03-01 | Initial draft. |

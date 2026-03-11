@@ -1,4 +1,6 @@
-# PaperParser -- Dashboard Specification
+# PaperParser Dashboard Specification
+
+> Legacy reference: this document describes the earlier Svelte dashboard under `dashboard/`. The active v2 alpha dashboard lives in `packages/web` and targets the `0.2.0` bundle contract.
 
 ## Stack
 

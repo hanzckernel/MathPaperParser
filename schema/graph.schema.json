@@ -9,7 +9,7 @@
   "properties": {
     "schema_version": {
       "type": "string",
-      "const": "0.1.0",
+      "const": "0.2.0",
       "description": "Semver version of the PaperParser schema specification."
     },
     "nodes": {

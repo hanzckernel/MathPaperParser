@@ -1,25 +1,309 @@
+import { useEffect, useState } from 'react';
+
+import { BundleDataControls } from './components/data-controls.js';
+import {
+  ExplorerPage,
+  GraphPage,
+  InnovationPage,
+  OverviewPage,
+  UnknownsPage,
+} from './components/dashboard-pages.js';
+import { listApiPapers, type ApiPaperListing, uploadSourceDocument } from './lib/api-client.js';
+import { buildDashboardModel, type DashboardModel } from './lib/dashboard-model.js';
+import { loadSerializedBundle, resolveBundleSource, type BundleSource } from './lib/data-source.js';
+
+type RouteKey = 'overview' | 'graph' | 'explorer' | 'innovation' | 'unknowns';
+
+const ROUTES: RouteKey[] = ['overview', 'graph', 'explorer', 'innovation', 'unknowns'];
+
+function parseRoute(hash: string): RouteKey {
+  const cleaned = hash.replace(/^#\/?/u, '');
+  const route = cleaned.split('/', 1)[0];
+  return ROUTES.includes(route as RouteKey) ? (route as RouteKey) : 'overview';
+}
+
+function navigateTo(route: RouteKey): void {
+  window.location.hash = `#/${route}`;
+}
+
+function appShellStyle(): React.CSSProperties {
+  return {
+    minHeight: '100vh',
+    background:
+      'radial-gradient(circle at top, rgba(234, 179, 8, 0.14), transparent 30%), radial-gradient(circle at 20% 20%, rgba(56, 189, 248, 0.12), transparent 25%), #0f172a',
+    color: '#e5eef9',
+    fontFamily: '"IBM Plex Sans", "Segoe UI", sans-serif',
+  };
+}
+
+function cardStyle(): React.CSSProperties {
+  return {
+    border: '1px solid rgba(148, 163, 184, 0.22)',
+    borderRadius: '18px',
+    background: 'rgba(15, 23, 42, 0.72)',
+    boxShadow: '0 18px 48px rgba(15, 23, 42, 0.28)',
+    padding: '1.2rem',
+  };
+}
+
+function navButtonStyle(active: boolean): React.CSSProperties {
+  return {
+    border: '1px solid rgba(148, 163, 184, 0.24)',
+    borderRadius: '999px',
+    padding: '0.55rem 0.95rem',
+    background: active ? 'rgba(56, 189, 248, 0.18)' : 'rgba(15, 23, 42, 0.55)',
+    color: active ? '#f8fafc' : '#cbd5e1',
+    cursor: 'pointer',
+    textTransform: 'capitalize',
+    letterSpacing: '0.03em',
+  };
+}
+
+function sourceToSearch(source: BundleSource): string {
+  if (source.kind === 'static') {
+    return '';
+  }
+
+  const params = new URLSearchParams();
+  params.set('api', source.baseUrl);
+  params.set('paper', source.paperId);
+  return `?${params.toString()}`;
+}
+
+function selectedPaperIdForControls(source: BundleSource, apiListing: ApiPaperListing | null): string | undefined {
+  if (source.kind !== 'api') {
+    return undefined;
+  }
+
+  if (source.paperId === 'latest') {
+    return apiListing?.latestPaperId ?? undefined;
+  }
+
+  return source.paperId;
+}
+
 export function App() {
+  const [route, setRoute] = useState<RouteKey>(() => (typeof window === 'undefined' ? 'overview' : parseRoute(window.location.hash)));
+  const [source, setSource] = useState<BundleSource>(() =>
+    typeof window === 'undefined' ? { kind: 'static', basePath: './data' } : resolveBundleSource(window.location.search),
+  );
+  const [model, setModel] = useState<DashboardModel | null>(null);
+  const [selectedNodeId, setSelectedNodeId] = useState<string | null>(null);
+  const [apiListing, setApiListing] = useState<ApiPaperListing | null>(null);
+  const [pendingPaperId, setPendingPaperId] = useState('');
+  const [uploadStatus, setUploadStatus] = useState<'idle' | 'uploading' | 'success' | 'error'>('idle');
+  const [uploadMessage, setUploadMessage] = useState<string | null>(null);
+  const [status, setStatus] = useState<'loading' | 'ready' | 'error'>('loading');
+  const [error, setError] = useState<string | null>(null);
+  const selectedPaperId = selectedPaperIdForControls(source, apiListing);
+
+  useEffect(() => {
+    const apply = () => setRoute(parseRoute(window.location.hash));
+    apply();
+    window.addEventListener('hashchange', apply);
+    return () => window.removeEventListener('hashchange', apply);
+  }, []);
+
+  useEffect(() => {
+    if (typeof window === 'undefined') {
+      return;
+    }
+
+    const nextSearch = sourceToSearch(source);
+    const nextUrl = `${window.location.pathname}${nextSearch}${window.location.hash || '#/overview'}`;
+    window.history.replaceState(null, '', nextUrl);
+  }, [source]);
+
+  useEffect(() => {
+    if (source.kind !== 'api') {
+      setApiListing(null);
+      return;
+    }
+
+    let cancelled = false;
+    listApiPapers(source.baseUrl)
+      .then((listing) => {
+        if (!cancelled) {
+          setApiListing(listing);
+        }
+      })
+      .catch(() => {
+        if (!cancelled) {
+          setApiListing(null);
+        }
+      });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [source]);
+
+  useEffect(() => {
+    let cancelled = false;
+    setStatus('loading');
+    setError(null);
+
+    loadSerializedBundle(source)
+      .then((bundle) => {
+        if (cancelled) {
+          return;
+        }
+
+        const nextModel = buildDashboardModel(bundle);
+        setModel(nextModel);
+        setSelectedNodeId((current) => current ?? nextModel.mainResults[0]?.nodeId ?? nextModel.nodes[0]?.id ?? null);
+        setStatus('ready');
+      })
+      .catch((loadError) => {
+        if (cancelled) {
+          return;
+        }
+
+        setStatus('error');
+        setError(loadError instanceof Error ? loadError.message : String(loadError));
+      });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [source]);
+
+  const page = (() => {
+    if (!model) {
+      return null;
+    }
+
+    switch (route) {
+      case 'overview':
+        return (
+          <OverviewPage
+            model={model}
+            onSelectNode={(nodeId) => {
+              setSelectedNodeId(nodeId);
+              navigateTo('explorer');
+            }}
+          />
+        );
+      case 'graph':
+        return (
+          <GraphPage
+            model={model}
+            selectedNodeId={selectedNodeId}
+            onSelectNode={setSelectedNodeId}
+          />
+        );
+      case 'explorer':
+        return <ExplorerPage model={model} selectedNodeId={selectedNodeId} onSelectNode={setSelectedNodeId} />;
+      case 'innovation':
+        return <InnovationPage model={model} />;
+      case 'unknowns':
+        return <UnknownsPage model={model} />;
+    }
+  })();
+
   return (
-    <main
-      style={{
-        minHeight: '100vh',
-        padding: '3rem',
-        background:
-          'radial-gradient(circle at top, rgba(88,166,255,0.16), transparent 45%), #0d1117',
-        color: '#e6edf3',
-        fontFamily: 'Inter, system-ui, sans-serif',
-      }}
-    >
-      <p style={{ textTransform: 'uppercase', letterSpacing: '0.18em', color: '#8b949e' }}>
-        PaperParser v2
-      </p>
-      <h1 style={{ marginTop: '0.5rem', fontSize: 'clamp(2rem, 4vw, 3.5rem)' }}>
-        React workspace shell is ready.
-      </h1>
-      <p style={{ maxWidth: '48rem', lineHeight: 1.7, color: '#c9d1d9' }}>
-        Batch 1 only bootstraps the React app. The data stores, page shell, and D3 components land in
-        later batches after the core graph and bundle pipeline exist.
-      </p>
+    <main style={appShellStyle()}>
+      <div style={{ maxWidth: '1200px', margin: '0 auto', padding: '2.5rem 1.5rem 3rem' }}>
+        <header style={{ marginBottom: '1.5rem' }}>
+          <p style={{ textTransform: 'uppercase', letterSpacing: '0.22em', color: '#fbbf24', marginBottom: '0.75rem' }}>
+            PaperParser v2 Alpha
+          </p>
+          <div style={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'space-between', gap: '1rem', alignItems: 'end' }}>
+            <div>
+              <h1 style={{ margin: 0, fontSize: 'clamp(2.1rem, 4vw, 3.7rem)' }}>{model?.title ?? 'Loading bundle...'}</h1>
+              <p style={{ margin: '0.6rem 0 0', color: '#cbd5e1' }}>
+                {model ? `${model.sourceType} · ${model.year} · ${model.authors.join(', ')}` : 'Static export and API-backed loading are now wired into the React dashboard.'}
+              </p>
+            </div>
+            <nav style={{ display: 'flex', flexWrap: 'wrap', gap: '0.6rem' }}>
+              {ROUTES.map((candidate) => (
+                <button key={candidate} type="button" onClick={() => navigateTo(candidate)} style={navButtonStyle(route === candidate)}>
+                  {candidate}
+                </button>
+              ))}
+            </nav>
+          </div>
+        </header>
+
+        {status === 'loading' ? (
+          <section style={cardStyle()}>
+            <h2 style={{ marginTop: 0 }}>Loading bundle…</h2>
+            <p style={{ color: '#94a3b8' }}>Expected exported files under <code>./data</code> or an API base from <code>?api=...</code>.</p>
+          </section>
+        ) : null}
+
+        {status === 'error' ? (
+          <section style={cardStyle()}>
+            <h2 style={{ marginTop: 0 }}>Failed to load data</h2>
+            <pre style={{ whiteSpace: 'pre-wrap', color: '#fecaca' }}>{error}</pre>
+          </section>
+        ) : null}
+
+        <BundleDataControls
+          sourceKind={source.kind}
+          apiListing={apiListing}
+          pendingPaperId={pendingPaperId}
+          uploadStatus={uploadStatus}
+          uploadMessage={uploadMessage}
+          {...(source.kind === 'api' ? { apiBaseUrl: source.baseUrl } : {})}
+          {...(selectedPaperId ? { selectedPaperId } : {})}
+          onRefreshPapers={() => {
+            if (source.kind !== 'api') {
+              return;
+            }
+
+            listApiPapers(source.baseUrl)
+              .then((listing) => setApiListing(listing))
+              .catch((refreshError) => {
+                setUploadStatus('error');
+                setUploadMessage(refreshError instanceof Error ? refreshError.message : String(refreshError));
+              });
+          }}
+          onSelectedPaperChange={(paperId) => {
+            if (source.kind !== 'api') {
+              return;
+            }
+
+            setSource({
+              ...source,
+              paperId,
+            });
+          }}
+          onPaperIdInputChange={setPendingPaperId}
+          onUploadFileChange={(file) => {
+            if (source.kind !== 'api' || !file) {
+              return;
+            }
+
+            setUploadStatus('uploading');
+            setUploadMessage(`Uploading ${file.name}…`);
+
+            void uploadSourceDocument(source.baseUrl, {
+              file,
+              ...(pendingPaperId.trim() ? { paperId: pendingPaperId.trim() } : {}),
+            })
+              .then((uploaded) => {
+                setUploadStatus('success');
+                setUploadMessage(`Uploaded ${uploaded.paperId}: ${uploaded.manifest.paper.title}`);
+                setPendingPaperId('');
+                setSource({
+                  ...source,
+                  paperId: uploaded.paperId,
+                });
+                return listApiPapers(source.baseUrl);
+              })
+              .then((listing) => {
+                setApiListing(listing);
+              })
+              .catch((uploadError) => {
+                setUploadStatus('error');
+                setUploadMessage(uploadError instanceof Error ? uploadError.message : String(uploadError));
+              });
+          }}
+        />
+
+        {status === 'ready' ? page : null}
+      </div>
     </main>
   );
 }

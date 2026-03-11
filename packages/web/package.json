@@ -1,13 +1,14 @@
 {
   "name": "@paperparser/web",
   "private": true,
-  "version": "0.1.0",
+  "version": "0.2.0-alpha.1",
   "type": "module",
   "scripts": {
     "build": "vite build",
     "typecheck": "tsc -p tsconfig.json --noEmit"
   },
   "dependencies": {
+    "@paperparser/core": "file:../core",
     "react": "^19.1.1",
     "react-dom": "^19.1.1"
   },

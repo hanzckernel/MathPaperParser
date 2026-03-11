@@ -9,7 +9,7 @@
   "properties": {
     "schema_version": {
       "type": "string",
-      "const": "0.1.0",
+      "const": "0.2.0",
       "description": "Semver version of the PaperParser schema specification."
     },
     "created_at": {
@@ -60,7 +60,7 @@
         },
         "source_type": {
           "type": "string",
-          "enum": ["latex", "pdf"],
+          "enum": ["latex", "markdown", "pdf"],
           "description": "Source format the agent worked from."
         },
         "source_files": {
@@ -70,7 +70,7 @@
             "type": "string",
             "minLength": 1
           },
-          "description": "List of source file names analyzed. For PDF input, this is ['paper.pdf'] or similar."
+          "description": "List of source file names analyzed. For Markdown input, this is typically ['paper.md']; for PDF input, this is ['paper.pdf'] or similar."
         },
         "version_note": {
           "type": "string",
@@ -113,7 +113,7 @@
         },
         "schema_version": {
           "type": "string",
-          "const": "0.1.0",
+          "const": "0.2.0",
           "description": "Schema version the agent targeted. Must match top-level schema_version."
         },
         "timestamp_start": {

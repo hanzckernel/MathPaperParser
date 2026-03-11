@@ -1,5 +1,5 @@
 {
-  "schema_version": "0.1.0",
+  "schema_version": "0.2.0",
   "created_at": "2026-03-01T10:45:00Z",
   "paper": {
     "title": "Compact Embeddings of Weighted Sobolev Spaces on Bounded Domains",
@@ -8,9 +8,9 @@
     "doi": "10.1016/j.jfa.2025.110874",
     "year": 2025,
     "subject_area": "Functional Analysis",
-    "source_type": "latex",
-    "source_files": ["main.tex", "appendix.tex"],
-    "version_note": "arXiv v1, Feb 2025; accepted version for J. Funct. Anal."
+    "source_type": "markdown",
+    "source_files": ["paper.md"],
+    "version_note": "Converted author manuscript in academic Markdown, Feb 2026."
   },
   "scope": {
     "sections_included": ["all"],
@@ -18,7 +18,7 @@
   },
   "producer": {
     "agent": "claude-opus-4-6",
-    "schema_version": "0.1.0",
+    "schema_version": "0.2.0",
     "timestamp_start": "2026-03-01T10:30:00Z",
     "timestamp_end": "2026-03-01T10:45:00Z"
   }

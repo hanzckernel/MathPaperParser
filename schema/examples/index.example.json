@@ -1,5 +1,5 @@
 {
-  "schema_version": "0.1.0",
+  "schema_version": "0.2.0",
   "problem_statement": {
     "question": "When does the embedding of a weighted Sobolev space into weighted Lebesgue spaces become compact, and how do boundary effects and weight regularity control compactness?",
     "motivation": "Compact embeddings are a central tool for existence results in nonlinear PDE and variational problems; in weighted settings they control concentration near the boundary and degeneracy/singularity of coefficients.",
@@ -303,4 +303,3 @@
     }
   }
 }
-

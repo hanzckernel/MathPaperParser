@@ -1,4 +1,4 @@
-# PaperParser Agent Protocol (v0.1.0)
+# PaperParser Agent Protocol (v0.2.0)
 
 This document is the instruction set for an agent tasked with analyzing a mathematical research paper and producing a **PaperParser bundle**:
 
@@ -17,7 +17,8 @@ parser-run/
 
 One of:
 - **LaTeX source** (preferred): a `.tex` file, a `.gz` containing TeX, or a directory containing `main.tex`.
-- **PDF** (fallback): use only if LaTeX is unavailable; expect lower accuracy for cross-references.
+- **Academic Markdown**: a `.md` file using headings, math, anchors, and theorem-like blocks.
+- **PDF** (fallback): use only if LaTeX or Markdown is unavailable; expect lower accuracy for cross-references.
 
 Optional:
 - Focus directive: include/skip specific sections/appendices.
@@ -32,7 +33,7 @@ You MUST produce:
 - `graph.json` matching `schema/graph.schema.json`
 - `index.json` matching `schema/index.schema.json`
 
-All three MUST use the same `"schema_version"` (currently `"0.1.0"`).
+All three MUST use the same `"schema_version"` (currently `"0.2.0"`).
 
 ---
 
@@ -89,7 +90,7 @@ If the paper contains other structures (e.g., algorithms, questions, key equatio
    - `paper.year` (required; only infer if the source clearly states a year)
    - `paper.subject_area` (required; free text)
    - optional `paper.arxiv_id`, `paper.doi`, `paper.version_note`
-   - `paper.source_type`: `"latex"` or `"pdf"`
+   - `paper.source_type`: `"latex"`, `"markdown"`, or `"pdf"`
    - `paper.source_files`: list of filenames analyzed
 
 3. **Set scope:**
@@ -104,6 +105,8 @@ If the paper contains other structures (e.g., algorithms, questions, key equatio
 **PDF fallback note:** you cannot rely on `\label` / `\ref` tables. Use `paper.version_note` to note reduced accuracy (e.g., “Parsed from PDF; cross-references may be incomplete.”).
 
 **Repo helper:** `tools/prepare_latex.py` can flatten `.tex`, `.gz`, or a `main.tex` directory into `*.flat.tex` and report missing assets.
+
+**Markdown note:** Markdown sources do not require flattening. Treat front matter, headings, anchors, links, inline/display math, and theorem-like blocks as the primary structure.
 
 **Repo helper (PDF fallback):** `tools/build_bundle_from_pdf.py` can build a **schema-valid** bundle from a PDF via text extraction. It is heuristic and may miss theorem boundaries and dependencies.
 
