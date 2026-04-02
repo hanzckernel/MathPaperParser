@@ -77,30 +77,30 @@
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| INGEST-01 | TBD | Pending |
-| INGEST-02 | TBD | Pending |
-| INGEST-03 | TBD | Pending |
-| OBJ-01 | TBD | Pending |
-| OBJ-02 | TBD | Pending |
-| OBJ-03 | TBD | Pending |
-| REL-01 | TBD | Pending |
-| REL-02 | TBD | Pending |
-| REL-03 | TBD | Pending |
-| REL-04 | TBD | Pending |
-| EXPL-01 | TBD | Pending |
-| EXPL-02 | TBD | Pending |
-| EXPL-03 | TBD | Pending |
-| EXPL-04 | TBD | Pending |
-| ENRICH-01 | TBD | Pending |
-| ENRICH-02 | TBD | Pending |
-| ENRICH-03 | TBD | Pending |
-| ACC-01 | TBD | Pending |
-| ACC-02 | TBD | Pending |
+| INGEST-01 | Phase 1 | Pending |
+| INGEST-02 | Phase 1 | Pending |
+| INGEST-03 | Phase 1 | Pending |
+| OBJ-01 | Phase 2 | Pending |
+| OBJ-02 | Phase 2 | Pending |
+| OBJ-03 | Phase 2 | Pending |
+| REL-01 | Phase 2 | Pending |
+| REL-02 | Phase 2 | Pending |
+| REL-03 | Phase 2 | Pending |
+| REL-04 | Phase 2 | Pending |
+| EXPL-01 | Phase 3 | Pending |
+| EXPL-02 | Phase 3 | Pending |
+| EXPL-03 | Phase 3 | Pending |
+| EXPL-04 | Phase 4 | Pending |
+| ENRICH-01 | Phase 4 | Pending |
+| ENRICH-02 | Phase 4 | Pending |
+| ENRICH-03 | Phase 4 | Pending |
+| ACC-01 | Phase 5 | Pending |
+| ACC-02 | Phase 2 | Pending |
 
 **Coverage:**
 - v1 requirements: 19 total
-- Mapped to phases: 0
-- Unmapped: 19 ⚠
+- Mapped to phases: 19
+- Unmapped: 0 ✓
 
 ---
 *Requirements defined: 2026-04-02*
