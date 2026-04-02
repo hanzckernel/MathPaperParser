@@ -17,7 +17,7 @@ This roadmap advances the approved `v1.1` scope only: paper-local search, parser
 - Decimal phases (6.1, 6.2): Urgent insertions (marked with INSERTED)
 
 - [x] **Phase 6: Searchable Bundle Index & Explorer Navigation** - Add paper-local search and direct navigation into the explorer using the shipped stored-paper surfaces.
-- [ ] **Phase 7: TeX Hardening & Diagnostic Reduction** - Reduce unresolved references on the gold paper and broaden deterministic TeX coverage across `medium_Mueller.flat.tex` and `short_Petri.tex`.
+- [x] **Phase 7: TeX Hardening & Diagnostic Reduction** - Reduce unresolved references on the gold paper and broaden deterministic TeX coverage across `medium_Mueller.flat.tex` and `short_Petri.tex`.
 - [ ] **Phase 8: Local Corpus Library & Cross-Paper Navigation** - Support multiple stored papers and explainable cross-paper navigation without collapsing paper boundaries.
 - [ ] **Phase 9: Multi-Paper Acceptance Gate** - Prove the full milestone on `long_nalini`, `medium_Mueller.flat.tex`, and `short_Petri.tex` without manual graph editing.
 
@@ -44,6 +44,7 @@ This roadmap advances the approved `v1.1` scope only: paper-local search, parser
   2. Both `medium_Mueller.flat.tex` and `short_Petri.tex` parse without manual repair steps.
   3. The parser handles the additional reference, bibliography, inclusion, and fixture-specific patterns needed by the milestone corpus.
   4. Deterministic parsing remains rerun-stable and safe for downstream consumers.
+**Plans**: `07-01` completed on 2026-04-03
 
 ### Phase 8: Local Corpus Library & Cross-Paper Navigation
 **Goal**: Users can manage multiple local parsed papers and move between explainable cross-paper links without losing paper boundaries.

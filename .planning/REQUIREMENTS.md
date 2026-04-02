@@ -14,11 +14,11 @@
 
 ### Hardening
 
-- [ ] **HARD-01**: User sees fewer unresolved-reference diagnostics on `ref/papers/long_nalini/arXiv-2502.12268v2/main.tex` than the `v1.0` baseline, while remaining gaps stay explicit.
-- [ ] **HARD-02**: User can parse both `ref/papers/medium_Mueller.flat.tex` and `ref/papers/short_Petri.tex` in addition to `long_nalini` without manual graph repair steps.
-- [ ] **HARD-03**: Parser handles the broader set of TeX reference, bibliography, inclusion, and fixture-specific patterns encountered across `long_nalini`, `medium_Mueller.flat.tex`, and `short_Petri.tex`.
-- [ ] **HARD-04**: Unsupported or ambiguous TeX constructs still produce explicit diagnostics instead of silent failure or invented deterministic links.
-- [ ] **HARD-05**: Deterministic parsing remains rerun-stable and keeps the canonical artifact valid for downstream CLI, API, dashboard, and MCP consumers.
+- [x] **HARD-01**: User sees fewer unresolved-reference diagnostics on `ref/papers/long_nalini/arXiv-2502.12268v2/main.tex` than the `v1.0` baseline, while remaining gaps stay explicit.
+- [x] **HARD-02**: User can parse both `ref/papers/medium_Mueller.flat.tex` and `ref/papers/short_Petri.tex` in addition to `long_nalini` without manual graph repair steps.
+- [x] **HARD-03**: Parser handles the broader set of TeX reference, bibliography, inclusion, and fixture-specific patterns encountered across `long_nalini`, `medium_Mueller.flat.tex`, and `short_Petri.tex`.
+- [x] **HARD-04**: Unsupported or ambiguous TeX constructs still produce explicit diagnostics instead of silent failure or invented deterministic links.
+- [x] **HARD-05**: Deterministic parsing remains rerun-stable and keeps the canonical artifact valid for downstream CLI, API, dashboard, and MCP consumers.
 
 ### Corpus
 
@@ -66,11 +66,11 @@
 | SEARCH-02 | Phase 6 | Completed |
 | SEARCH-03 | Phase 6 | Completed |
 | SEARCH-04 | Phase 6 | Completed |
-| HARD-01 | Phase 7 | Pending |
-| HARD-02 | Phase 7 | Pending |
-| HARD-03 | Phase 7 | Pending |
-| HARD-04 | Phase 7 | Pending |
-| HARD-05 | Phase 7 | Pending |
+| HARD-01 | Phase 7 | Completed |
+| HARD-02 | Phase 7 | Completed |
+| HARD-03 | Phase 7 | Completed |
+| HARD-04 | Phase 7 | Completed |
+| HARD-05 | Phase 7 | Completed |
 | CORP-01 | Phase 8 | Pending |
 | CORP-02 | Phase 8 | Pending |
 | CORP-03 | Phase 8 | Pending |
@@ -86,4 +86,4 @@
 
 ---
 *Requirements defined: 2026-04-03*
-*Last updated: 2026-04-03 after milestone v1.1 definition*
+*Last updated: 2026-04-03 after completing Phase 7*

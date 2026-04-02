@@ -17,7 +17,7 @@ A mathematician can feed in a TeX paper and get a trustworthy dependency artifac
 - **Canonical output:** `manifest.json` / `graph.json` / `index.json`
 - **Additive sidecars:** `diagnostics.json` and optional `enrichment.json`
 - **Accepted workflow:** `analyze -> enrich -> validate -> export`
-- **Current non-blocking debt:** the representative paper still emits unresolved-reference diagnostics, but they are explicit and reviewable rather than silent failures
+- **Current non-blocking debt:** `long_nalini` still emits `22` unresolved references plus `2` explicit unsupported reference-command diagnostics, but the residual is now bounded and reviewable instead of baseline-sized noise
 
 ## Current Milestone: v1.1 Search, Hardening & Corpus
 
@@ -39,10 +39,10 @@ A mathematician can feed in a TeX paper and get a trustworthy dependency artifac
 - ✓ Provide an optional second-pass enrichment flow with separate storage, confidence, evidence, and provenance-gated visibility — `v1.0`
 - ✓ Prove the full local workflow on `long_nalini` without manual graph editing — `v1.0`
 - ✓ Add search by label, title, or object name across the parsed paper, with direct explorer navigation — `Phase 6`
+- ✓ Reduce unresolved-reference diagnostics on the representative paper and broaden deterministic TeX coverage across `long_nalini`, `medium_Mueller.flat.tex`, and `short_Petri.tex` — `Phase 7`
 
 ### Active
 
-- [ ] Reduce unresolved-reference diagnostics on the representative paper and broaden TeX coverage across the milestone corpus of `long_nalini`, `medium_Mueller.flat.tex`, and `short_Petri.tex`
 - [ ] Support a local multi-paper corpus with safe paper isolation and cross-paper navigation where evidence is explicit or explainable across the milestone corpus
 
 ### Out of Scope
@@ -83,6 +83,7 @@ The repository is a TypeScript monorepo with active workspace packages in `packa
 | Persist diagnostics and enrichment as sidecars instead of mutating the canonical bundle schema | Additive files preserve trust boundaries without destabilizing shipped consumers | ✓ Good — `diagnostics.json` and `enrichment.json` both shipped cleanly |
 | Make `v1.1` about search, hardening, and corpus support instead of broader input formats | These three additions compound directly on top of the shipped v1 artifact and raise day-to-day usefulness without weakening the trust model | — Pending |
 | Reuse the existing stored-paper and canonical-bundle surfaces for search and corpus features | Search and corpus workflows should stay aligned across CLI, API, dashboard, and MCP instead of growing separate data paths | ✓ Good — Phase 6 search now reuses the shared core query path in the web shell |
+| Keep Phase 7 focused on deterministic parser gaps instead of adding first-class figure nodes | The measured corpus was dominated by nested/same-line equation-like misses and labeled headings; figure nodes would have introduced broader schema churn | ✓ Good — hardening landed with a bounded explicit residual class and no node-kind expansion |
 | Limit cross-paper navigation to explicit or explainable links | Multi-paper workflows need to remain inspectable and trustworthy, not speculative global linkage | — Pending |
 | Deep-link search results into `#/explorer/<nodeId>` instead of creating a separate search page | Search should accelerate the existing explorer, not fork the navigation model | ✓ Good — Phase 6 made result-to-explorer jumps explicit and testable |
 
@@ -97,4 +98,4 @@ This document now tracks the shipped product state and the currently active mile
 4. Keep Current State accurate enough that the next milestone starts from facts rather than memory
 
 ---
-*Last updated: 2026-04-03 after starting milestone v1.1*
+*Last updated: 2026-04-03 after completing Phase 7*
