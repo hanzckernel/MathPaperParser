@@ -1,18 +1,34 @@
+---
+gsd_state_version: 1.0
+milestone: v1.0
+milestone_name: TeX MVP
+status: completed
+stopped_at: v1.0 archived and ready for next-milestone planning
+last_updated: "2026-04-02T22:14:57Z"
+last_activity: 2026-04-03
+progress:
+  total_phases: 5
+  completed_phases: 5
+  total_plans: 9
+  completed_plans: 9
+  percent: 100
+---
+
 # Project State
 
 ## Project Reference
 
-See: .planning/PROJECT.md (updated 2026-04-02)
+See: .planning/PROJECT.md (updated 2026-04-03)
 
 **Core value:** A mathematician can feed in a TeX paper and get a trustworthy dependency artifact that makes the logical structure of the paper easier to navigate.
-**Current focus:** Milestone complete - archival/tagging pending version choice
+**Current focus:** Planning the next milestone
 
 ## Current Position
 
-Phase: 5 of 5 (Gold-Paper Acceptance Gate)
-Plan: 1 of 1 in current phase
-Status: All roadmap phases complete
-Last activity: 2026-04-02 — Phase 5 completed with a gold-paper end-to-end CLI acceptance gate and a green built-CLI verification on `long_nalini`.
+Phase: Archived milestone `v1.0` (`TeX MVP`)
+Plan: n/a
+Status: `v1.0` milestone complete
+Last activity: 2026-04-03 — Archived `v1.0` roadmap, requirements, audit, and phase history; the project is ready for next-milestone planning.
 
 Progress: [██████████] 100%
 
@@ -41,31 +57,24 @@ Progress: [██████████] 100%
 
 ### Decisions
 
-Decisions are logged in PROJECT.md Key Decisions table.
-Recent decisions affecting current work:
+Decisions are logged in PROJECT.md. The milestone established:
 
-- Phase 1-2: Deterministic TeX parsing remains the trusted baseline and canonical artifact.
-- Phase 3: The local HTML explorer consumes the canonical artifact; it is not the source of truth.
-- Phase 4: Agent inference is an optional second-pass layer with separate storage, provenance, confidence, and evidence.
-- Phase 5: Success is one representative heavy TeX paper parsed well, not broad corpus coverage.
-- Phase 1: `ref/papers/long_nalini/arXiv-2502.12268v2/main.tex` is the representative acceptance paper.
-- Phase 1: `main.bbl` counts as satisfying the local bibliography requirement for the gold paper on the existing ingestion path.
-- Phase 1: `diagnostics.json` is persisted beside `manifest.json`, `graph.json`, and `index.json` without changing canonical bundle schema.
-- Phase 1: Gold-paper reruns are stable in title/authors, node and edge counts, and warning-code shape.
-- Phase 4: `enrichment.json` is now a separate validated sidecar exposed through CLI export, serve, MCP, and the graph route.
-- Phase 5: The real built-CLI workflow on `long_nalini` now completes with 416 nodes, 617 canonical edges, and 20 enrichment candidates.
+- The deterministic canonical TeX bundle is the trusted baseline artifact.
+- The local HTML explorer is a consumer of that artifact, not the source of truth.
+- Agent inference is an optional second-pass sidecar with provenance, confidence, and review metadata.
+- `long_nalini` is the representative acceptance paper for the shipped v1 scope.
 
 ### Pending Todos
 
-None.
+- Define the next milestone.
 
 ### Blockers/Concerns
 
-- The milestone implementation is complete, but archival/tagging via `$gsd-complete-milestone` still needs an explicit version choice.
-- The gold paper still emits unresolved-reference diagnostics. They remain useful context for enrichment and future parser work, but they no longer block the milestone workflow.
+- The representative paper still emits unresolved-reference diagnostics. This is non-blocking v1 tech debt and a strong candidate for the next parser-focused milestone.
+- No next milestone has been scoped yet.
 
 ## Session Continuity
 
-Last session: 2026-04-02 22:28 CEST
-Stopped at: All roadmap phases complete; milestone archiving/tagging intentionally deferred pending version choice
-Resume file: .planning/phases/05-gold-paper-acceptance-gate/05-01-SUMMARY.md
+Last session: 2026-04-03 CEST
+Stopped at: `v1.0` closed cleanly; next step is `$gsd-new-milestone`
+Resume file: .planning/PROJECT.md
