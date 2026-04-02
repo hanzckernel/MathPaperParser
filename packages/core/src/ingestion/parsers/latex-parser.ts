@@ -50,9 +50,12 @@ const KIND_TITLE: Partial<Record<MathNode['kind'], string>> = {
 const NEW_THEOREM_RE =
   /\\newtheorem(?<star>\*)?\{(?<env>[^}]+)\}(?:\[[^\]]+\])?\{(?<title>[^}]+)\}(?:\[[^\]]+\])?/g;
 const BEGIN_ENV_RE = /\\begin\{(?<env>[A-Za-z][A-Za-z0-9*]*)\}\s*(?:\[(?<title>[^\]]+)\])?/u;
+const ENV_TOKEN_RE = /\\(?<type>begin|end)\{(?<env>[A-Za-z][A-Za-z0-9*]*)\}(?:\s*\[(?<title>[^\]]+)\])?/gu;
 const ABSTRACT_BEGIN_RE = /\\begin\{abstract\}/u;
 const ABSTRACT_END_RE = /\\end\{abstract\}/u;
 const SECTION_RE = /\\section\*?\{(?<title>[^}]*)\}/u;
+const SUBSECTION_RE = /\\subsection\*?\{(?<title>[^}]*)\}/u;
+const SUBSUBSECTION_RE = /\\subsubsection\*?\{(?<title>[^}]*)\}/u;
 const APPENDIX_RE = /\\appendix\b/u;
 const LABEL_RE = /\\label\{(?<label>[^}]+)\}/g;
 const REF_RE = /\\(?<command>eqref|ref)\{(?<label>[^}]+)\}/g;
@@ -79,14 +82,36 @@ interface EnvSpec {
 interface HeadingState {
   appendixMode: boolean;
   sectionIndex: number;
+  subsectionIndex: number;
+  subsubsectionIndex: number;
   sectionLabel: string;
   sectionTitle: string;
+  headingNumber: string;
+  headingTitle: string;
   headingPath: string;
 }
 
 interface SourceLocation {
   sourcePath?: string;
   sourceLine?: number;
+}
+
+interface HeadingEvent {
+  level: 1 | 2 | 3;
+  number: string;
+  title: string;
+  path: string;
+}
+
+interface NestedEnvironmentBlock {
+  envName: string;
+  envTitle?: string;
+  spec: EnvSpec;
+  body: string;
+  startIndex: number;
+  endIndex: number;
+  startLineOffset: number;
+  endLineOffset: number;
 }
 
 function asNodeId(value: string): NodeId {
@@ -123,6 +148,10 @@ function slugify(value: string): string {
     .trim()
     .replace(/[^a-z0-9]+/g, '-')
     .replace(/^-+|-+$/g, '') || 'x';
+}
+
+function escapeRegExp(value: string): string {
+  return value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 }
 
 function firstSentence(value: string): string {
@@ -312,33 +341,99 @@ function yearFromArxivId(arxivId?: string): number | undefined {
   return 2000 + Number.parseInt(match.groups.yy, 10);
 }
 
-function updateHeading(state: HeadingState, line: string): void {
+function normalizeHeadingTitle(value: string): string {
+  return value.replace(/\s+/g, ' ').trim();
+}
+
+function currentSectionNumber(state: HeadingState): string {
+  return state.sectionLabel;
+}
+
+function currentSubsectionNumber(state: HeadingState): string {
+  return `${state.sectionLabel}.${state.subsectionIndex}`;
+}
+
+function updateHeading(state: HeadingState, line: string): HeadingEvent | undefined {
   if (APPENDIX_RE.test(line)) {
     state.appendixMode = true;
     state.sectionIndex = 0;
+    state.subsectionIndex = 0;
+    state.subsubsectionIndex = 0;
     state.sectionLabel = 'A';
     state.sectionTitle = '';
+    state.headingNumber = '';
+    state.headingTitle = '';
     state.headingPath = '';
-    return;
+    return undefined;
   }
 
-  const match = SECTION_RE.exec(line);
-  if (!match?.groups?.title) {
-    return;
+  const sectionMatch = SECTION_RE.exec(line);
+  if (sectionMatch?.groups?.title) {
+    const title = normalizeHeadingTitle(sectionMatch.groups.title);
+    if (state.appendixMode) {
+      state.sectionIndex += 1;
+      const appendixIndex = state.sectionIndex - 1;
+      state.sectionLabel = appendixIndex < 26 ? String.fromCharCode('A'.charCodeAt(0) + appendixIndex) : `App${state.sectionIndex}`;
+    } else {
+      state.sectionIndex += 1;
+      state.sectionLabel = String(state.sectionIndex);
+    }
+
+    state.subsectionIndex = 0;
+    state.subsubsectionIndex = 0;
+    state.sectionTitle = title;
+    state.headingNumber = state.sectionLabel;
+    state.headingTitle = title;
+    state.headingPath = title;
+    return {
+      level: 1,
+      number: state.headingNumber,
+      title,
+      path: state.headingPath,
+    };
   }
 
-  const title = match.groups.title.replace(/\s+/g, ' ').trim();
-  if (state.appendixMode) {
-    state.sectionIndex += 1;
-    const appendixIndex = state.sectionIndex - 1;
-    state.sectionLabel = appendixIndex < 26 ? String.fromCharCode('A'.charCodeAt(0) + appendixIndex) : `App${state.sectionIndex}`;
-  } else {
-    state.sectionIndex += 1;
-    state.sectionLabel = String(state.sectionIndex);
+  const subsectionMatch = SUBSECTION_RE.exec(line);
+  if (subsectionMatch?.groups?.title && state.sectionLabel !== '0') {
+    const title = normalizeHeadingTitle(subsectionMatch.groups.title);
+    state.subsectionIndex += 1;
+    state.subsubsectionIndex = 0;
+    state.headingNumber = currentSubsectionNumber(state);
+    state.headingTitle = title;
+    state.headingPath = state.sectionTitle ? `${state.sectionTitle} / ${title}` : title;
+    return {
+      level: 2,
+      number: state.headingNumber,
+      title,
+      path: state.headingPath,
+    };
   }
 
-  state.sectionTitle = title;
-  state.headingPath = title;
+  const subsubsectionMatch = SUBSUBSECTION_RE.exec(line);
+  if (subsubsectionMatch?.groups?.title && state.sectionLabel !== '0') {
+    const title = normalizeHeadingTitle(subsubsectionMatch.groups.title);
+    state.subsubsectionIndex += 1;
+    const number =
+      state.subsectionIndex > 0
+        ? `${currentSubsectionNumber(state)}.${state.subsubsectionIndex}`
+        : `${currentSectionNumber(state)}.${state.subsubsectionIndex}`;
+    state.headingNumber = number;
+    state.headingTitle = title;
+    state.headingPath =
+      state.subsectionIndex > 0 && state.headingTitle
+        ? `${state.sectionTitle} / ${title}`
+        : state.sectionTitle
+          ? `${state.sectionTitle} / ${title}`
+          : title;
+    return {
+      level: 3,
+      number,
+      title,
+      path: state.headingPath,
+    };
+  }
+
+  return undefined;
 }
 
 function createNodeId(section: string, kind: MathNode['kind'], slug: string): NodeId {
@@ -417,19 +512,14 @@ function resolveEnvironmentSpec(envName: string, envSpecs: Map<string, EnvSpec>)
     };
   }
 
-  if (envName === 'equation') {
+  if (
+    ['equation', 'align', 'gather', 'multline', 'eqnarray'].includes(envName) ||
+    ['equation*', 'align*', 'gather*', 'multline*', 'eqnarray*'].includes(envName)
+  ) {
     return {
       kind: 'equation',
       printedTitle: 'Equation',
-      numbered: true,
-    };
-  }
-
-  if (envName === 'equation*') {
-    return {
-      kind: 'equation',
-      printedTitle: 'Equation',
-      numbered: false,
+      numbered: !envName.endsWith('*'),
     };
   }
 
@@ -453,6 +543,124 @@ function locationFields(start?: SourceLocation, end?: SourceLocation): Pick<Math
     filePath: start.sourcePath,
     startLine: start.sourceLine,
     endLine: start.sourceLine,
+  };
+}
+
+function offsetLocation(location: SourceLocation | undefined, lineOffset: number): SourceLocation | undefined {
+  if (!location?.sourcePath || typeof location.sourceLine !== 'number') {
+    return location;
+  }
+
+  return {
+    sourcePath: location.sourcePath,
+    sourceLine: location.sourceLine + lineOffset,
+  };
+}
+
+function buildLineStarts(text: string): number[] {
+  const starts = [0];
+
+  for (let index = 0; index < text.length; index += 1) {
+    if (text[index] === '\n') {
+      starts.push(index + 1);
+    }
+  }
+
+  return starts;
+}
+
+function lineOffsetForIndex(lineStarts: number[], index: number): number {
+  let low = 0;
+  let high = lineStarts.length - 1;
+  let best = 0;
+
+  while (low <= high) {
+    const mid = Math.floor((low + high) / 2);
+    const lineStart = lineStarts[mid] ?? 0;
+    if (lineStart <= index) {
+      best = mid;
+      low = mid + 1;
+    } else {
+      high = mid - 1;
+    }
+  }
+
+  return best;
+}
+
+function extractSupportedNestedBlocks(
+  text: string,
+  envSpecs: Map<string, EnvSpec>,
+): { topLevelText: string; blocks: NestedEnvironmentBlock[] } {
+  const lineStarts = buildLineStarts(text);
+  const blocks: NestedEnvironmentBlock[] = [];
+  const stack: Array<{
+    envName: string;
+    envTitle?: string;
+    spec: EnvSpec;
+    startIndex: number;
+    contentStart: number;
+  }> = [];
+  const topLevelSegments: string[] = [];
+  let topLevelCursor = 0;
+
+  for (const match of text.matchAll(ENV_TOKEN_RE)) {
+    const envName = match.groups?.env?.trim();
+    const type = match.groups?.type?.trim();
+    if (!envName || !type || typeof match.index !== 'number') {
+      continue;
+    }
+
+    if (type === 'begin') {
+      const spec = resolveEnvironmentSpec(envName, envSpecs);
+      if (!spec) {
+        continue;
+      }
+
+      if (stack.length === 0) {
+        topLevelSegments.push(text.slice(topLevelCursor, match.index));
+      }
+
+      stack.push({
+        envName,
+        spec,
+        startIndex: match.index,
+        contentStart: match.index + match[0].length,
+        ...(match.groups?.title?.trim() ? { envTitle: match.groups.title.trim() } : {}),
+      });
+      continue;
+    }
+
+    const current = stack.at(-1);
+    if (!current || current.envName !== envName) {
+      continue;
+    }
+
+    stack.pop();
+    blocks.push({
+      envName: current.envName,
+      spec: current.spec,
+      body: text.slice(current.contentStart, match.index),
+      startIndex: current.startIndex,
+      endIndex: match.index + match[0].length,
+      startLineOffset: lineOffsetForIndex(lineStarts, current.startIndex),
+      endLineOffset: lineOffsetForIndex(lineStarts, match.index + match[0].length),
+      ...(current.envTitle ? { envTitle: current.envTitle } : {}),
+    });
+
+    if (stack.length === 0) {
+      topLevelCursor = match.index + match[0].length;
+    }
+  }
+
+  if (stack.length > 0) {
+    return { topLevelText: text, blocks: [] };
+  }
+
+  topLevelSegments.push(text.slice(topLevelCursor));
+  return {
+    topLevelText: topLevelSegments.join(''),
+    blocks: blocks.sort((left, right) => left.startIndex - right.startIndex || left.endIndex - right.endIndex),
   };
 }
 
@@ -502,8 +710,12 @@ export function parseLatexDocument(input: DocumentInput): ParsedDocument {
   const heading: HeadingState = {
     appendixMode: false,
     sectionIndex: 0,
+    subsectionIndex: 0,
+    subsubsectionIndex: 0,
     sectionLabel: '0',
     sectionTitle: '',
+    headingNumber: '',
+    headingTitle: '',
     headingPath: '',
   };
 
@@ -511,6 +723,7 @@ export function parseLatexDocument(input: DocumentInput): ParsedDocument {
   let inEnvironment = false;
   let envName = '';
   let envTitle: string | undefined;
+  let envDepth = 0;
   let capture: string[] = [];
   let captureSection = '0';
   let captureSectionTitle = '';
@@ -523,47 +736,174 @@ export function parseLatexDocument(input: DocumentInput): ParsedDocument {
   const sectionNodeIds = new Map<string, NodeId>();
   const proofTargetsByNodeId = new Map<NodeId, NodeId>();
 
+  const createSectionNode = (event: HeadingEvent, sourceLocation: SourceLocation | undefined, latexLabel: string | null): NodeId => {
+    const sectionId = uniqueNodeId(
+      nodeIds,
+      createNodeId(
+        event.number,
+        'section',
+        slugify(latexLabel ?? event.title ?? `section-${event.number}`),
+      ),
+    );
+    const sectionNode: MathNode = {
+      id: sectionId,
+      kind: 'section',
+      label: `Section ${event.number}`,
+      section: heading.sectionLabel,
+      sectionTitle: event.title,
+      number: event.number,
+      latexLabel,
+      statement: event.title || `Section ${event.number}`,
+      proofStatus: 'not_applicable',
+      isMainResult: false,
+      novelty: 'classical',
+      metadata: {
+        headingLevel: event.level,
+        headingPath: event.path,
+        topSection: heading.sectionLabel,
+        sourceFormat: 'latex',
+      },
+      ...locationFields(sourceLocation, sourceLocation),
+    };
+
+    nodes.push(sectionNode);
+    if (event.level === 1) {
+      sectionNodeIds.set(heading.sectionLabel, sectionId);
+    }
+
+    if (latexLabel) {
+      labelToNodeId.set(latexLabel, sectionId);
+    }
+
+    return sectionId;
+  };
+
+  const registerEnvironmentNode = (params: {
+    envName: string;
+    envTitle?: string;
+    statementRaw: string;
+    section: string;
+    sectionTitle: string;
+    headingPath: string;
+    startLocation?: SourceLocation;
+    endLocation?: SourceLocation;
+    proofTargetId?: NodeId;
+    allowProofAttachment?: boolean;
+  }): MathNode | undefined => {
+    const spec = resolveEnvironmentSpec(params.envName, envSpecs);
+    if (!spec) {
+      return undefined;
+    }
+
+    const { topLevelText, blocks } = extractSupportedNestedBlocks(params.statementRaw, envSpecs);
+    const latexLabel = [...topLevelText.matchAll(LABEL_RE)].map((match) => match.groups?.label?.trim()).find(Boolean) ?? null;
+    const refs = parseReferenceMatches<ParsedReference['command']>(topLevelText, REF_RE);
+    const unsupportedRefs = parseReferenceMatches<UnsupportedParsedReference['command']>(
+      topLevelText,
+      UNSUPPORTED_REF_RE,
+    );
+    const citeKeys = [...topLevelText.matchAll(CITE_RE)]
+      .flatMap((match) => (match.groups?.keys ?? '').split(','))
+      .map((value) => value.trim())
+      .filter(Boolean);
+
+    const statement = topLevelText
+      .replace(LABEL_RE, '')
+      .replace(/\s+\n/g, '\n')
+      .replace(/[ \t]+/g, ' ')
+      .trim();
+
+    const counterKey = `${params.section}:${spec.kind}`;
+    const nextCount = (sectionCounters.get(counterKey) ?? 0) + 1;
+    sectionCounters.set(counterKey, nextCount);
+    const number = spec.numbered && params.section !== '0' ? `${params.section}.${nextCount}` : '';
+    const slugSource = latexLabel ?? `${spec.kind}-${params.section}-${nextCount}`;
+    const slug = slugify(slugSource.replace(/^(thm|lem|prop|cor|def|conj|rem|not|exa)-/u, ''));
+    const id = uniqueNodeId(nodeIds, createNodeId(params.section, spec.kind, slug));
+    const labelKind = KIND_TITLE[spec.kind] ?? spec.kind;
+    const label = `${labelKind} ${number}`.trim() + (params.envTitle ? ` (${params.envTitle.replace(/\s+/g, ' ').trim()})` : '');
+    const proofStatus =
+      spec.kind === 'proof'
+        ? params.envTitle && params.envTitle.toLowerCase().includes('sketch')
+          ? 'sketch'
+          : 'full'
+        : ['section', 'definition', 'assumption', 'notation', 'equation', 'external_dependency'].includes(spec.kind)
+          ? 'not_applicable'
+          : 'deferred';
+
+    const node: MathNode = {
+      id,
+      kind: spec.kind,
+      label: label.trim(),
+      section: params.section,
+      sectionTitle: params.sectionTitle,
+      number,
+      latexLabel,
+      statement: statement || `(empty ${labelKind} statement)`,
+      proofStatus,
+      isMainResult: false,
+      novelty: ['section', 'definition', 'notation', 'external_dependency'].includes(spec.kind) ? 'classical' : 'new',
+      metadata: {
+        env: params.envName,
+        headingPath: params.headingPath,
+        sourceFormat: 'latex',
+        ...(spec.subkind ? { subkind: spec.subkind } : {}),
+        ...(refs.length > 0 ? { refLabels: [...new Set(refs.map((ref) => ref.label))].sort() } : {}),
+        ...(unsupportedRefs.length > 0
+          ? { unsupportedRefLabels: [...new Set(unsupportedRefs.map((ref) => ref.label))].sort() }
+          : {}),
+        ...(citeKeys.length > 0 ? { citeKeys: [...new Set(citeKeys)].sort() } : {}),
+      },
+      ...locationFields(params.startLocation, params.endLocation),
+    };
+
+    nodes.push(node);
+    if (latexLabel) {
+      labelToNodeId.set(latexLabel, id);
+    }
+    refsByNode.set(id, refs);
+    unsupportedRefsByNode.set(id, unsupportedRefs);
+    citesByNode.set(id, citeKeys);
+
+    if (spec.kind === 'proof' && params.allowProofAttachment !== false && params.proofTargetId) {
+      proofTargetsByNodeId.set(id, params.proofTargetId);
+      const proofTargetNode = nodes.find((candidate) => candidate.id === params.proofTargetId);
+      if (proofTargetNode) {
+        proofTargetNode.proofStatus = node.proofStatus;
+      }
+    }
+
+    for (const block of blocks) {
+      const startLocation = offsetLocation(params.startLocation, block.startLineOffset);
+      const endLocation = offsetLocation(params.startLocation, block.endLineOffset);
+      registerEnvironmentNode({
+        envName: block.envName,
+        statementRaw: block.body,
+        section: params.section,
+        sectionTitle: params.sectionTitle,
+        headingPath: params.headingPath,
+        allowProofAttachment: false,
+        ...(block.envTitle ? { envTitle: block.envTitle } : {}),
+        ...(startLocation ? { startLocation } : {}),
+        ...(endLocation ? { endLocation } : {}),
+      });
+    }
+
+    return node;
+  };
+
   for (const [lineIndex, rawLine] of bodyLines.entries()) {
     const sourceLocation = bodyLineMap[lineIndex];
     const uncommented = stripLineComment(rawLine);
     const trimmed = uncommented.trim();
 
     if (!inEnvironment) {
-      const previousSection = heading.sectionLabel;
-      updateHeading(heading, uncommented);
+      const headingEvent = updateHeading(heading, uncommented);
 
-      if (heading.sectionLabel !== previousSection) {
+      if (headingEvent) {
         const latexLabel = [...uncommented.matchAll(LABEL_RE)].map((match) => match.groups?.label?.trim()).find(Boolean) ?? null;
-        const sectionId = uniqueNodeId(
-          nodeIds,
-          createNodeId(
-            heading.sectionLabel,
-            'section',
-            slugify(latexLabel ?? heading.sectionTitle ?? `section-${heading.sectionLabel}`),
-          ),
-        );
-        const sectionNode: MathNode = {
-          id: sectionId,
-          kind: 'section',
-          label: `Section ${heading.sectionLabel}`,
-          section: heading.sectionLabel,
-          sectionTitle: heading.sectionTitle,
-          number: heading.sectionLabel,
-          latexLabel,
-          statement: heading.sectionTitle || `Section ${heading.sectionLabel}`,
-          proofStatus: 'not_applicable',
-          isMainResult: false,
-          novelty: 'classical',
-          metadata: {
-            headingPath: heading.headingPath,
-            sourceFormat: 'latex',
-          },
-          ...locationFields(sourceLocation, sourceLocation),
-        };
-        nodes.push(sectionNode);
-        sectionNodeIds.set(heading.sectionLabel, sectionId);
+        const sectionId = createSectionNode(headingEvent, sourceLocation, latexLabel);
         if (latexLabel) {
-          labelToNodeId.set(latexLabel, sectionId);
           pendingSectionNodeId = undefined;
         } else {
           pendingSectionNodeId = sectionId;
@@ -591,122 +931,95 @@ export function parseLatexDocument(input: DocumentInput): ParsedDocument {
       inEnvironment = true;
       envName = candidateEnv;
       envTitle = beginMatch.groups?.title?.trim();
-      capture = [uncommented.slice(beginMatch[0].length)];
+      envDepth = 1;
+      const remainder = uncommented.slice(beginMatch[0].length);
+      capture = [remainder];
       captureSection = heading.sectionLabel;
       captureSectionTitle = heading.sectionTitle;
       captureHeadingPath = heading.headingPath;
       captureStartLocation = sourceLocation;
       captureEndLocation = sourceLocation;
       captureProofTargetId = beginSpec.kind === 'proof' ? pendingProofTargetId : undefined;
+
+      const sameLineEndToken = `\\end{${envName}}`;
+      const sameEnvPattern = new RegExp(`\\\\begin\\{${escapeRegExp(envName)}\\}`, 'g');
+      const sameEnvEndPattern = new RegExp(`\\\\end\\{${escapeRegExp(envName)}\\}`, 'g');
+      const sameLineBeginCount = [...remainder.matchAll(sameEnvPattern)].length;
+      const sameLineEndMatches = [...remainder.matchAll(sameEnvEndPattern)];
+      envDepth += sameLineBeginCount - sameLineEndMatches.length;
+
+      if (sameLineEndMatches.length > 0 && envDepth <= 0) {
+        const closingMatch = sameLineEndMatches.at(-1);
+        const closingIndex = typeof closingMatch?.index === 'number' ? closingMatch.index : remainder.indexOf(sameLineEndToken);
+        capture = [remainder.slice(0, closingIndex)];
+        const node = registerEnvironmentNode({
+          envName,
+          statementRaw: capture.join(''),
+          section: captureSection,
+          sectionTitle: captureSectionTitle,
+          headingPath: captureHeadingPath,
+          ...(envTitle ? { envTitle } : {}),
+          ...(captureStartLocation ? { startLocation: captureStartLocation } : {}),
+          ...(captureEndLocation ? { endLocation: captureEndLocation } : {}),
+          ...(captureProofTargetId ? { proofTargetId: captureProofTargetId } : {}),
+        });
+
+        pendingProofTargetId =
+          node && !['definition', 'assumption', 'notation', 'external_dependency', 'section', 'proof', 'equation'].includes(node.kind)
+            ? node.id
+            : undefined;
+
+        inEnvironment = false;
+        envName = '';
+        envTitle = undefined;
+        envDepth = 0;
+        capture = [];
+        captureStartLocation = undefined;
+        captureEndLocation = undefined;
+        captureProofTargetId = undefined;
+      }
       continue;
     }
 
     captureEndLocation = sourceLocation;
     const endToken = `\\end{${envName}}`;
-    if (!uncommented.includes(endToken)) {
+    const sameEnvPattern = new RegExp(`\\\\begin\\{${escapeRegExp(envName)}\\}`, 'g');
+    const sameEnvEndPattern = new RegExp(`\\\\end\\{${escapeRegExp(envName)}\\}`, 'g');
+    const beginMatches = [...uncommented.matchAll(sameEnvPattern)];
+    const endMatches = [...uncommented.matchAll(sameEnvEndPattern)];
+    const nextDepth = envDepth + beginMatches.length - endMatches.length;
+
+    if (endMatches.length === 0 || nextDepth > 0) {
+      envDepth = nextDepth;
       capture.push(uncommented);
       continue;
     }
 
-    capture.push(uncommented.slice(0, uncommented.indexOf(endToken)));
+    const closingMatch = endMatches.at(-1);
+    const closingIndex = typeof closingMatch?.index === 'number' ? closingMatch.index : uncommented.indexOf(endToken);
+    capture.push(uncommented.slice(0, closingIndex));
 
-    const statementRaw = capture.join('').trim();
-    const spec = resolveEnvironmentSpec(envName, envSpecs);
-    if (!spec) {
-      inEnvironment = false;
-      capture = [];
-      envName = '';
-      envTitle = undefined;
-      captureStartLocation = undefined;
-      captureEndLocation = undefined;
-      captureProofTargetId = undefined;
-      continue;
-    }
-
-    const latexLabel = [...statementRaw.matchAll(LABEL_RE)].map((match) => match.groups?.label?.trim()).find(Boolean) ?? null;
-    const refs = parseReferenceMatches<ParsedReference['command']>(statementRaw, REF_RE);
-    const unsupportedRefs = parseReferenceMatches<UnsupportedParsedReference['command']>(
-      statementRaw,
-      UNSUPPORTED_REF_RE,
-    );
-    const citeKeys = [...statementRaw.matchAll(CITE_RE)]
-      .flatMap((match) => (match.groups?.keys ?? '').split(','))
-      .map((value) => value.trim())
-      .filter(Boolean);
-
-    const statement = statementRaw
-      .replace(LABEL_RE, '')
-      .replace(/\s+\n/g, '\n')
-      .replace(/[ \t]+/g, ' ')
-      .trim();
-
-    const counterKey = `${captureSection}:${spec.kind}`;
-    const nextCount = (sectionCounters.get(counterKey) ?? 0) + 1;
-    sectionCounters.set(counterKey, nextCount);
-    const number = spec.numbered && captureSection !== '0' ? `${captureSection}.${nextCount}` : '';
-    const slugSource = latexLabel ?? `${spec.kind}-${captureSection}-${nextCount}`;
-    const slug = slugify(slugSource.replace(/^(thm|lem|prop|cor|def|conj|rem|not|exa)-/u, ''));
-    const id = uniqueNodeId(nodeIds, createNodeId(captureSection, spec.kind, slug));
-    const labelKind = KIND_TITLE[spec.kind] ?? spec.kind;
-    const label = `${labelKind} ${number}`.trim() + (envTitle ? ` (${envTitle.replace(/\s+/g, ' ').trim()})` : '');
-    const proofStatus =
-      spec.kind === 'proof'
-        ? envTitle && envTitle.toLowerCase().includes('sketch')
-          ? 'sketch'
-          : 'full'
-        : ['section', 'definition', 'assumption', 'notation', 'equation', 'external_dependency'].includes(spec.kind)
-          ? 'not_applicable'
-          : 'deferred';
-
-    const node: MathNode = {
-      id,
-      kind: spec.kind,
-      label: label.trim(),
+    const node = registerEnvironmentNode({
+      envName,
+      statementRaw: capture.join(''),
       section: captureSection,
       sectionTitle: captureSectionTitle,
-      number,
-      latexLabel,
-      statement: statement || `(empty ${labelKind} statement)`,
-      proofStatus,
-      isMainResult: false,
-      novelty: ['section', 'definition', 'notation', 'external_dependency'].includes(spec.kind) ? 'classical' : 'new',
-      metadata: {
-        env: envName,
-        headingPath: captureHeadingPath,
-        sourceFormat: 'latex',
-        ...(spec.subkind ? { subkind: spec.subkind } : {}),
-        ...(refs.length > 0 ? { refLabels: [...new Set(refs.map((ref) => ref.label))].sort() } : {}),
-        ...(unsupportedRefs.length > 0
-          ? { unsupportedRefLabels: [...new Set(unsupportedRefs.map((ref) => ref.label))].sort() }
-          : {}),
-        ...(citeKeys.length > 0 ? { citeKeys: [...new Set(citeKeys)].sort() } : {}),
-      },
-      ...locationFields(captureStartLocation, captureEndLocation),
-    };
+      headingPath: captureHeadingPath,
+      ...(envTitle ? { envTitle } : {}),
+      ...(captureStartLocation ? { startLocation: captureStartLocation } : {}),
+      ...(captureEndLocation ? { endLocation: captureEndLocation } : {}),
+      ...(captureProofTargetId ? { proofTargetId: captureProofTargetId } : {}),
+    });
 
-    nodes.push(node);
-    if (latexLabel) {
-      labelToNodeId.set(latexLabel, id);
-    }
-    refsByNode.set(id, refs);
-    unsupportedRefsByNode.set(id, unsupportedRefs);
-    citesByNode.set(id, citeKeys);
-
-    if (spec.kind === 'proof' && captureProofTargetId) {
-      proofTargetsByNodeId.set(id, captureProofTargetId);
-      const proofTargetNode = nodes.find((candidate) => candidate.id === captureProofTargetId);
-      if (proofTargetNode) {
-        proofTargetNode.proofStatus = node.proofStatus;
-      }
-    }
-
-    pendingProofTargetId = ['definition', 'assumption', 'notation', 'external_dependency', 'section', 'proof', 'equation'].includes(spec.kind)
-      ? undefined
-      : id;
+    pendingProofTargetId =
+      node && !['definition', 'assumption', 'notation', 'external_dependency', 'section', 'proof', 'equation'].includes(node.kind)
+        ? node.id
+        : undefined;
 
     inEnvironment = false;
     envName = '';
     envTitle = undefined;
+    envDepth = 0;
     capture = [];
     captureStartLocation = undefined;
     captureEndLocation = undefined;

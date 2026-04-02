@@ -198,4 +198,36 @@ describe('analyzeDocumentPath', () => {
       ),
     ).toBe(true);
   });
+
+  it('extracts nested supported environments, same-line equations, and labeled subsection targets', () => {
+    const fixturePath = resolve(
+      process.cwd(),
+      'packages/core/test/fixtures/latex/gold-paper-regressions/nested-envs.tex',
+    );
+    const result = analyzeDocumentPath(fixturePath);
+    const unresolvedWarnings = result.diagnostics.warnings.filter((warning) => warning.code === 'unresolved_reference');
+
+    expect(result.graph.nodes.find((node) => node.latexLabel === 'eq:nested-align')).toBeDefined();
+    expect(result.graph.nodes.find((node) => node.latexLabel === 'eq:inline')).toBeDefined();
+    expect(result.graph.nodes.find((node) => node.latexLabel === 'lem:inner')).toBeDefined();
+    expect(
+      result.graph.nodes.find(
+        (node) =>
+          node.kind === 'section' &&
+          node.latexLabel === 'subsec:nested' &&
+          node.number === '1.1' &&
+          node.metadata.headingLevel === 2,
+      ),
+    ).toBeDefined();
+    expect(
+      result.graph.nodes.find(
+        (node) =>
+          node.kind === 'section' &&
+          node.latexLabel === 'subsubsec:detail' &&
+          node.number === '1.1.1' &&
+          node.metadata.headingLevel === 3,
+      ),
+    ).toBeDefined();
+    expect(unresolvedWarnings).toEqual([]);
+  });
 });

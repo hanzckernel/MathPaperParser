@@ -60,6 +60,12 @@ describe('gold paper acceptance workflow', () => {
     expect(existsSync(join(bundleDir, 'index.json'))).toBe(true);
     expect(existsSync(join(bundleDir, 'enrichment.json'))).toBe(true);
 
+    const diagnostics = JSON.parse(readFileSync(join(bundleDir, 'diagnostics.json'), 'utf8')) as {
+      warnings: Array<{ code: string }>;
+    };
+    expect(diagnostics.warnings.filter((warning) => warning.code === 'unresolved_reference')).toHaveLength(22);
+    expect(diagnostics.warnings.filter((warning) => warning.code === 'unsupported_reference_command')).toHaveLength(2);
+
     const enrichment = JSON.parse(readFileSync(join(bundleDir, 'enrichment.json'), 'utf8')) as {
       edges: Array<{ provenance: string }>;
     };
