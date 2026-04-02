@@ -1,5 +1,5 @@
-import { mkdtempSync, readFileSync } from 'node:fs';
-import { join } from 'node:path';
+import { existsSync, mkdtempSync, readFileSync } from 'node:fs';
+import { join, resolve } from 'node:path';
 import { tmpdir } from 'node:os';
 
 import { afterEach, describe, expect, it } from 'vitest';
@@ -94,5 +94,35 @@ describe('paperparser cli', () => {
 
     expect(exitCode).toBe(0);
     expect(stdout.join('\n')).toContain('fixture-latex');
+  });
+
+  it('persists diagnostics for the gold paper analyze path and reports them in stdout', () => {
+    const storePath = mkdtempSync(join(tmpdir(), 'paperparser-cli-'));
+    tempDirs.push(storePath);
+    const stdout: string[] = [];
+    const stderr: string[] = [];
+    const fixturePath = resolve(process.cwd(), 'ref/papers/long_nalini/arXiv-2502.12268v2/main.tex');
+
+    const exitCode = runCli(
+      ['analyze', fixturePath, '--store', storePath, '--paper', 'long-nalini'],
+      {
+        stdout: (line) => stdout.push(line),
+        stderr: (line) => stderr.push(line),
+      },
+    );
+
+    expect(exitCode).toBe(0);
+    expect(stderr).toEqual([]);
+    expect(stdout.join('\n')).toContain('paper_id=long-nalini');
+    expect(stdout.join('\n')).toMatch(/diagnostics/i);
+    expect(stdout.join('\n')).toMatch(/warning/i);
+
+    const bundleDir = join(storePath, 'long-nalini');
+    const diagnosticsPath = join(bundleDir, 'diagnostics.json');
+
+    expect(existsSync(diagnosticsPath)).toBe(true);
+
+    const diagnostics = JSON.parse(readFileSync(diagnosticsPath, 'utf8'));
+    expect(Array.isArray(diagnostics.warnings)).toBe(true);
   });
 });

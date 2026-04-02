@@ -83,10 +83,19 @@ function runAnalyze(argv: string[], io: CliIo): number {
     const bundle = analyzeDocumentPath(input);
     const paperId = derivePaperId(input, paperFlag);
     const stored = writeBundleToStore(bundle, resolveStorePath(storeFlag, cwd), paperId);
+    const warningCount = bundle.diagnostics.warnings.length;
+    const warningCodes = [...new Set(bundle.diagnostics.warnings.map((warning) => warning.code))].sort();
 
     io.stdout(`Analyzed ${input}`);
     io.stdout(`paper_id=${stored.paperId}`);
     io.stdout(`bundle_dir=${stored.bundleDir}`);
+    if (stored.diagnosticsPath) {
+      io.stdout(`diagnostics=${stored.diagnosticsPath}`);
+    }
+    io.stdout(`warning_count=${warningCount}`);
+    if (warningCodes.length > 0) {
+      io.stdout(`warning_codes=${warningCodes.join(',')}`);
+    }
     return 0;
   } catch (error) {
     io.stderr(error instanceof Error ? error.message : String(error));

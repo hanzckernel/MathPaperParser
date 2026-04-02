@@ -94,6 +94,7 @@ function loadEntry(path: string): { entryPath: string; entryText: string } {
 
 function scanAssets(
   rootDir: string,
+  entryPath: string,
   line: string,
   missingBibs: Set<string>,
   missingGraphics: Set<string>,
@@ -108,8 +109,9 @@ function scanAssets(
     for (const reference of references) {
       const resolvedReference = resolve(rootDir, reference);
       const bibliographyPath = resolvedReference.endsWith('.bib') ? resolvedReference : `${resolvedReference}.bib`;
+      const compiledBibliographyPath = entryPath.replace(/\.tex$/u, '.bbl');
 
-      if (!existsSync(bibliographyPath) || !lstatSync(bibliographyPath).isFile()) {
+      if ((!existsSync(bibliographyPath) || !lstatSync(bibliographyPath).isFile()) && !existsSync(compiledBibliographyPath)) {
         missingBibs.add(bibliographyPath.split(sep).at(-1) ?? bibliographyPath);
       }
     }
@@ -164,7 +166,7 @@ export function flattenLatex(inputPath: string): FlattenLatexResult {
 
     for (const rawLine of text.split(/(?<=\n)/u)) {
       const strippedLine = stripLineComment(rawLine);
-      scanAssets(rootDir, strippedLine, missingBibs, missingGraphics);
+      scanAssets(rootDir, entryPath, strippedLine, missingBibs, missingGraphics);
 
       INPUT_COMMAND_RE.lastIndex = 0;
       const match = INPUT_COMMAND_RE.exec(strippedLine);

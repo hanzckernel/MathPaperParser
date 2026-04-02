@@ -41,4 +41,59 @@ describe('analyzeDocumentPath', () => {
     expect(() => new SchemaValidator().validateBundle(result)).not.toThrow();
     expect(() => ConsistencyChecker.checkBundle(result)).not.toThrow();
   });
+
+  it('extracts front matter from optional title arguments and nested author commands', () => {
+    const fixturePath = resolve(process.cwd(), 'packages/core/test/fixtures/latex/gold-paper-regressions/front-matter.tex');
+    const result = analyzeDocumentPath(fixturePath);
+
+    expect(result.manifest.paper.title).toContain('Friedman--Ramanujan functions');
+    expect(result.manifest.paper.title).toContain('random hyperbolic geometry');
+    expect(result.manifest.paper.title).toContain('spectral gaps II');
+    expect(result.manifest.paper.authors).toEqual(['Nalini Anantharaman', 'Laura Monk']);
+    expect(result.diagnostics.warnings).toEqual([]);
+  });
+
+  it('emits explicit diagnostics for unresolved and unsupported reference commands', () => {
+    const fixturePath = resolve(process.cwd(), 'packages/core/test/fixtures/latex/gold-paper-regressions/unsupported-refs.tex');
+    const result = analyzeDocumentPath(fixturePath);
+    const unresolvedWarnings = result.diagnostics.warnings.filter((warning) => warning.code === 'unresolved_reference');
+    const unsupportedWarnings = result.diagnostics.warnings.filter(
+      (warning) => warning.code === 'unsupported_reference_command',
+    );
+
+    expect(unresolvedWarnings).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          metadata: expect.objectContaining({ command: 'ref', label: 'thm:missing' }),
+        }),
+        expect.objectContaining({
+          metadata: expect.objectContaining({ command: 'eqref', label: 'eq:missing' }),
+        }),
+      ]),
+    );
+    expect(unsupportedWarnings).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          metadata: expect.objectContaining({ command: 'cref', label: 'thm:main' }),
+        }),
+        expect.objectContaining({
+          metadata: expect.objectContaining({ command: 'Cref', label: 'thm:main' }),
+        }),
+      ]),
+    );
+  });
+
+  it('emits explicit diagnostics for missing required TeX includes', () => {
+    const fixturePath = resolve(process.cwd(), 'packages/core/test/fixtures/latex/gold-paper-regressions/missing-input.tex');
+    const result = analyzeDocumentPath(fixturePath);
+
+    expect(result.diagnostics.warnings).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          code: 'missing_input',
+          sourcePath: 'sections/missing-section',
+        }),
+      ]),
+    );
+  });
 });

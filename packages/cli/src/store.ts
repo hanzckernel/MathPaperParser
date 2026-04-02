@@ -1,12 +1,13 @@
 import { existsSync, mkdirSync, readdirSync, readFileSync, statSync, writeFileSync } from 'node:fs';
 import { basename, join, resolve } from 'node:path';
 
-import { BundleSerializer, JsonStore, type BundleManifest, type PaperParserBundle } from '@paperparser/core';
+import { BundleSerializer, JsonStore, type BundleManifest, type PaperParserBundle, type PipelineDiagnostics } from '@paperparser/core';
 
 export interface StoredPaperState {
   paperId: string;
   storePath: string;
   bundleDir: string;
+  diagnosticsPath?: string;
 }
 
 export interface LatestPaperRecord {
@@ -41,15 +42,29 @@ export function derivePaperId(inputPath: string, explicitPaperId?: string): stri
   return explicitPaperId ? slugify(explicitPaperId) : slugify(basename(inputPath));
 }
 
+function hasDiagnostics(bundle: PaperParserBundle): bundle is PaperParserBundle & { diagnostics: PipelineDiagnostics } {
+  const diagnostics = 'diagnostics' in bundle ? bundle.diagnostics : undefined;
+  return (
+    typeof diagnostics === 'object' &&
+    diagnostics !== null &&
+    'warnings' in diagnostics &&
+    Array.isArray(diagnostics.warnings)
+  );
+}
+
 export function writeBundleToStore(bundle: PaperParserBundle, storePath: string, paperId: string): StoredPaperState {
   const resolvedStorePath = resolveStorePath(storePath);
   const bundleDir = join(resolvedStorePath, paperId);
   const serialized = BundleSerializer.toJsonBundle(bundle);
+  const diagnosticsPath = join(bundleDir, 'diagnostics.json');
 
   mkdirSync(bundleDir, { recursive: true });
   writeFileSync(join(bundleDir, 'manifest.json'), JSON.stringify(serialized.manifest, null, 2) + '\n', 'utf8');
   writeFileSync(join(bundleDir, 'graph.json'), JSON.stringify(serialized.graph, null, 2) + '\n', 'utf8');
   writeFileSync(join(bundleDir, 'index.json'), JSON.stringify(serialized.index, null, 2) + '\n', 'utf8');
+  if (hasDiagnostics(bundle)) {
+    writeFileSync(diagnosticsPath, JSON.stringify(bundle.diagnostics, null, 2) + '\n', 'utf8');
+  }
   writeFileSync(
     join(resolvedStorePath, 'latest.json'),
     JSON.stringify(
@@ -67,6 +82,7 @@ export function writeBundleToStore(bundle: PaperParserBundle, storePath: string,
     paperId,
     storePath: resolvedStorePath,
     bundleDir,
+    ...(hasDiagnostics(bundle) ? { diagnosticsPath } : {}),
   };
 }
 

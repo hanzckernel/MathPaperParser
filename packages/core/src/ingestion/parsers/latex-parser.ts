@@ -11,6 +11,7 @@ import {
   type PipelineDiagnostics,
 } from '../../types/pipeline.js';
 import { flattenLatex } from '../flatten/latex-flattener.js';
+import { extractFirstLatexCommand } from './latex-command-extractor.js';
 
 const NODE_KIND_TO_ABBREVIATION: Record<MathNode['kind'], string> = {
   definition: 'def',
@@ -43,15 +44,24 @@ const KIND_TITLE: Partial<Record<MathNode['kind'], string>> = {
 const NEW_THEOREM_RE =
   /\\newtheorem(?<star>\*)?\{(?<env>[^}]+)\}(?:\[[^\]]+\])?\{(?<title>[^}]+)\}(?:\[[^\]]+\])?/g;
 const BEGIN_ENV_RE = /\\begin\{(?<env>[A-Za-z][A-Za-z0-9*]*)\}\s*(?:\[(?<title>[^\]]+)\])?/u;
-const TITLE_RE = /\\title\s*\{(?<title>[^}]+)\}/u;
-const AUTHOR_RE = /\\author\s*\{(?<author>[^}]+)\}/u;
 const ABSTRACT_BEGIN_RE = /\\begin\{abstract\}/u;
 const ABSTRACT_END_RE = /\\end\{abstract\}/u;
 const SECTION_RE = /\\section\*?\{(?<title>[^}]*)\}/u;
 const APPENDIX_RE = /\\appendix\b/u;
 const LABEL_RE = /\\label\{(?<label>[^}]+)\}/g;
-const REF_RE = /\\(eqref|ref)\{(?<label>[^}]+)\}/g;
+const REF_RE = /\\(?<command>eqref|ref)\{(?<label>[^}]+)\}/g;
+const UNSUPPORTED_REF_RE = /\\(?<command>Cref|cref)\{(?<label>[^}]+)\}/g;
 const CITE_RE = /\\cite[a-zA-Z*]*\{(?<keys>[^}]+)\}/g;
+
+interface ParsedReference {
+  command: 'eqref' | 'ref';
+  label: string;
+}
+
+interface UnsupportedParsedReference {
+  command: 'Cref' | 'cref';
+  label: string;
+}
 
 interface EnvSpec {
   kind: MathNode['kind'];
@@ -118,6 +128,43 @@ function firstSentence(value: string): string {
   }
 
   return normalized.slice(0, 240).trim();
+}
+
+function normalizeLatexInlineText(value: string): string {
+  return value
+    .replace(/\\protect\b/gu, '')
+    .replace(/\\\\/gu, ' ')
+    .replace(/~/gu, ' ')
+    .replace(/\s+/gu, ' ')
+    .trim();
+}
+
+function stripSimpleLatexCommands(value: string, commandNames: string[]): string {
+  if (commandNames.length === 0) {
+    return value;
+  }
+
+  const pattern = new RegExp(`\\\\(?:${commandNames.join('|')})\\s*\\{[^{}]*\\}`, 'gu');
+  return value.replace(pattern, '');
+}
+
+function parseReferenceMatches<TCommand extends string>(
+  statement: string,
+  expression: RegExp,
+): Array<{ command: TCommand; label: string }> {
+  return [...statement.matchAll(expression)].flatMap((match) => {
+    const command = match.groups?.command?.trim() as TCommand | undefined;
+    const labels = (match.groups?.label ?? '')
+      .split(',')
+      .map((label) => label.trim())
+      .filter(Boolean);
+
+    if (!command) {
+      return [];
+    }
+
+    return labels.map((label) => ({ command, label }));
+  });
 }
 
 function kindFromPrintedTitle(title: string): EnvSpec | undefined {
@@ -198,11 +245,15 @@ function parseNewtheoremEnvironments(tex: string): Map<string, EnvSpec> {
 }
 
 function extractTitleAndAuthors(tex: string): { title: string; authors: string[] } {
-  const title = TITLE_RE.exec(tex)?.groups?.title?.replace(/\s+/g, ' ').trim() || 'Untitled (auto-extracted)';
-  const authorRaw = AUTHOR_RE.exec(tex)?.groups?.author ?? '';
+  const titleCommand = extractFirstLatexCommand(tex, 'title');
+  const authorCommand = extractFirstLatexCommand(tex, 'author');
+  const title = titleCommand?.requiredArg ? normalizeLatexInlineText(titleCommand.requiredArg) : 'Untitled (auto-extracted)';
+  const authorRaw = authorCommand?.requiredArg ?? '';
   const authors = authorRaw
-    .split(/\\\\and/u)
-    .map((author) => author.replace(/\s+/g, ' ').trim())
+    .split(/\s+(?:\\\\and|\\and|and)\s+/u)
+    .map((author) => stripSimpleLatexCommands(author, ['textsuperscript', 'thanks']))
+    .map((author) => author.replace(/[{}]/gu, ''))
+    .map((author) => normalizeLatexInlineText(author))
     .filter(Boolean);
 
   return {
@@ -336,10 +387,13 @@ function missingAssetWarnings(flattened: ReturnType<typeof flattenLatex>): Inges
   return warnings;
 }
 
-function createDiagnostics(flattened: ReturnType<typeof flattenLatex>): PipelineDiagnostics {
+function createDiagnostics(
+  flattened: ReturnType<typeof flattenLatex>,
+  warnings: IngestionWarning[] = [],
+): PipelineDiagnostics {
   return {
     ...createEmptyPipelineDiagnostics('0.2.0'),
-    warnings: missingAssetWarnings(flattened),
+    warnings: [...missingAssetWarnings(flattened), ...warnings],
   };
 }
 
@@ -367,7 +421,6 @@ function createPlaceholderNode(existingIds: Set<string>): MathNode {
 
 export function parseLatexDocument(input: DocumentInput): ParsedDocument {
   const flattened = flattenLatex(input.path);
-  const diagnostics = createDiagnostics(flattened);
   const rawText = flattened.flatTex;
   const { title, authors } = extractTitleAndAuthors(rawText);
   const abstract = extractAbstract(rawText);
@@ -376,7 +429,8 @@ export function parseLatexDocument(input: DocumentInput): ParsedDocument {
   const envSpecs = parseNewtheoremEnvironments(rawText);
 
   const labelToNodeId = new Map<string, NodeId>();
-  const refsByNode = new Map<NodeId, string[]>();
+  const refsByNode = new Map<NodeId, ParsedReference[]>();
+  const unsupportedRefsByNode = new Map<NodeId, UnsupportedParsedReference[]>();
   const citesByNode = new Map<NodeId, string[]>();
   const nodeIds = new Set<string>();
   const nodes: MathNode[] = [];
@@ -457,9 +511,11 @@ export function parseLatexDocument(input: DocumentInput): ParsedDocument {
     }
 
     const latexLabel = [...statementRaw.matchAll(LABEL_RE)].map((match) => match.groups?.label?.trim()).find(Boolean) ?? null;
-    const refs = [...statementRaw.matchAll(REF_RE)]
-      .map((match) => match.groups?.label?.trim())
-      .filter((value): value is string => Boolean(value));
+    const refs = parseReferenceMatches<ParsedReference['command']>(statementRaw, REF_RE);
+    const unsupportedRefs = parseReferenceMatches<UnsupportedParsedReference['command']>(
+      statementRaw,
+      UNSUPPORTED_REF_RE,
+    );
     const citeKeys = [...statementRaw.matchAll(CITE_RE)]
       .flatMap((match) => (match.groups?.keys ?? '').split(','))
       .map((value) => value.trim())
@@ -500,7 +556,10 @@ export function parseLatexDocument(input: DocumentInput): ParsedDocument {
         headingPath: captureHeadingPath,
         sourceFormat: 'latex',
         ...(spec.subkind ? { subkind: spec.subkind } : {}),
-        ...(refs.length > 0 ? { refLabels: [...new Set(refs)].sort() } : {}),
+        ...(refs.length > 0 ? { refLabels: [...new Set(refs.map((ref) => ref.label))].sort() } : {}),
+        ...(unsupportedRefs.length > 0
+          ? { unsupportedRefLabels: [...new Set(unsupportedRefs.map((ref) => ref.label))].sort() }
+          : {}),
         ...(citeKeys.length > 0 ? { citeKeys: [...new Set(citeKeys)].sort() } : {}),
       },
     };
@@ -510,6 +569,7 @@ export function parseLatexDocument(input: DocumentInput): ParsedDocument {
       labelToNodeId.set(latexLabel, id);
     }
     refsByNode.set(id, refs);
+    unsupportedRefsByNode.set(id, unsupportedRefs);
     citesByNode.set(id, citeKeys);
 
     pendingProofNodeIndex =
@@ -547,10 +607,23 @@ export function parseLatexDocument(input: DocumentInput): ParsedDocument {
   }
 
   const edgeKeys = new Set<string>();
+  const diagnosticWarnings: IngestionWarning[] = [];
   for (const node of nodes) {
-    for (const refLabel of refsByNode.get(node.id) ?? []) {
-      const target = labelToNodeId.get(refLabel);
+    for (const ref of refsByNode.get(node.id) ?? []) {
+      const target = labelToNodeId.get(ref.label);
       if (!target) {
+        diagnosticWarnings.push({
+          code: 'unresolved_reference',
+          severity: 'warning',
+          message: `Unresolved \\${ref.command}{${ref.label}} reference.`,
+          phase: 'resolve',
+          sourcePath: input.path,
+          metadata: {
+            command: ref.command,
+            label: ref.label,
+            sourceNodeId: node.id,
+          },
+        });
         continue;
       }
 
@@ -565,9 +638,25 @@ export function parseLatexDocument(input: DocumentInput): ParsedDocument {
         target,
         kind: 'uses_in_proof',
         evidence: 'explicit_ref',
-        detail: `Explicit reference via \\ref{${refLabel}}.`,
+        detail: `Explicit reference via \\${ref.command}{${ref.label}}.`,
         metadata: {
-          latexRef: refLabel,
+          latexRef: ref.label,
+          latexCommand: ref.command,
+        },
+      });
+    }
+
+    for (const unsupportedRef of unsupportedRefsByNode.get(node.id) ?? []) {
+      diagnosticWarnings.push({
+        code: 'unsupported_reference_command',
+        severity: 'warning',
+        message: `Unsupported reference command \\${unsupportedRef.command}{${unsupportedRef.label}}.`,
+        phase: 'resolve',
+        sourcePath: input.path,
+        metadata: {
+          command: unsupportedRef.command,
+          label: unsupportedRef.label,
+          sourceNodeId: node.id,
         },
       });
     }
@@ -626,6 +715,6 @@ export function parseLatexDocument(input: DocumentInput): ParsedDocument {
     edges,
     labelToNodeId,
     metadata,
-    diagnostics,
+    diagnostics: createDiagnostics(flattened, diagnosticWarnings),
   };
 }

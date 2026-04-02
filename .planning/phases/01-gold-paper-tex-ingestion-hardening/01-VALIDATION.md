@@ -50,8 +50,10 @@ created: 2026-04-02
 
 - [ ] `packages/core/test/gold-paper-ingestion.test.ts` — full-paper acceptance on `ref/papers/long_nalini/arXiv-2502.12268v2/main.tex`
 - [ ] Reduced front-matter fixture or assertions — reproduces `\title[short]{long}` and nested-brace `\author{...}` parsing failures
+- [ ] Reduced missing-input fixture or assertions — reproduces explicit `missing_input` diagnostics for unresolved required `\input`
 - [ ] Reduced unresolved-reference fixture — reproduces unresolved `\ref` plus unsupported `\cref` diagnostics
 - [ ] CLI stored-diagnostics regression — extends `packages/cli/test/analyze-command.test.ts` or a sibling test to assert persisted diagnostics visibility
+- [ ] Existing tracked latex-project fixture still asserts `missing_bibliography` so citation-source diagnostics remain executable under INGEST-03
 
 ---
 
@@ -60,6 +62,7 @@ created: 2026-04-02
 | Behavior | Requirement | Why Manual | Test Instructions |
 |----------|-------------|------------|-------------------|
 | CLI analyze output remains understandable on the real paper | INGEST-01, INGEST-03 | Automated tests can verify exit codes and files, but not whether the human-facing diagnostic summary is actually usable | Run `node packages/cli/dist/index.js analyze ref/papers/long_nalini/arXiv-2502.12268v2/main.tex --store /tmp/paperparser-phase1-acceptance --paper long-nalini` and inspect whether success or warning output names the real issue clearly |
+| Re-running analyze on the gold paper is stable enough for later canonical guarantees | INGEST-02, INGEST-03 | Phase 2 owns formal stable-output guarantees, but Phase 1 should still confirm the hardening work does not make diagnostics/title-author output drift between deterministic reruns | Run the two `analyze` commands from `01-02-PLAN.md`, then compare manifest title/authors and `diagnostics.json` warning codes across the two output folders |
 
 ---
 

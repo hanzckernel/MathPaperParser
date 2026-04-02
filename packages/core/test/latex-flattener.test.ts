@@ -17,4 +17,12 @@ describe('flattenLatex', () => {
     expect(result.missingBibs).toEqual(['missing.bib']);
     expect(result.missingGraphics).toEqual(['figures/missing-figure']);
   });
+
+  it('treats the gold paper bibliography as present when only a .bbl file exists', () => {
+    const fixturePath = resolve(process.cwd(), 'ref/papers/long_nalini/arXiv-2502.12268v2/main.tex');
+    const result = flattenLatex(fixturePath);
+
+    expect(result.missingInputs).toEqual([]);
+    expect(result.missingBibs).toEqual([]);
+  });
 });
