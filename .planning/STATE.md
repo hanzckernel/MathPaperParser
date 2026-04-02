@@ -1,17 +1,17 @@
 ---
 gsd_state_version: 1.0
-milestone: v1.0
-milestone_name: TeX MVP
-status: completed
-stopped_at: v1.0 archived and ready for next-milestone planning
-last_updated: "2026-04-02T22:14:57Z"
+milestone: v1.1
+milestone_name: Search, Hardening & Corpus
+status: defining_requirements
+stopped_at: drafting v1.1 requirements and roadmap
+last_updated: "2026-04-02T23:06:33Z"
 last_activity: 2026-04-03
 progress:
-  total_phases: 5
-  completed_phases: 5
-  total_plans: 9
-  completed_plans: 9
-  percent: 100
+  total_phases: 4
+  completed_phases: 0
+  total_plans: 0
+  completed_plans: 0
+  percent: 0
 ---
 
 # Project State
@@ -21,16 +21,16 @@ progress:
 See: .planning/PROJECT.md (updated 2026-04-03)
 
 **Core value:** A mathematician can feed in a TeX paper and get a trustworthy dependency artifact that makes the logical structure of the paper easier to navigate.
-**Current focus:** Planning the next milestone
+**Current focus:** Defining the `v1.1 Search, Hardening & Corpus` milestone
 
 ## Current Position
 
-Phase: Archived milestone `v1.0` (`TeX MVP`)
-Plan: n/a
-Status: `v1.0` milestone complete
-Last activity: 2026-04-03 — Archived `v1.0` roadmap, requirements, audit, and phase history; the project is ready for next-milestone planning.
+Phase: Not started (defining requirements)
+Plan: —
+Status: Defining requirements
+Last activity: 2026-04-03 — Started milestone `v1.1 Search, Hardening & Corpus` and scoped it around search, parser hardening, and local corpus support.
 
-Progress: [██████████] 100%
+Progress: [░░░░░░░░░░] 0%
 
 ## Performance Metrics
 
@@ -66,15 +66,17 @@ Decisions are logged in PROJECT.md. The milestone established:
 
 ### Pending Todos
 
-- Define the next milestone.
+- Plan Phase 6 for search and explorer navigation.
+- Choose the additional real paper that will serve as the second corpus acceptance target.
 
 ### Blockers/Concerns
 
-- The representative paper still emits unresolved-reference diagnostics. This is non-blocking v1 tech debt and a strong candidate for the next parser-focused milestone.
-- No next milestone has been scoped yet.
+- The representative paper still emits unresolved-reference diagnostics, and the milestone now commits to reducing that baseline rather than only documenting it.
+- Corpus scope is local-first and explainable; cross-paper navigation should not drift into speculative global linking.
+- The second real-paper acceptance target is not chosen yet.
 
 ## Session Continuity
 
 Last session: 2026-04-03 CEST
-Stopped at: `v1.0` closed cleanly; next step is `$gsd-new-milestone`
-Resume file: .planning/PROJECT.md
+Stopped at: `v1.1` milestone started; next step is planning Phase 6 from the approved roadmap
+Resume file: .planning/REQUIREMENTS.md
