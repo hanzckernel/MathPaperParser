@@ -16,7 +16,7 @@ This roadmap advances the approved `v1.1` scope only: paper-local search, parser
 - Integer phases (6, 7, 8, 9): Planned milestone work
 - Decimal phases (6.1, 6.2): Urgent insertions (marked with INSERTED)
 
-- [ ] **Phase 6: Searchable Bundle Index & Explorer Navigation** - Add paper-local search and direct navigation into the explorer using the shipped stored-paper surfaces.
+- [x] **Phase 6: Searchable Bundle Index & Explorer Navigation** - Add paper-local search and direct navigation into the explorer using the shipped stored-paper surfaces.
 - [ ] **Phase 7: TeX Hardening & Diagnostic Reduction** - Reduce unresolved references on the gold paper and broaden deterministic TeX coverage across `medium_Mueller.flat.tex` and `short_Petri.tex`.
 - [ ] **Phase 8: Local Corpus Library & Cross-Paper Navigation** - Support multiple stored papers and explainable cross-paper navigation without collapsing paper boundaries.
 - [ ] **Phase 9: Multi-Paper Acceptance Gate** - Prove the full milestone on `long_nalini`, `medium_Mueller.flat.tex`, and `short_Petri.tex` without manual graph editing.
@@ -32,6 +32,7 @@ This roadmap advances the approved `v1.1` scope only: paper-local search, parser
   2. Search results provide enough context to disambiguate matches before navigation.
   3. User can jump directly from a result into the relevant explorer object view.
   4. Search behavior stays consistent across the shipped local surfaces that already consume the canonical bundle.
+**Plans**: `06-01` completed on 2026-04-03
 **UI hint**: yes
 
 ### Phase 7: TeX Hardening & Diagnostic Reduction
@@ -69,4 +70,4 @@ This roadmap advances the approved `v1.1` scope only: paper-local search, parser
 | Milestone | Scope | Status | Shipped |
 |-----------|-------|--------|---------|
 | v1.0 TeX MVP | Phases 1-5 | Complete | 2026-04-02 |
-| v1.1 Search, Hardening & Corpus | Phases 6-9 | Planned | — |
+| v1.1 Search, Hardening & Corpus | Phases 6-9 | In Progress | — |

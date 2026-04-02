@@ -38,10 +38,10 @@ A mathematician can feed in a TeX paper and get a trustworthy dependency artifac
 - ✓ Provide a local interactive explorer for dependency inspection and structured edge explanations — `v1.0`
 - ✓ Provide an optional second-pass enrichment flow with separate storage, confidence, evidence, and provenance-gated visibility — `v1.0`
 - ✓ Prove the full local workflow on `long_nalini` without manual graph editing — `v1.0`
+- ✓ Add search by label, title, or object name across the parsed paper, with direct explorer navigation — `Phase 6`
 
 ### Active
 
-- [ ] Add search by label, title, or object name across the parsed paper, with direct explorer navigation
 - [ ] Reduce unresolved-reference diagnostics on the representative paper and broaden TeX coverage across the milestone corpus of `long_nalini`, `medium_Mueller.flat.tex`, and `short_Petri.tex`
 - [ ] Support a local multi-paper corpus with safe paper isolation and cross-paper navigation where evidence is explicit or explainable across the milestone corpus
 
@@ -82,8 +82,9 @@ The repository is a TypeScript monorepo with active workspace packages in `packa
 | Keep structural edges stored but out of theorem-centric dependency traversal | Mathematical inspection needs context edges available without polluting dependency queries | ✓ Good — raw graph completeness and dependency semantics now coexist cleanly |
 | Persist diagnostics and enrichment as sidecars instead of mutating the canonical bundle schema | Additive files preserve trust boundaries without destabilizing shipped consumers | ✓ Good — `diagnostics.json` and `enrichment.json` both shipped cleanly |
 | Make `v1.1` about search, hardening, and corpus support instead of broader input formats | These three additions compound directly on top of the shipped v1 artifact and raise day-to-day usefulness without weakening the trust model | — Pending |
-| Reuse the existing stored-paper and canonical-bundle surfaces for search and corpus features | Search and corpus workflows should stay aligned across CLI, API, dashboard, and MCP instead of growing separate data paths | — Pending |
+| Reuse the existing stored-paper and canonical-bundle surfaces for search and corpus features | Search and corpus workflows should stay aligned across CLI, API, dashboard, and MCP instead of growing separate data paths | ✓ Good — Phase 6 search now reuses the shared core query path in the web shell |
 | Limit cross-paper navigation to explicit or explainable links | Multi-paper workflows need to remain inspectable and trustworthy, not speculative global linkage | — Pending |
+| Deep-link search results into `#/explorer/<nodeId>` instead of creating a separate search page | Search should accelerate the existing explorer, not fork the navigation model | ✓ Good — Phase 6 made result-to-explorer jumps explicit and testable |
 
 ## Evolution
 

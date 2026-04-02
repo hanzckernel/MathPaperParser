@@ -3,15 +3,15 @@ gsd_state_version: 1.0
 milestone: v1.1
 milestone_name: Search, Hardening & Corpus
 status: phase_ready
-stopped_at: phase 6 planned and ready for execution
-last_updated: "2026-04-02T23:19:06Z"
+stopped_at: phase 6 complete; phase 7 ready for planning
+last_updated: "2026-04-02T23:29:40Z"
 last_activity: 2026-04-03
 progress:
   total_phases: 4
-  completed_phases: 0
-  total_plans: 0
-  completed_plans: 0
-  percent: 0
+  completed_phases: 1
+  total_plans: 1
+  completed_plans: 1
+  percent: 25
 ---
 
 # Project State
@@ -21,16 +21,16 @@ progress:
 See: .planning/PROJECT.md (updated 2026-04-03)
 
 **Core value:** A mathematician can feed in a TeX paper and get a trustworthy dependency artifact that makes the logical structure of the paper easier to navigate.
-**Current focus:** Phase 6 — Searchable Bundle Index & Explorer Navigation
+**Current focus:** Phase 7 — TeX Hardening & Diagnostic Reduction
 
 ## Current Position
 
-Phase: 6 — Searchable Bundle Index & Explorer Navigation
-Plan: 06-01
-Status: Planned and ready for execution
-Last activity: 2026-04-03 — Wrote Phase 6 context, research, UI contract, and execution plan.
+Phase: 7 — TeX Hardening & Diagnostic Reduction
+Plan: —
+Status: Ready for planning
+Last activity: 2026-04-03 — Completed Phase 6 with shared paper-local search and explorer deep-link navigation.
 
-Progress: [░░░░░░░░░░] 0%
+Progress: [██░░░░░░░░] 25%
 
 ## Performance Metrics
 
@@ -66,7 +66,8 @@ Decisions are logged in PROJECT.md. The milestone established:
 
 ### Pending Todos
 
-- Use `medium_Mueller.flat.tex` and `short_Petri.tex` as the additional corpus acceptance papers.
+- Plan Phase 7 against `long_nalini`, `medium_Mueller.flat.tex`, and `short_Petri.tex`.
+- Measure the current diagnostics baseline on all three milestone papers before hardening work starts.
 
 ### Blockers/Concerns
 
@@ -77,5 +78,5 @@ Decisions are logged in PROJECT.md. The milestone established:
 ## Session Continuity
 
 Last session: 2026-04-03 CEST
-Stopped at: Phase 6 planned; next step is executing plan `06-01`
-Resume file: .planning/phases/06-searchable-bundle-index-explorer-navigation/06-01-PLAN.md
+Stopped at: Phase 6 complete; next step is planning Phase 7
+Resume file: .planning/ROADMAP.md

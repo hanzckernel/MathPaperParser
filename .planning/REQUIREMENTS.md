@@ -7,10 +7,10 @@
 
 ### Search
 
-- [ ] **SEARCH-01**: User can search a stored parsed paper by label, title, or object name.
-- [ ] **SEARCH-02**: User can see enough result context to distinguish matches before navigating, including object type and paper-local identity.
-- [ ] **SEARCH-03**: User can jump directly from a search result to the relevant object view in the local explorer.
-- [ ] **SEARCH-04**: User gets consistent search behavior across the shipped local surfaces that already read the canonical stored-paper bundle.
+- [x] **SEARCH-01**: User can search a stored parsed paper by label, title, or object name.
+- [x] **SEARCH-02**: User can see enough result context to distinguish matches before navigating, including object type and paper-local identity.
+- [x] **SEARCH-03**: User can jump directly from a search result to the relevant object view in the local explorer.
+- [x] **SEARCH-04**: User gets consistent search behavior across the shipped local surfaces that already read the canonical stored-paper bundle.
 
 ### Hardening
 
@@ -62,10 +62,10 @@
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| SEARCH-01 | Phase 6 | Pending |
-| SEARCH-02 | Phase 6 | Pending |
-| SEARCH-03 | Phase 6 | Pending |
-| SEARCH-04 | Phase 6 | Pending |
+| SEARCH-01 | Phase 6 | Completed |
+| SEARCH-02 | Phase 6 | Completed |
+| SEARCH-03 | Phase 6 | Completed |
+| SEARCH-04 | Phase 6 | Completed |
 | HARD-01 | Phase 7 | Pending |
 | HARD-02 | Phase 7 | Pending |
 | HARD-03 | Phase 7 | Pending |
