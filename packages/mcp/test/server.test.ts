@@ -4,7 +4,13 @@ import { tmpdir } from 'node:os';
 
 import { describe, expect, it } from 'vitest';
 
-import { JsonStore, analyzeDocumentPath, type SerializedPaperParserBundle } from '@paperparser/core';
+import {
+  EnrichmentSerializer,
+  JsonStore,
+  analyzeDocumentPath,
+  createHeuristicEnrichment,
+  type SerializedPaperParserBundle,
+} from '@paperparser/core';
 
 import { createPaperParserMcpServer } from '../src/index.js';
 
@@ -12,6 +18,15 @@ function writeBundle(storePath: string, paperId: string, inputPath: string): Ser
   const bundle = analyzeDocumentPath(inputPath);
   const bundleDir = join(storePath, paperId);
   JsonStore.writeBundle(bundleDir, bundle);
+  JsonStore.writeSerializedEnrichment(
+    bundleDir,
+    EnrichmentSerializer.toJsonArtifact(
+      createHeuristicEnrichment(bundle, {
+        paperId,
+        createdAt: '2026-04-02T12:00:00Z',
+      }),
+    ),
+  );
   writeFileSync(
     join(storePath, 'latest.json'),
     `${JSON.stringify({ paper_id: paperId, updated_at: '2026-03-11T00:00:00Z' }, null, 2)}\n`,
@@ -88,7 +103,8 @@ describe('PaperParser MCP server', () => {
     expect(manifest.paper.source_type).toBe('markdown');
 
     const enrichment = await server.readResource('paperparser://papers/fixture-markdown/enrichment');
-    expect(enrichment.main_results[0]?.node_id).toBe('sec1::thm:thm-main');
+    expect(enrichment.paper_id).toBe('fixture-markdown');
+    expect(Array.isArray(enrichment.edges)).toBe(true);
   });
 
   it('serves the same MCP surface for a stored latex paper', async () => {

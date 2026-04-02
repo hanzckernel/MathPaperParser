@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 
-import type { DashboardModel } from '../lib/dashboard-model.js';
+import type { DashboardEdge, DashboardModel } from '../lib/dashboard-model.js';
 
 const KIND_COLORS: Record<string, string> = {
   section: '#f97316',
@@ -25,6 +25,12 @@ const EVIDENCE_COLORS: Record<string, string> = {
   external: '#94a3b8',
 };
 
+const PROVENANCE_COLORS: Record<string, string> = {
+  explicit: '#38bdf8',
+  structural: '#f59e0b',
+  agent_inferred: '#fb7185',
+};
+
 const ALL_KINDS = [
   'section',
   'definition',
@@ -42,7 +48,8 @@ const ALL_KINDS = [
   'external_dependency',
 ] as const;
 
-const ALL_EVIDENCE = ['explicit_ref', 'inferred', 'external'] as const;
+const ALL_PROVENANCE = ['explicit', 'structural', 'agent_inferred'] as const;
+const DEFAULT_VISIBLE_PROVENANCE = ['explicit', 'structural'] as const;
 
 const SECTION_COLUMN_WIDTH = 240;
 const NODE_ROW_HEIGHT = 112;
@@ -139,24 +146,24 @@ function toggleSelection(values: string[], value: string, allValues: readonly st
   return [...values, value];
 }
 
-function edgeKey(edge: DashboardModel['edges'][number]): string {
+function edgeKey(edge: DashboardEdge): string {
   return [
     edge.source,
     edge.target,
     edge.kind,
     edge.evidence,
-    (edge as { provenance?: string }).provenance ?? 'none',
+    edgeProvenance(edge),
   ].join('::');
 }
 
 function preferredEdge(
-  outgoing: DashboardModel['edges'],
-  incoming: DashboardModel['edges'],
-): DashboardModel['edges'][number] | null {
+  outgoing: DashboardEdge[],
+  incoming: DashboardEdge[],
+): DashboardEdge | null {
   return outgoing[0] ?? incoming[0] ?? null;
 }
 
-function edgeMetadataEntries(edge: DashboardModel['edges'][number]): Array<[string, string]> {
+function edgeMetadataEntries(edge: DashboardEdge): Array<[string, string]> {
   return Object.entries(edge.metadata)
     .filter(([, value]) => value !== null && value !== undefined)
     .map(([key, value]) => [
@@ -165,6 +172,10 @@ function edgeMetadataEntries(edge: DashboardModel['edges'][number]): Array<[stri
         ? String(value)
         : JSON.stringify(value),
     ]);
+}
+
+function edgeProvenance(edge: DashboardEdge): string {
+  return edge.provenance ?? 'explicit';
 }
 
 function buildNodePositions(nodes: DashboardModel['nodes'], sectionOrder: string[]): {
@@ -212,15 +223,19 @@ export function GraphPage({
   model,
   selectedNodeId,
   onSelectNode,
+  initialVisibleProvenance = [...DEFAULT_VISIBLE_PROVENANCE],
+  initialSelectedEdgeKey = null,
 }: {
   model: DashboardModel;
   selectedNodeId: string | null;
   onSelectNode: (nodeId: string) => void;
+  initialVisibleProvenance?: string[];
+  initialSelectedEdgeKey?: string | null;
 }) {
   const [searchQuery, setSearchQuery] = useState('');
   const [sectionFilter, setSectionFilter] = useState('all');
   const [visibleKinds, setVisibleKinds] = useState<string[]>([...ALL_KINDS]);
-  const [visibleEvidence, setVisibleEvidence] = useState<string[]>([...ALL_EVIDENCE]);
+  const [visibleProvenance, setVisibleProvenance] = useState<string[]>([...initialVisibleProvenance]);
 
   const loweredQuery = searchQuery.trim().toLocaleLowerCase();
   const filteredNodes = model.nodes.filter((node) => {
@@ -242,7 +257,10 @@ export function GraphPage({
   });
   const visibleNodeIds = new Set(filteredNodes.map((node) => node.id));
   const filteredEdges = model.edges.filter(
-    (edge) => visibleEvidence.includes(edge.evidence) && visibleNodeIds.has(edge.source) && visibleNodeIds.has(edge.target),
+    (edge) =>
+      visibleProvenance.includes(edgeProvenance(edge)) &&
+      visibleNodeIds.has(edge.source) &&
+      visibleNodeIds.has(edge.target),
   );
   const filteredNodeIdsWithEdges = new Set<string>();
   for (const edge of filteredEdges) {
@@ -260,7 +278,9 @@ export function GraphPage({
   const outgoing = selectedNode ? filteredEdges.filter((edge) => edge.source === selectedNode.id) : [];
   const incoming = selectedNode ? filteredEdges.filter((edge) => edge.target === selectedNode.id) : [];
   const initialEdge = selectedNode ? preferredEdge(outgoing, incoming) : null;
-  const [selectedEdgeKey, setSelectedEdgeKey] = useState<string | null>(() => (initialEdge ? edgeKey(initialEdge) : null));
+  const [selectedEdgeKey, setSelectedEdgeKey] = useState<string | null>(() =>
+    initialSelectedEdgeKey ?? (initialEdge ? edgeKey(initialEdge) : null),
+  );
 
   useEffect(() => {
     if (!selectedNode) {
@@ -350,16 +370,16 @@ export function GraphPage({
           </div>
 
           <div style={{ display: 'grid', gap: '0.45rem' }}>
-            <div style={{ color: '#94a3b8', fontSize: '0.78rem', textTransform: 'uppercase', letterSpacing: '0.08em' }}>Evidence</div>
+            <div style={{ color: '#94a3b8', fontSize: '0.78rem', textTransform: 'uppercase', letterSpacing: '0.08em' }}>Provenance</div>
             <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.45rem' }}>
-              {ALL_EVIDENCE.map((evidence) => (
+              {ALL_PROVENANCE.map((provenance) => (
                 <button
-                  key={evidence}
+                  key={provenance}
                   type="button"
-                  onClick={() => setVisibleEvidence((current) => toggleSelection(current, evidence, ALL_EVIDENCE))}
-                  style={tokenButtonStyle(visibleEvidence.includes(evidence), EVIDENCE_COLORS[evidence])}
+                  onClick={() => setVisibleProvenance((current) => toggleSelection(current, provenance, ALL_PROVENANCE))}
+                  style={tokenButtonStyle(visibleProvenance.includes(provenance), PROVENANCE_COLORS[provenance])}
                 >
-                  {evidence}
+                  {provenance}
                 </button>
               ))}
             </div>
@@ -427,7 +447,7 @@ export function GraphPage({
                       y1={source.y}
                       x2={target.x}
                       y2={target.y}
-                      stroke={EVIDENCE_COLORS[edge.evidence] ?? '#64748b'}
+                      stroke={PROVENANCE_COLORS[edgeProvenance(edge)] ?? EVIDENCE_COLORS[edge.evidence] ?? '#64748b'}
                       strokeWidth={selectedNode?.id === edge.source || selectedNode?.id === edge.target ? 2.8 : 1.6}
                       opacity={selectedNode ? (selectedNode.id === edge.source || selectedNode.id === edge.target ? 1 : 0.28) : 0.7}
                       markerEnd="url(#proof-graph-arrow)"
@@ -506,6 +526,7 @@ export function GraphPage({
                           <div>{model.nodeById.get(edge.target)?.label ?? edge.target}</div>
                           <div style={{ color: '#94a3b8', marginTop: '0.2rem', fontSize: '0.82rem' }}>
                             {edge.kind} · {(edge as { provenance?: string }).provenance ?? 'untyped'} · {edge.evidence}
+                            {typeof edge.confidence === 'number' ? ` · ${edge.confidence.toFixed(2)}` : ''}
                           </div>
                         </button>
                         <button type="button" onClick={() => onSelectNode(edge.target)} style={tokenButtonStyle(false, '#64748b')}>
@@ -526,6 +547,7 @@ export function GraphPage({
                           <div>{model.nodeById.get(edge.source)?.label ?? edge.source}</div>
                           <div style={{ color: '#94a3b8', marginTop: '0.2rem', fontSize: '0.82rem' }}>
                             {edge.kind} · {(edge as { provenance?: string }).provenance ?? 'untyped'} · {edge.evidence}
+                            {typeof edge.confidence === 'number' ? ` · ${edge.confidence.toFixed(2)}` : ''}
                           </div>
                         </button>
                         <button type="button" onClick={() => onSelectNode(edge.source)} style={tokenButtonStyle(false, '#64748b')}>
@@ -558,12 +580,24 @@ export function GraphPage({
                       </div>
                       <div>
                         <div style={{ color: '#94a3b8', fontSize: '0.78rem', textTransform: 'uppercase', letterSpacing: '0.08em' }}>Provenance</div>
-                        <div>{(selectedEdge as { provenance?: string }).provenance ?? 'untyped'}</div>
+                        <div>{edgeProvenance(selectedEdge)}</div>
                       </div>
                       <div>
                         <div style={{ color: '#94a3b8', fontSize: '0.78rem', textTransform: 'uppercase', letterSpacing: '0.08em' }}>Evidence</div>
                         <div>{selectedEdge.evidence}</div>
                       </div>
+                      {typeof selectedEdge.confidence === 'number' ? (
+                        <div>
+                          <div style={{ color: '#94a3b8', fontSize: '0.78rem', textTransform: 'uppercase', letterSpacing: '0.08em' }}>Confidence</div>
+                          <div>{selectedEdge.confidence.toFixed(2)}</div>
+                        </div>
+                      ) : null}
+                      {(selectedEdge as { review_status?: string }).review_status ? (
+                        <div>
+                          <div style={{ color: '#94a3b8', fontSize: '0.78rem', textTransform: 'uppercase', letterSpacing: '0.08em' }}>Review Status</div>
+                          <div>{(selectedEdge as { review_status?: string }).review_status}</div>
+                        </div>
+                      ) : null}
                     </div>
 
                     <div>

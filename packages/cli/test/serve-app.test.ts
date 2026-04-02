@@ -5,6 +5,7 @@ import { tmpdir } from 'node:os';
 
 import { describe, expect, it } from 'vitest';
 
+import { runCli } from '../src/index.js';
 import { handlePaperParserRequest } from '../src/server.js';
 
 describe('paperparser serve app', () => {
@@ -134,5 +135,40 @@ describe('paperparser serve app', () => {
     };
     expect(impact.node.id).toBe('sec1::thm:thm-fixture');
     expect(impact.dependentNodes).toEqual([]);
+  });
+
+  it('serves enrichment.json when a stored paper has a sidecar', async () => {
+    const storePath = mkdtempSync(join(tmpdir(), 'paperparser-serve-'));
+
+    const analyzeExitCode = runCli(
+      ['analyze', 'packages/core/test/fixtures/latex/canonical-objects/main.tex', '--store', storePath, '--paper', 'fixture-canonical'],
+      {
+        stdout: () => {},
+        stderr: () => {},
+      },
+    );
+    expect(analyzeExitCode).toBe(0);
+
+    const enrichExitCode = runCli(
+      ['enrich', '--store', storePath, '--paper', 'fixture-canonical'],
+      {
+        stdout: () => {},
+        stderr: () => {},
+      },
+    );
+    expect(enrichExitCode).toBe(0);
+
+    const enrichmentResponse = await handlePaperParserRequest(
+      new Request('http://paperparser.local/api/papers/fixture-canonical/enrichment'),
+      { storePath },
+    );
+    expect(enrichmentResponse.status).toBe(200);
+    const enrichment = (await enrichmentResponse.json()) as {
+      paper_id: string;
+      edges: Array<{ provenance: string; review_status: string }>;
+    };
+    expect(enrichment.paper_id).toBe('fixture-canonical');
+    expect(enrichment.edges.length).toBeGreaterThan(0);
+    expect(enrichment.edges.every((edge) => edge.provenance === 'agent_inferred' && edge.review_status === 'pending')).toBe(true);
   });
 });

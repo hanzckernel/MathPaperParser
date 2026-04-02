@@ -192,10 +192,16 @@ function handleListRequest(options: Required<PaperParserServeOptions>): Response
 
 function handleBundlePartRequest(
   paperId: string,
-  part: 'manifest' | 'graph' | 'index',
+  part: 'manifest' | 'graph' | 'index' | 'enrichment',
   options: Required<PaperParserServeOptions>,
 ): Response {
-  const { serializedBundle } = readSerializedBundleFromStore(options.storePath, paperId);
+  const { serializedBundle, serializedEnrichment } = readSerializedBundleFromStore(options.storePath, paperId);
+  if (part === 'enrichment') {
+    if (!serializedEnrichment) {
+      return errorResponse(404, `No enrichment sidecar found for paper ${paperId}.`);
+    }
+    return jsonResponse(200, serializedEnrichment);
+  }
   return jsonResponse(200, serializedBundle[part]);
 }
 
@@ -233,9 +239,13 @@ function handleImpactRequest(paperId: string, nodeId: string, options: Required<
 }
 
 function handleValidateRequest(paperId: string, options: Required<PaperParserServeOptions>): Response {
-  const { serializedBundle } = readSerializedBundleFromStore(options.storePath, paperId);
+  const { serializedBundle, serializedEnrichment } = readSerializedBundleFromStore(options.storePath, paperId);
   new SchemaValidator().validateSerializedBundle(serializedBundle);
   ConsistencyChecker.checkSerializedBundle(serializedBundle);
+  if (serializedEnrichment) {
+    new SchemaValidator().validateSerializedEnrichment(serializedEnrichment);
+    ConsistencyChecker.checkSerializedEnrichment(serializedBundle, serializedEnrichment);
+  }
 
   return jsonResponse(200, {
     ok: true,
@@ -280,6 +290,9 @@ export async function handlePaperParserRequest(
   }
   if (request.method === 'GET' && action === 'index') {
     return handleBundlePartRequest(paperId, 'index', resolvedOptions);
+  }
+  if (request.method === 'GET' && action === 'enrichment') {
+    return handleBundlePartRequest(paperId, 'enrichment', resolvedOptions);
   }
   if (request.method === 'GET' && action === 'validate') {
     return handleValidateRequest(paperId, resolvedOptions);

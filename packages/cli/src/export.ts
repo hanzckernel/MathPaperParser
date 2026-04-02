@@ -23,7 +23,7 @@ function npmCommand(): string {
 export function exportStaticDashboard(options: ExportStaticDashboardOptions = {}): ExportStaticDashboardResult {
   const cwd = options.cwd ?? process.cwd();
   const resolvedStorePath = resolveStorePath(options.storePath, cwd);
-  const { paperId, serializedBundle } = readSerializedBundleFromStore(resolvedStorePath, options.paperId);
+  const { paperId, serializedBundle, serializedEnrichment } = readSerializedBundleFromStore(resolvedStorePath, options.paperId);
   const outputPath = resolve(cwd, options.outputPath ?? join('exports', paperId));
 
   const build = spawnSync(
@@ -44,6 +44,9 @@ export function exportStaticDashboard(options: ExportStaticDashboardOptions = {}
   writeFileSync(join(dataDir, 'manifest.json'), `${JSON.stringify(serializedBundle.manifest, null, 2)}\n`, 'utf8');
   writeFileSync(join(dataDir, 'graph.json'), `${JSON.stringify(serializedBundle.graph, null, 2)}\n`, 'utf8');
   writeFileSync(join(dataDir, 'index.json'), `${JSON.stringify(serializedBundle.index, null, 2)}\n`, 'utf8');
+  if (serializedEnrichment) {
+    writeFileSync(join(dataDir, 'enrichment.json'), `${JSON.stringify(serializedEnrichment, null, 2)}\n`, 'utf8');
+  }
 
   return {
     paperId,

@@ -1,6 +1,8 @@
 import { BundleSerializer, type SerializedPaperParserBundle } from '../serialization/bundle-serializer.js';
+import { EnrichmentSerializer, type SerializedEnrichmentArtifact } from '../serialization/enrichment-serializer.js';
 import type { PaperParserBundle } from '../types/bundle.js';
 import { EDGE_EVIDENCE_VALUES, MATH_EDGE_KINDS } from '../types/edge.js';
+import type { PaperParserEnrichment } from '../types/enrichment.js';
 import { MATH_NODE_KINDS } from '../types/node.js';
 
 const NODE_ID_PATTERN =
@@ -134,6 +136,47 @@ export class ConsistencyChecker {
 
     if (!statsMatch) {
       throw new Error('index.stats does not match graph-derived statistics');
+    }
+  }
+
+  static checkEnrichment(bundle: PaperParserBundle, enrichment: PaperParserEnrichment): void {
+    this.checkSerializedEnrichment(BundleSerializer.toJsonBundle(bundle), EnrichmentSerializer.toJsonArtifact(enrichment));
+  }
+
+  static checkSerializedEnrichment(
+    bundle: SerializedPaperParserBundle,
+    enrichment: SerializedEnrichmentArtifact,
+  ): void {
+    if (bundle.graph.schema_version !== enrichment.base_bundle.schema_version) {
+      throw new Error('enrichment base_bundle.schema_version must match graph.schema_version');
+    }
+
+    const nodeIdSet = new Set(bundle.graph.nodes.map((node) => node.id));
+    const directRelationPairs = new Set(bundle.graph.edges.map((edge) => `${edge.source}::${edge.target}`));
+    const candidateKeys = new Set<string>();
+
+    for (const edge of enrichment.edges) {
+      if (!nodeIdSet.has(edge.source) || !nodeIdSet.has(edge.target)) {
+        throw new Error(`enrichment edge references unknown node ids: ${edge.source} -> ${edge.target}`);
+      }
+      if (edge.provenance !== 'agent_inferred') {
+        throw new Error('enrichment edges must use provenance=agent_inferred');
+      }
+      if (edge.evidence !== 'inferred') {
+        throw new Error('enrichment edges must use evidence=inferred');
+      }
+      if (typeof edge.confidence !== 'number' || edge.confidence <= 0 || edge.confidence > 1) {
+        throw new Error('enrichment edges must have confidence in (0, 1]');
+      }
+      if (directRelationPairs.has(`${edge.source}::${edge.target}`)) {
+        throw new Error(`enrichment edge duplicates an existing deterministic relation: ${edge.source} -> ${edge.target}`);
+      }
+
+      const candidateKey = `${edge.source}::${edge.target}::${edge.kind}`;
+      if (candidateKeys.has(candidateKey)) {
+        throw new Error(`duplicate enrichment edge: ${candidateKey}`);
+      }
+      candidateKeys.add(candidateKey);
     }
   }
 }

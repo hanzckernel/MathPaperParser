@@ -1,10 +1,13 @@
 import { createServer } from 'node:http';
 
 import {
+  BundleSerializer,
   BundleQueryService,
   ConsistencyChecker,
+  EnrichmentSerializer,
   SchemaValidator,
   analyzeDocumentPath,
+  createHeuristicEnrichment,
 } from '@paperparser/core';
 import { PAPERPARSER_MCP_SERVER_NAME, runPaperParserMcpStdioServer } from '@paperparser/mcp';
 
@@ -16,6 +19,7 @@ import {
   readSerializedBundleFromStore,
   resolveStorePath,
   writeBundleToStore,
+  writeEnrichmentToStore,
 } from './store.js';
 import { exportStaticDashboard } from './export.js';
 import { createPaperParserRequestHandler } from './server.js';
@@ -56,6 +60,7 @@ function writeJson(io: CliIo, value: unknown): void {
 function usage(): string {
   return [
     `Usage: ${PAPERPARSER_CLI_NAME} analyze <input> [--store <path>] [--paper <id>]`,
+    `       ${PAPERPARSER_CLI_NAME} enrich [--store <path>] [--paper <id>]`,
     `       ${PAPERPARSER_CLI_NAME} validate [--store <path>] [--paper <id>]`,
     `       ${PAPERPARSER_CLI_NAME} export [--store <path>] [--paper <id>] [--output <path>]`,
     `       ${PAPERPARSER_CLI_NAME} list [--store <path>]`,
@@ -96,6 +101,32 @@ function runAnalyze(argv: string[], io: CliIo): number {
     if (warningCodes.length > 0) {
       io.stdout(`warning_codes=${warningCodes.join(',')}`);
     }
+    return 0;
+  } catch (error) {
+    io.stderr(error instanceof Error ? error.message : String(error));
+    return 1;
+  }
+}
+
+function runEnrich(argv: string[], io: CliIo): number {
+  const storeFlag = readFlag(argv, '--store');
+  const paperFlag = readFlag(argv, '--paper');
+  const cwd = io.cwd ?? process.cwd();
+  const storePath = resolveStorePath(storeFlag, cwd);
+
+  try {
+    const { paperId, bundle } = readBundleFromStore(storePath, paperFlag);
+    const enrichment = createHeuristicEnrichment(bundle, { paperId });
+    const serializedEnrichment = EnrichmentSerializer.toJsonArtifact(enrichment);
+    const stored = writeEnrichmentToStore(serializedEnrichment, storePath, paperId);
+
+    new SchemaValidator().validateSerializedEnrichment(serializedEnrichment);
+    ConsistencyChecker.checkSerializedEnrichment(BundleSerializer.toJsonBundle(bundle), serializedEnrichment);
+
+    io.stdout(`paper_id=${stored.paperId}`);
+    io.stdout(`enrichment=${stored.enrichmentPath}`);
+    io.stdout(`candidate_count=${serializedEnrichment.edges.length}`);
+    io.stdout(`provider=${serializedEnrichment.provider.agent}`);
     return 0;
   } catch (error) {
     io.stderr(error instanceof Error ? error.message : String(error));
@@ -358,6 +389,8 @@ export function runCli(argv: string[], io: CliIo = defaultIo()): number {
   switch (command) {
     case 'analyze':
       return runAnalyze(argv, io);
+    case 'enrich':
+      return runEnrich(argv, io);
     case 'validate':
       return runValidate(argv, io);
     case 'export':

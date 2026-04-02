@@ -10,7 +10,7 @@ import {
 } from './components/dashboard-pages.js';
 import { listApiPapers, type ApiPaperListing, uploadSourceDocument } from './lib/api-client.js';
 import { buildDashboardModel, type DashboardModel } from './lib/dashboard-model.js';
-import { loadSerializedBundle, resolveBundleSource, type BundleSource } from './lib/data-source.js';
+import { loadSerializedPaperData, resolveBundleSource, type BundleSource } from './lib/data-source.js';
 
 type RouteKey = 'overview' | 'graph' | 'explorer' | 'innovation' | 'unknowns';
 
@@ -143,13 +143,13 @@ export function App() {
     setStatus('loading');
     setError(null);
 
-    loadSerializedBundle(source)
-      .then((bundle) => {
+    loadSerializedPaperData(source)
+      .then(({ bundle, enrichment }) => {
         if (cancelled) {
           return;
         }
 
-        const nextModel = buildDashboardModel(bundle);
+        const nextModel = buildDashboardModel(bundle, enrichment);
         setModel(nextModel);
         setSelectedNodeId((current) => current ?? nextModel.mainResults[0]?.nodeId ?? nextModel.nodes[0]?.id ?? null);
         setStatus('ready');

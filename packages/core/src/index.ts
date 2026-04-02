@@ -1,5 +1,6 @@
 export * from './graph/knowledge-graph.js';
 export * from './graph/stats.js';
+export * from './enrichment/heuristic-reviewer.js';
 export * from './ingestion/bundle-builder.js';
 export * from './ingestion/flatten/latex-flattener.js';
 export * from './ingestion/parsers/latex-parser.js';
@@ -11,8 +12,10 @@ export * from './persistence/kuzu-store.js';
 export * from './search/keyword-search.js';
 export * from './services/bundle-query-service.js';
 export * from './serialization/bundle-serializer.js';
+export * from './serialization/enrichment-serializer.js';
 export * from './types/bundle.js';
 export * from './types/edge.js';
+export * from './types/enrichment.js';
 export * from './types/graph.js';
 export * from './types/node.js';
 export * from './types/pipeline.js';

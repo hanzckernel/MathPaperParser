@@ -2,7 +2,7 @@ import { resolve } from 'node:path';
 
 import { describe, expect, it, vi } from 'vitest';
 
-import { BundleSerializer, analyzeDocumentPath } from '@paperparser/core';
+import { BundleSerializer, EnrichmentSerializer, analyzeDocumentPath, createHeuristicEnrichment } from '@paperparser/core';
 
 import { buildDashboardModel } from '../src/lib/dashboard-model.js';
 import { loadSerializedBundle, resolveBundleSource } from '../src/lib/data-source.js';
@@ -32,6 +32,7 @@ describe('web bundle data source', () => {
     fetchMock.mockResolvedValueOnce(
       new Response(JSON.stringify({ schema_version: '0.2.0', main_results: [], stats: {} }), { status: 200 }),
     );
+    fetchMock.mockResolvedValueOnce(new Response('not found', { status: 404, statusText: 'Not Found' }));
 
     const bundle = await loadSerializedBundle(
       {
@@ -46,6 +47,7 @@ describe('web bundle data source', () => {
       '/export/data/manifest.json',
       '/export/data/graph.json',
       '/export/data/index.json',
+      '/export/data/enrichment.json',
     ]);
   });
 
@@ -92,6 +94,30 @@ describe('web bundle data source', () => {
           edge.kind === 'cites_external' &&
           (edge as { provenance?: string }).provenance === 'explicit' &&
           (edge.metadata as { citeKey?: string }).citeKey === 'Foundations',
+      ),
+    ).toBe(true);
+  });
+
+  it('merges optional enrichment edges into the dashboard model without dropping deterministic edges', () => {
+    const fixturePath = resolve(process.cwd(), 'packages/core/test/fixtures/latex/canonical-objects/main.tex');
+    const bundle = analyzeDocumentPath(fixturePath);
+    const serializedBundle = BundleSerializer.toJsonBundle(bundle);
+    const serializedEnrichment = EnrichmentSerializer.toJsonArtifact(
+      createHeuristicEnrichment(bundle, {
+        paperId: 'fixture-canonical',
+        createdAt: '2026-04-02T12:00:00Z',
+      }),
+    );
+
+    const model = buildDashboardModel(serializedBundle, serializedEnrichment);
+
+    expect(model.edges.some((edge) => (edge as { provenance?: string }).provenance === 'structural')).toBe(true);
+    expect(
+      model.edges.some(
+        (edge) =>
+          (edge as { provenance?: string }).provenance === 'agent_inferred' &&
+          typeof (edge as { confidence?: number }).confidence === 'number' &&
+          (edge as { review_status?: string }).review_status === 'pending',
       ),
     ).toBe(true);
   });

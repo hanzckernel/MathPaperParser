@@ -200,12 +200,14 @@ export class PaperParserMcpServer {
           name: `${paper.paperId} manifest`,
           mimeType: 'application/json',
         },
-        {
+      );
+      if (paper.hasEnrichment) {
+        resources.push({
           uri: resourceUri(paper.paperId, 'enrichment'),
           name: `${paper.paperId} enrichment`,
           mimeType: 'application/json',
-        },
-      );
+        });
+      }
     }
 
     return resources;
@@ -258,7 +260,7 @@ export class PaperParserMcpServer {
     }
 
     const [paperId, kind] = segments;
-    const { serializedBundle } = readSerializedBundleFromStore(this.storePath, paperId);
+    const { serializedBundle, serializedEnrichment } = readSerializedBundleFromStore(this.storePath, paperId);
 
     if (kind === 'graph') {
       return serializedBundle.graph;
@@ -267,7 +269,10 @@ export class PaperParserMcpServer {
       return serializedBundle.manifest;
     }
     if (kind === 'enrichment') {
-      return serializedBundle.index;
+      if (!serializedEnrichment) {
+        throw new Error(`No enrichment sidecar found for paper ${paperId}.`);
+      }
+      return serializedEnrichment;
     }
 
     throw new Error(`Unsupported MCP resource URI: ${uri}`);

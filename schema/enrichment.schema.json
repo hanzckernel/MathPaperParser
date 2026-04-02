@@ -1,0 +1,127 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/agent4math/paper-parser/schema/enrichment.schema.json",
+  "title": "PaperParser enrichment.json schema",
+  "description": "Schema for optional second-pass enrichment artifacts. Stores reviewable agent-inferred candidate edges separately from the canonical bundle.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema_version", "paper_id", "created_at", "base_bundle", "provider", "edges"],
+  "properties": {
+    "schema_version": {
+      "type": "string",
+      "const": "0.2.0"
+    },
+    "paper_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "created_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "base_bundle": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["schema_version", "node_count", "edge_count"],
+      "properties": {
+        "schema_version": {
+          "type": "string",
+          "const": "0.2.0"
+        },
+        "node_count": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "edge_count": {
+          "type": "integer",
+          "minimum": 0
+        }
+      }
+    },
+    "provider": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["agent", "model", "prompt_version"],
+      "properties": {
+        "agent": {
+          "type": "string",
+          "minLength": 1
+        },
+        "model": {
+          "type": "string",
+          "minLength": 1
+        },
+        "prompt_version": {
+          "type": "string",
+          "minLength": 1
+        }
+      }
+    },
+    "edges": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "source",
+          "target",
+          "kind",
+          "evidence",
+          "provenance",
+          "detail",
+          "metadata",
+          "confidence",
+          "review_status"
+        ],
+        "properties": {
+          "source": {
+            "type": "string",
+            "pattern": "^sec[0-9A-Za-z]+(\\.[0-9A-Za-z]+)*::(sec|def|thm|lem|prop|cor|asm|rem|ex|conj|not|proof|eq|ext):[a-z0-9]([a-z0-9-]*[a-z0-9])?$"
+          },
+          "target": {
+            "type": "string",
+            "pattern": "^sec[0-9A-Za-z]+(\\.[0-9A-Za-z]+)*::(sec|def|thm|lem|prop|cor|asm|rem|ex|conj|not|proof|eq|ext):[a-z0-9]([a-z0-9-]*[a-z0-9])?$"
+          },
+          "kind": {
+            "type": "string",
+            "enum": [
+              "contains",
+              "proves",
+              "uses_in_proof",
+              "extends",
+              "generalizes",
+              "specializes",
+              "equivalent_to",
+              "cites_external"
+            ]
+          },
+          "evidence": {
+            "type": "string",
+            "const": "inferred"
+          },
+          "provenance": {
+            "type": "string",
+            "const": "agent_inferred"
+          },
+          "detail": {
+            "type": "string",
+            "minLength": 1
+          },
+          "metadata": {
+            "type": "object",
+            "additionalProperties": true
+          },
+          "confidence": {
+            "type": "number",
+            "exclusiveMinimum": 0,
+            "maximum": 1
+          },
+          "review_status": {
+            "type": "string",
+            "enum": ["pending", "accepted", "rejected"]
+          }
+        }
+      }
+    }
+  }
+}

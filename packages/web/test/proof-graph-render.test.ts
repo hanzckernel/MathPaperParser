@@ -4,7 +4,7 @@ import { resolve } from 'node:path';
 
 import { describe, expect, it } from 'vitest';
 
-import { BundleSerializer, analyzeDocumentPath } from '@paperparser/core';
+import { BundleSerializer, EnrichmentSerializer, analyzeDocumentPath, createHeuristicEnrichment } from '@paperparser/core';
 
 import { GraphPage } from '../src/components/dashboard-pages.js';
 import { buildDashboardModel } from '../src/lib/dashboard-model.js';
@@ -79,5 +79,46 @@ describe('GraphPage', () => {
     expect(html).toContain('Evidence');
     expect(html).toContain('explicit_ref');
     expect(html).toContain('latexRef');
+  });
+
+  it('keeps agent-inferred edges hidden by default and can render their review metadata when enabled', () => {
+    const fixturePath = resolve(process.cwd(), 'packages/core/test/fixtures/latex/canonical-objects/main.tex');
+    const bundle = analyzeDocumentPath(fixturePath);
+    const serializedBundle = BundleSerializer.toJsonBundle(bundle);
+    const serializedEnrichment = EnrichmentSerializer.toJsonArtifact(
+      createHeuristicEnrichment(bundle, {
+        paperId: 'fixture-canonical',
+        createdAt: '2026-04-02T12:00:00Z',
+      }),
+    );
+    const model = buildDashboardModel(serializedBundle, serializedEnrichment);
+    const selectedNodeId = 'sec1::thm:thm-main';
+    const selectedAgentEdgeKey = 'sec1::thm:thm-main::sec1::lem:lem-key::uses_in_proof::inferred::agent_inferred';
+
+    const defaultHtml = renderToStaticMarkup(
+      createElement(GraphPage, {
+        model,
+        selectedNodeId,
+        onSelectNode: () => {},
+      }),
+    );
+
+    expect(defaultHtml).toContain('agent_inferred');
+    expect(defaultHtml).not.toContain('Confidence');
+
+    const enrichedHtml = renderToStaticMarkup(
+      createElement(GraphPage, {
+        model,
+        selectedNodeId,
+        onSelectNode: () => {},
+        initialVisibleProvenance: ['explicit', 'structural', 'agent_inferred'],
+        initialSelectedEdgeKey: selectedAgentEdgeKey,
+      }),
+    );
+
+    expect(enrichedHtml).toContain('Confidence');
+    expect(enrichedHtml).toContain('Review Status');
+    expect(enrichedHtml).toContain('providerAgent');
+    expect(enrichedHtml).toContain('agent_inferred');
   });
 });

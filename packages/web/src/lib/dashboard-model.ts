@@ -1,4 +1,4 @@
-import type { SerializedPaperParserBundle } from '@paperparser/core';
+import type { SerializedEnrichmentArtifact, SerializedPaperParserBundle } from '@paperparser/core';
 
 export interface DashboardSection {
   section: string;
@@ -15,6 +15,10 @@ export interface DashboardMainResult {
   significance: string;
 }
 
+export type DashboardEdge = SerializedPaperParserBundle['graph']['edges'][number] & {
+  review_status?: SerializedEnrichmentArtifact['edges'][number]['review_status'];
+};
+
 export interface DashboardModel {
   title: string;
   sourceType: string;
@@ -30,10 +34,10 @@ export interface DashboardModel {
   sectionCount: number;
   mainResults: DashboardMainResult[];
   nodes: SerializedPaperParserBundle['graph']['nodes'];
-  edges: SerializedPaperParserBundle['graph']['edges'];
+  edges: DashboardEdge[];
   nodeById: Map<string, SerializedPaperParserBundle['graph']['nodes'][number]>;
-  outgoingById: Map<string, SerializedPaperParserBundle['graph']['edges']>;
-  incomingById: Map<string, SerializedPaperParserBundle['graph']['edges']>;
+  outgoingById: Map<string, DashboardEdge[]>;
+  incomingById: Map<string, DashboardEdge[]>;
 }
 
 function naturalCompare(left: string, right: string): number {
@@ -71,10 +75,10 @@ function buildSectionMap(bundle: SerializedPaperParserBundle): DashboardSection[
 }
 
 function buildEdgeIndex(
-  edges: SerializedPaperParserBundle['graph']['edges'],
+  edges: DashboardEdge[],
 ): Pick<DashboardModel, 'outgoingById' | 'incomingById'> {
-  const outgoingById = new Map<string, SerializedPaperParserBundle['graph']['edges']>();
-  const incomingById = new Map<string, SerializedPaperParserBundle['graph']['edges']>();
+  const outgoingById = new Map<string, DashboardEdge[]>();
+  const incomingById = new Map<string, DashboardEdge[]>();
 
   for (const edge of edges) {
     const outgoing = outgoingById.get(edge.source) ?? [];
@@ -89,9 +93,37 @@ function buildEdgeIndex(
   return { outgoingById, incomingById };
 }
 
-export function buildDashboardModel(bundle: SerializedPaperParserBundle): DashboardModel {
+function mergeEdges(
+  bundle: SerializedPaperParserBundle,
+  enrichment?: SerializedEnrichmentArtifact,
+): DashboardEdge[] {
+  const deterministicEdges = bundle.graph.edges.map((edge) => ({ ...edge }));
+  if (!enrichment) {
+    return deterministicEdges;
+  }
+
+  const enrichmentEdges = enrichment.edges.map(
+    (edge): DashboardEdge => ({
+      ...edge,
+      metadata: {
+        ...edge.metadata,
+        providerAgent: enrichment.provider.agent,
+        providerModel: enrichment.provider.model,
+        promptVersion: enrichment.provider.prompt_version,
+      },
+    }),
+  );
+
+  return [...deterministicEdges, ...enrichmentEdges];
+}
+
+export function buildDashboardModel(
+  bundle: SerializedPaperParserBundle,
+  enrichment?: SerializedEnrichmentArtifact,
+): DashboardModel {
   const nodeById = new Map(bundle.graph.nodes.map((node) => [node.id, node]));
-  const { outgoingById, incomingById } = buildEdgeIndex(bundle.graph.edges);
+  const mergedEdges = mergeEdges(bundle, enrichment);
+  const { outgoingById, incomingById } = buildEdgeIndex(bundle.graph.edges.map((edge) => ({ ...edge })));
   const sections = buildSectionMap(bundle);
 
   return {
@@ -114,7 +146,7 @@ export function buildDashboardModel(bundle: SerializedPaperParserBundle): Dashbo
       significance: result.significance,
     })),
     nodes: bundle.graph.nodes,
-    edges: bundle.graph.edges,
+    edges: mergedEdges,
     nodeById,
     outgoingById,
     incomingById,

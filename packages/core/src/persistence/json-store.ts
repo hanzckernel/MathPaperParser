@@ -2,6 +2,7 @@ import { mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 
 import { BundleSerializer, type SerializedPaperParserBundle } from '../serialization/bundle-serializer.js';
+import { type SerializedEnrichmentArtifact } from '../serialization/enrichment-serializer.js';
 import type { PaperParserBundle } from '../types/bundle.js';
 
 export class JsonStore {
@@ -19,6 +20,16 @@ export class JsonStore {
     };
   }
 
+  static readSerializedEnrichment(directory: string): SerializedEnrichmentArtifact | undefined {
+    const bundleDir = resolve(directory);
+
+    try {
+      return JSON.parse(readFileSync(resolve(bundleDir, 'enrichment.json'), 'utf8')) as SerializedEnrichmentArtifact;
+    } catch {
+      return undefined;
+    }
+  }
+
   static writeBundle(directory: string, bundle: PaperParserBundle): void {
     this.writeSerializedBundle(directory, BundleSerializer.toJsonBundle(bundle));
   }
@@ -29,5 +40,11 @@ export class JsonStore {
     writeFileSync(resolve(bundleDir, 'manifest.json'), `${JSON.stringify(bundle.manifest, null, 2)}\n`, 'utf8');
     writeFileSync(resolve(bundleDir, 'graph.json'), `${JSON.stringify(bundle.graph, null, 2)}\n`, 'utf8');
     writeFileSync(resolve(bundleDir, 'index.json'), `${JSON.stringify(bundle.index, null, 2)}\n`, 'utf8');
+  }
+
+  static writeSerializedEnrichment(directory: string, enrichment: SerializedEnrichmentArtifact): void {
+    const bundleDir = resolve(directory);
+    mkdirSync(bundleDir, { recursive: true });
+    writeFileSync(resolve(bundleDir, 'enrichment.json'), `${JSON.stringify(enrichment, null, 2)}\n`, 'utf8');
   }
 }

@@ -1,13 +1,27 @@
 import { existsSync, mkdirSync, readdirSync, readFileSync, statSync, writeFileSync } from 'node:fs';
 import { basename, join, resolve } from 'node:path';
 
-import { BundleSerializer, JsonStore, type BundleManifest, type PaperParserBundle, type PipelineDiagnostics } from '@paperparser/core';
+import {
+  BundleSerializer,
+  JsonStore,
+  type BundleManifest,
+  type PaperParserBundle,
+  type PipelineDiagnostics,
+  type SerializedEnrichmentArtifact,
+} from '@paperparser/core';
 
 export interface StoredPaperState {
   paperId: string;
   storePath: string;
   bundleDir: string;
   diagnosticsPath?: string;
+}
+
+export interface StoredEnrichmentState {
+  paperId: string;
+  storePath: string;
+  bundleDir: string;
+  enrichmentPath: string;
 }
 
 export interface LatestPaperRecord {
@@ -120,15 +134,42 @@ export function readBundleFromStore(storePath: string, explicitPaperId?: string)
 export function readSerializedBundleFromStore(
   storePath: string,
   explicitPaperId?: string,
-): { paperId: string; bundleDir: string; serializedBundle: ReturnType<typeof JsonStore.readSerializedBundle> } {
+): {
+  paperId: string;
+  bundleDir: string;
+  serializedBundle: ReturnType<typeof JsonStore.readSerializedBundle>;
+  serializedEnrichment?: SerializedEnrichmentArtifact;
+} {
   const resolvedStorePath = resolveStorePath(storePath);
   const paperId = resolveStoredPaperId(resolvedStorePath, explicitPaperId);
   const bundleDir = join(resolvedStorePath, paperId);
+  const serializedEnrichment = JsonStore.readSerializedEnrichment(bundleDir);
 
   return {
     paperId,
     bundleDir,
     serializedBundle: JsonStore.readSerializedBundle(bundleDir),
+    ...(serializedEnrichment ? { serializedEnrichment } : {}),
+  };
+}
+
+export function writeEnrichmentToStore(
+  enrichment: SerializedEnrichmentArtifact,
+  storePath: string,
+  paperId: string,
+): StoredEnrichmentState {
+  const resolvedStorePath = resolveStorePath(storePath);
+  const bundleDir = join(resolvedStorePath, paperId);
+  const enrichmentPath = join(bundleDir, 'enrichment.json');
+
+  mkdirSync(bundleDir, { recursive: true });
+  JsonStore.writeSerializedEnrichment(bundleDir, enrichment);
+
+  return {
+    paperId,
+    storePath: resolvedStorePath,
+    bundleDir,
+    enrichmentPath,
   };
 }
 

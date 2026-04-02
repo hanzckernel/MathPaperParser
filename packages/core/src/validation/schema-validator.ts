@@ -6,9 +6,11 @@ import * as ajvFormatsModule from 'ajv-formats';
 import * as ajv2020Module from 'ajv/dist/2020.js';
 
 import { BundleSerializer, type SerializedPaperParserBundle } from '../serialization/bundle-serializer.js';
+import { EnrichmentSerializer, type SerializedEnrichmentArtifact } from '../serialization/enrichment-serializer.js';
 import type { PaperParserBundle } from '../types/bundle.js';
+import type { PaperParserEnrichment } from '../types/enrichment.js';
 
-type SchemaName = 'manifest' | 'graph' | 'index';
+type SchemaName = 'manifest' | 'graph' | 'index' | 'enrichment';
 
 type AjvInstance = {
   compile: (schema: object) => ValidateFunction;
@@ -52,6 +54,7 @@ export class SchemaValidator {
       manifest: ajv.compile(loadSchema(this.schemaDir, 'manifest')),
       graph: ajv.compile(loadSchema(this.schemaDir, 'graph')),
       index: ajv.compile(loadSchema(this.schemaDir, 'index')),
+      enrichment: ajv.compile(loadSchema(this.schemaDir, 'enrichment')),
     };
   }
 
@@ -63,6 +66,14 @@ export class SchemaValidator {
 
   validateBundle(bundle: PaperParserBundle): void {
     this.validateSerializedBundle(BundleSerializer.toJsonBundle(bundle));
+  }
+
+  validateSerializedEnrichment(enrichment: SerializedEnrichmentArtifact): void {
+    this.validatePart('enrichment', enrichment);
+  }
+
+  validateEnrichment(enrichment: PaperParserEnrichment): void {
+    this.validateSerializedEnrichment(EnrichmentSerializer.toJsonArtifact(enrichment));
   }
 
   private validatePart(schemaName: SchemaName, value: unknown): void {

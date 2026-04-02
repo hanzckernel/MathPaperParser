@@ -12,6 +12,7 @@ export interface StoredPaperSummary {
   paperId: string;
   manifest: PaperParserBundle['manifest'];
   isLatest: boolean;
+  hasEnrichment: boolean;
 }
 
 export function resolveStorePath(storePath?: string, cwd = process.cwd()): string {
@@ -51,15 +52,22 @@ export function readBundleFromStore(storePath: string, explicitPaperId?: string)
 export function readSerializedBundleFromStore(
   storePath: string,
   explicitPaperId?: string,
-): { paperId: string; bundleDir: string; serializedBundle: SerializedPaperParserBundle } {
+): {
+  paperId: string;
+  bundleDir: string;
+  serializedBundle: SerializedPaperParserBundle;
+  serializedEnrichment?: ReturnType<typeof JsonStore.readSerializedEnrichment>;
+} {
   const resolvedStorePath = resolveStorePath(storePath);
   const paperId = resolveStoredPaperId(resolvedStorePath, explicitPaperId);
   const bundleDir = join(resolvedStorePath, paperId);
+  const serializedEnrichment = JsonStore.readSerializedEnrichment(bundleDir);
 
   return {
     paperId,
     bundleDir,
     serializedBundle: JsonStore.readSerializedBundle(bundleDir),
+    ...(serializedEnrichment ? { serializedEnrichment } : {}),
   };
 }
 
@@ -81,6 +89,7 @@ export function listStoredPapers(storePath: string): StoredPaperSummary[] {
         paperId,
         manifest: JsonStore.readBundle(entryPath).manifest,
         isLatest: paperId === latestPaperId,
+        hasEnrichment: existsSync(join(entryPath, 'enrichment.json')),
       };
     })
     .sort((left, right) => left.paperId.localeCompare(right.paperId));

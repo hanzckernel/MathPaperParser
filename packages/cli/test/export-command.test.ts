@@ -61,4 +61,43 @@ describe('paperparser cli export', () => {
     expect(manifest.paper.source_type).toBe(sourceType);
     expect(manifest.paper.title).toBe(title);
   });
+
+  it('copies enrichment.json into the exported static dashboard when a sidecar exists', () => {
+    const storePath = mkdtempSync(join(tmpdir(), 'paperparser-export-store-'));
+    const outputPath = mkdtempSync(join(tmpdir(), 'paperparser-export-out-'));
+    const analyzeExitCode = runCli(
+      ['analyze', 'packages/core/test/fixtures/latex/canonical-objects/main.tex', '--store', storePath, '--paper', 'fixture-canonical'],
+      {
+        stdout: () => {},
+        stderr: () => {},
+      },
+    );
+    expect(analyzeExitCode).toBe(0);
+
+    const enrichExitCode = runCli(
+      ['enrich', '--store', storePath, '--paper', 'fixture-canonical'],
+      {
+        stdout: () => {},
+        stderr: () => {},
+      },
+    );
+    expect(enrichExitCode).toBe(0);
+
+    const exportExitCode = runCli(
+      ['export', '--store', storePath, '--paper', 'fixture-canonical', '--output', outputPath],
+      {
+        stdout: () => {},
+        stderr: () => {},
+      },
+    );
+
+    expect(exportExitCode).toBe(0);
+    expect(existsSync(join(outputPath, 'data', 'enrichment.json'))).toBe(true);
+    const enrichment = JSON.parse(readFileSync(join(outputPath, 'data', 'enrichment.json'), 'utf8')) as {
+      paper_id: string;
+      edges: Array<{ provenance: string }>;
+    };
+    expect(enrichment.paper_id).toBe('fixture-canonical');
+    expect(enrichment.edges.every((edge) => edge.provenance === 'agent_inferred')).toBe(true);
+  });
 });
