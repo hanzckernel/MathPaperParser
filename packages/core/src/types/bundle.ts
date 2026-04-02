@@ -165,6 +165,7 @@ export interface PaperParserBundle {
 export function createEmptyBundleStats(): BundleStats {
   return {
     nodeCounts: {
+      section: 0,
       definition: 0,
       theorem: 0,
       lemma: 0,
@@ -175,10 +176,14 @@ export function createEmptyBundleStats(): BundleStats {
       example: 0,
       conjecture: 0,
       notation: 0,
+      proof: 0,
+      equation: 0,
       external_dependency: 0,
       total: 0,
     },
     edgeCounts: {
+      contains: 0,
+      proves: 0,
       uses_in_proof: 0,
       extends: 0,
       generalizes: 0,

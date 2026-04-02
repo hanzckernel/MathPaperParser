@@ -62,7 +62,7 @@ export class BundleQueryService {
 
   getImpact(nodeId: string): ImpactAnalysis {
     const node = this.requireNode(nodeId);
-    const incomingEdges = this.graph.getEdges(node.id, 'in');
+    const incomingEdges = this.graph.getDependencyEdges(node.id, 'in');
     const dependentNodes = this.collectDependents(node.id);
     const dependentNodeIds = new Set(dependentNodes.map((dependent) => dependent.id));
 
@@ -94,7 +94,7 @@ export class BundleQueryService {
         continue;
       }
 
-      for (const edge of this.graph.getEdges(currentNodeId, 'in')) {
+      for (const edge of this.graph.getDependencyEdges(currentNodeId, 'in')) {
         const dependentId = asNodeId(edge.source);
         if (visited.has(dependentId)) {
           continue;

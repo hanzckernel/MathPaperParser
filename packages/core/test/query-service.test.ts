@@ -40,4 +40,18 @@ describe('BundleQueryService', () => {
     expect(impact.dependentNodes.map((node) => node.id)).toEqual(['sec2::lem:lem-bounded']);
     expect(impact.impactedMainResults).toEqual([]);
   });
+
+  it('keeps structural edges visible in context but excludes them from dependency and impact traversal', () => {
+    const fixturePath = resolve(process.cwd(), 'packages/core/test/fixtures/latex/project/main.tex');
+    const bundle = analyzeDocumentPath(fixturePath);
+    const service = new BundleQueryService(bundle);
+
+    const context = service.getContext('sec1::thm:thm-fixture');
+    expect(context.incomingEdges.some((edge) => edge.kind === 'contains')).toBe(true);
+    expect(context.dependencyChain).toEqual([]);
+
+    const impact = service.getImpact('sec1::thm:thm-fixture');
+    expect(impact.incomingEdges).toEqual([]);
+    expect(impact.dependentNodes).toEqual([]);
+  });
 });

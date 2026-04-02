@@ -1,4 +1,5 @@
 export const MATH_NODE_KINDS = [
+  'section',
   'definition',
   'theorem',
   'lemma',
@@ -9,6 +10,8 @@ export const MATH_NODE_KINDS = [
   'example',
   'conjecture',
   'notation',
+  'proof',
+  'equation',
   'external_dependency',
 ] as const;
 

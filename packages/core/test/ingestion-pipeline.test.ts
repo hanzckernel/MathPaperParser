@@ -96,4 +96,106 @@ describe('analyzeDocumentPath', () => {
       ]),
     );
   });
+
+  it('extracts canonical section, proof, and equation objects with structural relations and anchors', () => {
+    const fixturePath = resolve(process.cwd(), 'packages/core/test/fixtures/latex/canonical-objects/main.tex');
+    const result = analyzeDocumentPath(fixturePath);
+
+    const sectionNode = result.graph.nodes.find((node) => String(node.kind) === 'section');
+    const definitionNode = result.graph.nodes.find((node) => node.latexLabel === 'def:base');
+    const lemmaNode = result.graph.nodes.find((node) => node.latexLabel === 'lem:key');
+    const propositionNode = result.graph.nodes.find((node) => node.latexLabel === 'prop:key');
+    const theoremNode = result.graph.nodes.find((node) => node.latexLabel === 'thm:main');
+    const proofNode = result.graph.nodes.find((node) => String(node.kind) === 'proof');
+    const corollaryNode = result.graph.nodes.find((node) => node.latexLabel === 'cor:main');
+    const equationNode = result.graph.nodes.find((node) => String(node.kind) === 'equation' && node.latexLabel === 'eq:key');
+    const citationNode = result.graph.nodes.find(
+      (node) => String(node.kind) === 'external_dependency' && node.metadata.citeKey === 'Foundations',
+    );
+
+    expect(sectionNode).toBeDefined();
+    expect(definitionNode).toBeDefined();
+    expect(lemmaNode).toBeDefined();
+    expect(propositionNode).toBeDefined();
+    expect(proofNode).toBeDefined();
+    expect(corollaryNode).toBeDefined();
+    expect(equationNode).toBeDefined();
+    expect(citationNode).toBeDefined();
+    expect(theoremNode).toEqual(
+      expect.objectContaining({
+        filePath: expect.stringContaining('canonical-objects/main.tex'),
+        startLine: expect.any(Number),
+        endLine: expect.any(Number),
+      }),
+    );
+    expect(
+      result.graph.edges.some(
+        (edge) =>
+          String(edge.kind) === 'contains' &&
+          edge.source === sectionNode?.id &&
+          edge.target === theoremNode?.id &&
+          (edge as { provenance?: string }).provenance === 'structural',
+      ),
+    ).toBe(true);
+    expect(
+      result.graph.edges.some(
+        (edge) =>
+          String(edge.kind) === 'contains' &&
+          edge.source === sectionNode?.id &&
+          edge.target === proofNode?.id &&
+          (edge as { provenance?: string }).provenance === 'structural',
+      ),
+    ).toBe(true);
+    expect(
+      result.graph.edges.some(
+        (edge) =>
+          String(edge.kind) === 'contains' &&
+          edge.source === sectionNode?.id &&
+          edge.target === definitionNode?.id &&
+          (edge as { provenance?: string }).provenance === 'structural',
+      ),
+    ).toBe(true);
+    expect(
+      result.graph.edges.some(
+        (edge) =>
+          String(edge.kind) === 'proves' &&
+          edge.source === proofNode?.id &&
+          edge.target === theoremNode?.id &&
+          (edge as { provenance?: string }).provenance === 'structural',
+      ),
+    ).toBe(true);
+    expect(
+      result.graph.edges.some(
+        (edge) =>
+          edge.kind === 'uses_in_proof' &&
+          edge.source === theoremNode?.id &&
+          edge.target === equationNode?.id &&
+          (edge as { provenance?: string }).provenance === 'explicit' &&
+          edge.evidence === 'explicit_ref' &&
+          (edge.metadata as { latexRef?: string }).latexRef === 'eq:key',
+      ),
+    ).toBe(true);
+    expect(
+      result.graph.edges.some(
+        (edge) =>
+          edge.kind === 'uses_in_proof' &&
+          edge.source === theoremNode?.id &&
+          edge.target === propositionNode?.id &&
+          (edge as { provenance?: string }).provenance === 'explicit' &&
+          edge.evidence === 'explicit_ref' &&
+          (edge.metadata as { latexRef?: string }).latexRef === 'prop:key',
+      ),
+    ).toBe(true);
+    expect(
+      result.graph.edges.some(
+        (edge) =>
+          edge.kind === 'cites_external' &&
+          edge.source === propositionNode?.id &&
+          edge.target === citationNode?.id &&
+          (edge as { provenance?: string }).provenance === 'explicit' &&
+          edge.evidence === 'external' &&
+          (edge.metadata as { citeKey?: string }).citeKey === 'Foundations',
+      ),
+    ).toBe(true);
+  });
 });

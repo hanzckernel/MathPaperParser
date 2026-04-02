@@ -19,9 +19,14 @@ import {
 
 describe('core type contracts', () => {
   it('publishes stable math node and edge enums', () => {
+    expect(MATH_NODE_KINDS).toContain('section');
     expect(MATH_NODE_KINDS).toContain('theorem');
+    expect(MATH_NODE_KINDS).toContain('proof');
+    expect(MATH_NODE_KINDS).toContain('equation');
     expect(MATH_NODE_KINDS).toContain('external_dependency');
     expect(MATH_EDGE_KINDS).toEqual([
+      'contains',
+      'proves',
       'uses_in_proof',
       'extends',
       'generalizes',

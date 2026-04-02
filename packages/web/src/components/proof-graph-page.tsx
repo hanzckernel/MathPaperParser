@@ -3,6 +3,7 @@ import { useState } from 'react';
 import type { DashboardModel } from '../lib/dashboard-model.js';
 
 const KIND_COLORS: Record<string, string> = {
+  section: '#f97316',
   theorem: '#38bdf8',
   definition: '#4ade80',
   lemma: '#f59e0b',
@@ -13,6 +14,8 @@ const KIND_COLORS: Record<string, string> = {
   example: '#22d3ee',
   conjecture: '#fb7185',
   notation: '#cbd5e1',
+  proof: '#facc15',
+  equation: '#34d399',
   external_dependency: '#64748b',
 };
 
@@ -23,6 +26,7 @@ const EVIDENCE_COLORS: Record<string, string> = {
 };
 
 const ALL_KINDS = [
+  'section',
   'definition',
   'theorem',
   'lemma',
@@ -33,6 +37,8 @@ const ALL_KINDS = [
   'example',
   'conjecture',
   'notation',
+  'proof',
+  'equation',
   'external_dependency',
 ] as const;
 

@@ -75,4 +75,24 @@ describe('web bundle data source', () => {
     expect(model.sections.map((section) => section.section)).toEqual(['1']);
     expect(model.nodes.some((node) => node.latex_label === 'thm:fixture')).toBe(true);
   });
+
+  it('preserves expanded canonical kinds and provenance in the dashboard model', () => {
+    const fixturePath = resolve(process.cwd(), 'packages/core/test/fixtures/latex/canonical-objects/main.tex');
+    const bundle = BundleSerializer.toJsonBundle(analyzeDocumentPath(fixturePath));
+
+    const model = buildDashboardModel(bundle);
+
+    expect(model.nodes.some((node) => String(node.kind) === 'section')).toBe(true);
+    expect(model.nodes.some((node) => String(node.kind) === 'proof')).toBe(true);
+    expect(model.nodes.some((node) => String(node.kind) === 'equation')).toBe(true);
+    expect(model.edges.some((edge) => (edge as { provenance?: string }).provenance === 'structural')).toBe(true);
+    expect(
+      model.edges.some(
+        (edge) =>
+          edge.kind === 'cites_external' &&
+          (edge as { provenance?: string }).provenance === 'explicit' &&
+          (edge.metadata as { citeKey?: string }).citeKey === 'Foundations',
+      ),
+    ).toBe(true);
+  });
 });

@@ -4,6 +4,15 @@ import type { MathEdge } from '../types/edge.js';
 import type { IMathKnowledgeGraph } from '../types/graph.js';
 import type { MathNode, MathNodeKind, NodeId } from '../types/node.js';
 
+const DEPENDENCY_EDGE_KINDS = new Set<MathEdge['kind']>([
+  'uses_in_proof',
+  'extends',
+  'generalizes',
+  'specializes',
+  'equivalent_to',
+  'cites_external',
+]);
+
 function addToIndex(index: Map<string, Set<NodeId>>, key: string, nodeId: NodeId): void {
   const nodeIds = index.get(key) ?? new Set<NodeId>();
   nodeIds.add(nodeId);
@@ -96,6 +105,10 @@ export class MathKnowledgeGraph implements IMathKnowledgeGraph {
     return [...(this.outgoing.get(typedNodeId) ?? []), ...(this.incoming.get(typedNodeId) ?? [])];
   }
 
+  getDependencyEdges(nodeId: string, direction: 'in' | 'out' | 'both'): MathEdge[] {
+    return this.getEdges(nodeId, direction).filter((edge) => DEPENDENCY_EDGE_KINDS.has(edge.kind));
+  }
+
   *iterNodes(): IterableIterator<MathNode> {
     yield* this.nodes.values();
   }
@@ -182,7 +195,7 @@ export class MathKnowledgeGraph implements IMathKnowledgeGraph {
         continue;
       }
 
-      for (const edge of this.outgoing.get(current.nodeId) ?? []) {
+      for (const edge of this.getDependencyEdges(current.nodeId, 'out')) {
         if (visited.has(edge.target)) {
           continue;
         }

@@ -8,9 +8,20 @@ const GRAPHICS_COMMAND_RE = /\\includegraphics(?:\[[^\]]*\])?\s*\{([^}]+)\}/g;
 
 export interface FlattenLatexResult {
   flatTex: string;
+  lineMap: FlattenLatexLine[];
   missingInputs: string[];
   missingBibs: string[];
   missingGraphics: string[];
+}
+
+export interface FlattenLatexLine {
+  sourcePath: string;
+  sourceLine: number;
+}
+
+interface InlineTextResult {
+  flatTex: string;
+  lineMap: FlattenLatexLine[];
 }
 
 function normalizeDisplayPath(path: string): string {
@@ -149,22 +160,34 @@ export function flattenLatex(inputPath: string): FlattenLatexResult {
   const resolvedInputPath = resolve(inputPath);
   const { entryPath, entryText } = loadEntry(resolvedInputPath);
   const rootDir = resolve(relative(entryPath, entryPath) === '' ? resolve(entryPath, '..') : resolve(entryPath, '..'));
+  const workspaceDir = process.cwd();
   const visited = new Set<string>();
   const missingInputs = new Set<string>();
   const missingBibs = new Set<string>();
   const missingGraphics = new Set<string>();
 
-  const inlineText = (path: string, text: string): string => {
+  const inlineText = (path: string, text: string): InlineTextResult => {
     if (visited.has(path)) {
-      return `% [latex-flattener] Skipping already-inlined file: ${path.split(sep).at(-1) ?? path}\n`;
+      return {
+        flatTex: `% [latex-flattener] Skipping already-inlined file: ${path.split(sep).at(-1) ?? path}\n`,
+        lineMap: [
+          {
+            sourcePath: normalizeDisplayPath(relative(workspaceDir, path)),
+            sourceLine: 0,
+          },
+        ],
+      };
     }
 
     visited.add(path);
 
     const relativePath = normalizeDisplayPath(relative(rootDir, path));
+    const sourcePath = normalizeDisplayPath(relative(workspaceDir, path));
     const output: string[] = [`% >>> BEGIN FILE: ${relativePath}\n`];
+    const lineMap: FlattenLatexLine[] = [{ sourcePath, sourceLine: 0 }];
 
-    for (const rawLine of text.split(/(?<=\n)/u)) {
+    for (const [index, rawLine] of text.split(/(?<=\n)/u).entries()) {
+      const sourceLine = index + 1;
       const strippedLine = stripLineComment(rawLine);
       scanAssets(rootDir, entryPath, strippedLine, missingBibs, missingGraphics);
 
@@ -172,6 +195,10 @@ export function flattenLatex(inputPath: string): FlattenLatexResult {
       const match = INPUT_COMMAND_RE.exec(strippedLine);
       if (!match) {
         output.push(rawLine);
+        lineMap.push({
+          sourcePath,
+          sourceLine,
+        });
         continue;
       }
 
@@ -181,21 +208,35 @@ export function flattenLatex(inputPath: string): FlattenLatexResult {
       if (!resolvedReference) {
         missingInputs.add(reference);
         output.push(rawLine);
+        lineMap.push({
+          sourcePath,
+          sourceLine,
+        });
         continue;
       }
 
-      output.push(inlineText(resolvedReference, readUtf8(resolvedReference)));
+      const inlined = inlineText(resolvedReference, readUtf8(resolvedReference));
+      output.push(inlined.flatTex);
+      lineMap.push(...inlined.lineMap);
     }
 
     output.push(`% <<< END FILE: ${relativePath}\n`);
+    lineMap.push({
+      sourcePath,
+      sourceLine: 0,
+    });
 
-    return output.join('');
+    return {
+      flatTex: output.join(''),
+      lineMap,
+    };
   };
 
-  const flatTex = inlineText(entryPath, entryText);
+  const flattened = inlineText(entryPath, entryText);
 
   return {
-    flatTex,
+    flatTex: flattened.flatTex,
+    lineMap: flattened.lineMap,
     missingInputs: [...missingInputs].sort(),
     missingBibs: [...missingBibs].sort(),
     missingGraphics: [...missingGraphics].sort(),

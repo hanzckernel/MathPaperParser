@@ -274,6 +274,7 @@
   ],
   "stats": {
     "node_counts": {
+      "section": 0,
       "definition": 4,
       "theorem": 3,
       "lemma": 7,
@@ -284,10 +285,14 @@
       "example": 2,
       "conjecture": 1,
       "notation": 2,
+      "proof": 0,
+      "equation": 0,
       "external_dependency": 3,
       "total": 31
     },
     "edge_counts": {
+      "contains": 0,
+      "proves": 0,
       "uses_in_proof": 52,
       "extends": 1,
       "generalizes": 1,

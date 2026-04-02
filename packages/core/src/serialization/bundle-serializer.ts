@@ -65,12 +65,16 @@ export interface SerializedGraph {
     is_main_result: boolean;
     novelty: MathNode['novelty'];
     metadata: Record<string, unknown>;
+    file_path?: string;
+    start_line?: number;
+    end_line?: number;
   }>;
   edges: Array<{
     source: string;
     target: string;
     kind: MathEdge['kind'];
     evidence: MathEdge['evidence'];
+    provenance?: MathEdge['provenance'];
     detail: string;
     metadata: Record<string, unknown>;
     confidence?: number;
@@ -206,6 +210,9 @@ function fromNode(node: SerializedGraph['nodes'][number]): MathNode {
     isMainResult: node.is_main_result,
     novelty: node.novelty,
     metadata: node.metadata,
+    ...(typeof node.file_path === 'string' ? { filePath: node.file_path } : {}),
+    ...(typeof node.start_line === 'number' ? { startLine: node.start_line } : {}),
+    ...(typeof node.end_line === 'number' ? { endLine: node.end_line } : {}),
   };
 }
 
@@ -215,6 +222,7 @@ function fromEdge(edge: SerializedGraph['edges'][number]): MathEdge {
     target: asNodeId(edge.target),
     kind: edge.kind,
     evidence: edge.evidence,
+    ...(typeof edge.provenance === 'string' ? { provenance: edge.provenance } : {}),
     detail: edge.detail,
     metadata: edge.metadata,
     ...(typeof edge.confidence === 'number' ? { confidence: edge.confidence } : {}),
@@ -388,6 +396,9 @@ function toNode(node: MathNode): SerializedGraph['nodes'][number] {
     is_main_result: node.isMainResult,
     novelty: node.novelty,
     metadata: node.metadata,
+    ...(typeof node.filePath === 'string' ? { file_path: node.filePath } : {}),
+    ...(typeof node.startLine === 'number' ? { start_line: node.startLine } : {}),
+    ...(typeof node.endLine === 'number' ? { end_line: node.endLine } : {}),
   };
 }
 
@@ -397,6 +408,7 @@ function toEdge(edge: MathEdge): SerializedGraph['edges'][number] {
     target: edge.target,
     kind: edge.kind,
     evidence: edge.evidence,
+    ...(typeof edge.provenance === 'string' ? { provenance: edge.provenance } : {}),
     detail: edge.detail,
     metadata: edge.metadata,
     ...(typeof edge.confidence === 'number' ? { confidence: edge.confidence } : {}),

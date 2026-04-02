@@ -71,7 +71,7 @@
   "$defs": {
     "node_id_ref": {
       "type": "string",
-      "pattern": "^sec[0-9A-Za-z]+(\\.[0-9A-Za-z]+)*::(def|thm|lem|prop|cor|asm|rem|ex|conj|not|ext):[a-z0-9]([a-z0-9-]*[a-z0-9])?$",
+      "pattern": "^sec[0-9A-Za-z]+(\\.[0-9A-Za-z]+)*::(sec|def|thm|lem|prop|cor|asm|rem|ex|conj|not|proof|eq|ext):[a-z0-9]([a-z0-9-]*[a-z0-9])?$",
       "description": "Reference to a node ID defined in graph.json."
     },
     "problem_statement": {
@@ -395,9 +395,10 @@
       "properties": {
         "node_counts": {
           "type": "object",
-          "description": "Object mapping each node kind to its count, plus a 'total' key. All eleven kinds must be present, even if the count is 0.",
+          "description": "Object mapping each node kind to its count, plus a 'total' key. All fourteen kinds must be present, even if the count is 0.",
           "additionalProperties": false,
           "required": [
+            "section",
             "definition",
             "theorem",
             "lemma",
@@ -408,10 +409,13 @@
             "example",
             "conjecture",
             "notation",
+            "proof",
+            "equation",
             "external_dependency",
             "total"
           ],
           "properties": {
+            "section": { "type": "integer", "minimum": 0 },
             "definition": { "type": "integer", "minimum": 0 },
             "theorem": { "type": "integer", "minimum": 0 },
             "lemma": { "type": "integer", "minimum": 0 },
@@ -422,15 +426,19 @@
             "example": { "type": "integer", "minimum": 0 },
             "conjecture": { "type": "integer", "minimum": 0 },
             "notation": { "type": "integer", "minimum": 0 },
+            "proof": { "type": "integer", "minimum": 0 },
+            "equation": { "type": "integer", "minimum": 0 },
             "external_dependency": { "type": "integer", "minimum": 0 },
             "total": { "type": "integer", "minimum": 0 }
           }
         },
         "edge_counts": {
           "type": "object",
-          "description": "Object mapping each edge kind to its count, plus a 'total' key. All six kinds must be present, even if the count is 0.",
+          "description": "Object mapping each edge kind to its count, plus a 'total' key. All eight kinds must be present, even if the count is 0.",
           "additionalProperties": false,
           "required": [
+            "contains",
+            "proves",
             "uses_in_proof",
             "extends",
             "generalizes",
@@ -440,6 +448,8 @@
             "total"
           ],
           "properties": {
+            "contains": { "type": "integer", "minimum": 0 },
+            "proves": { "type": "integer", "minimum": 0 },
             "uses_in_proof": { "type": "integer", "minimum": 0 },
             "extends": { "type": "integer", "minimum": 0 },
             "generalizes": { "type": "integer", "minimum": 0 },

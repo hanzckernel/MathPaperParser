@@ -26,12 +26,13 @@
   "$defs": {
     "node_id": {
       "type": "string",
-      "pattern": "^sec[0-9A-Za-z]+(\\.[0-9A-Za-z]+)*::(def|thm|lem|prop|cor|asm|rem|ex|conj|not|ext):[a-z0-9]([a-z0-9-]*[a-z0-9])?$",
+      "pattern": "^sec[0-9A-Za-z]+(\\.[0-9A-Za-z]+)*::(sec|def|thm|lem|prop|cor|asm|rem|ex|conj|not|proof|eq|ext):[a-z0-9]([a-z0-9-]*[a-z0-9])?$",
       "description": "Canonical node ID in the format sec{N}::{kind_abbrev}:{label}. The label component must use only lowercase ASCII letters, digits, and hyphens."
     },
     "node_kind": {
       "type": "string",
       "enum": [
+        "section",
         "definition",
         "theorem",
         "lemma",
@@ -42,6 +43,8 @@
         "example",
         "conjecture",
         "notation",
+        "proof",
+        "equation",
         "external_dependency"
       ],
       "description": "The type of mathematical object."
@@ -49,6 +52,8 @@
     "edge_kind": {
       "type": "string",
       "enum": [
+        "contains",
+        "proves",
         "uses_in_proof",
         "extends",
         "generalizes",
@@ -57,6 +62,11 @@
         "cites_external"
       ],
       "description": "The type of logical dependency between nodes."
+    },
+    "edge_provenance": {
+      "type": "string",
+      "enum": ["explicit", "structural", "agent_inferred"],
+      "description": "Where the dependency came from: 'explicit' (stated directly in source), 'structural' (deterministic document structure), 'agent_inferred' (model-inferred semantic relation)."
     },
     "evidence_level": {
       "type": "string",
@@ -138,6 +148,20 @@
           "type": "object",
           "additionalProperties": true,
           "description": "Free-form object for additional information (e.g., proof_length_lines, original_label, source, page, tags). May be empty {}."
+        },
+        "file_path": {
+          "type": "string",
+          "description": "Original source file path for the node span when available."
+        },
+        "start_line": {
+          "type": "integer",
+          "minimum": 1,
+          "description": "1-based starting line in the original source file when available."
+        },
+        "end_line": {
+          "type": "integer",
+          "minimum": 1,
+          "description": "1-based ending line in the original source file when available."
         }
       }
     },
@@ -160,6 +184,9 @@
         },
         "evidence": {
           "$ref": "#/$defs/evidence_level"
+        },
+        "provenance": {
+          "$ref": "#/$defs/edge_provenance"
         },
         "detail": {
           "type": "string",

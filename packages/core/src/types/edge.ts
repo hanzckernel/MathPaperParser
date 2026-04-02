@@ -1,6 +1,8 @@
 import type { NodeId } from './node.js';
 
 export const MATH_EDGE_KINDS = [
+  'contains',
+  'proves',
   'uses_in_proof',
   'extends',
   'generalizes',
@@ -15,14 +17,22 @@ export const EDGE_EVIDENCE_VALUES = [
   'external',
 ] as const;
 
+export const EDGE_PROVENANCE_VALUES = [
+  'explicit',
+  'structural',
+  'agent_inferred',
+] as const;
+
 export type MathEdgeKind = (typeof MATH_EDGE_KINDS)[number];
 export type EdgeEvidence = (typeof EDGE_EVIDENCE_VALUES)[number];
+export type EdgeProvenance = (typeof EDGE_PROVENANCE_VALUES)[number];
 
 export interface MathEdge {
   source: NodeId;
   target: NodeId;
   kind: MathEdgeKind;
   evidence: EdgeEvidence;
+  provenance?: EdgeProvenance;
   detail: string;
   metadata: Record<string, unknown>;
   confidence?: number;

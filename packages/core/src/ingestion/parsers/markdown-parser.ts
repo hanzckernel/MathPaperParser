@@ -24,6 +24,7 @@ const MARKDOWN_KIND_TO_NODE_KIND = {
 } as const satisfies Record<string, MathNode['kind']>;
 
 const NODE_KIND_TO_ABBREVIATION: Record<MathNode['kind'], string> = {
+  section: 'sec',
   definition: 'def',
   theorem: 'thm',
   lemma: 'lem',
@@ -34,6 +35,8 @@ const NODE_KIND_TO_ABBREVIATION: Record<MathNode['kind'], string> = {
   example: 'ex',
   conjecture: 'conj',
   notation: 'not',
+  proof: 'proof',
+  equation: 'eq',
   external_dependency: 'ext',
 };
 
@@ -413,6 +416,7 @@ export function parseAcademicMarkdown(input: DocumentInput): ParsedDocument {
         target,
         kind: 'uses_in_proof',
         evidence: 'explicit_ref',
+        provenance: 'explicit',
         detail: `Explicit markdown link to #${anchor}.`,
         metadata: {
           anchor,
@@ -444,6 +448,7 @@ export function parseAcademicMarkdown(input: DocumentInput): ParsedDocument {
         target,
         kind: 'uses_in_proof',
         evidence: 'explicit_ref',
+        provenance: 'explicit',
         detail: `Explicit textual reference to ${match[1]} ${number}.`,
         metadata: {
           reference: `${match[1]} ${number}`,

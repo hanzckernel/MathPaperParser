@@ -1,40 +1,23 @@
 import { BundleSerializer, type SerializedPaperParserBundle } from '../serialization/bundle-serializer.js';
 import type { PaperParserBundle } from '../types/bundle.js';
+import { EDGE_EVIDENCE_VALUES, MATH_EDGE_KINDS } from '../types/edge.js';
+import { MATH_NODE_KINDS } from '../types/node.js';
 
 const NODE_ID_PATTERN =
-  /^sec[0-9A-Za-z]+(\.[0-9A-Za-z]+)*::(def|thm|lem|prop|cor|asm|rem|ex|conj|not|ext):[a-z0-9]([a-z0-9-]*[a-z0-9])?$/;
-
-const NODE_KEYS = [
-  'definition',
-  'theorem',
-  'lemma',
-  'proposition',
-  'corollary',
-  'assumption',
-  'remark',
-  'example',
-  'conjecture',
-  'notation',
-  'external_dependency',
-] as const;
-
-const EDGE_KEYS = [
-  'uses_in_proof',
-  'extends',
-  'generalizes',
-  'specializes',
-  'equivalent_to',
-  'cites_external',
-] as const;
-
-const EVIDENCE_KEYS = ['explicit_ref', 'inferred', 'external'] as const;
+  /^sec[0-9A-Za-z]+(\.[0-9A-Za-z]+)*::(sec|def|thm|lem|prop|cor|asm|rem|ex|conj|not|proof|eq|ext):[a-z0-9]([a-z0-9-]*[a-z0-9])?$/;
 
 function computeStats(bundle: SerializedPaperParserBundle['graph']) {
-  const nodeCounts = Object.fromEntries(NODE_KEYS.map((key) => [key, 0])) as Record<(typeof NODE_KEYS)[number], number>;
-  const edgeCounts = Object.fromEntries(EDGE_KEYS.map((key) => [key, 0])) as Record<(typeof EDGE_KEYS)[number], number>;
+  const nodeCounts = Object.fromEntries(MATH_NODE_KINDS.map((key) => [key, 0])) as Record<
+    (typeof MATH_NODE_KINDS)[number],
+    number
+  >;
+  const edgeCounts = Object.fromEntries(MATH_EDGE_KINDS.map((key) => [key, 0])) as Record<
+    (typeof MATH_EDGE_KINDS)[number],
+    number
+  >;
   const evidenceBreakdown = Object.fromEntries(
-    EVIDENCE_KEYS.map((key) => [key, 0]),
-  ) as Record<(typeof EVIDENCE_KEYS)[number], number>;
+    EDGE_EVIDENCE_VALUES.map((key) => [key, 0]),
+  ) as Record<(typeof EDGE_EVIDENCE_VALUES)[number], number>;
 
   for (const node of bundle.nodes) {
     nodeCounts[node.kind] += 1;

@@ -1,0 +1,44 @@
+\documentclass{amsart}
+\usepackage{amsmath,amsthm}
+
+\newtheorem{theorem}{Theorem}[section]
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{proposition}[theorem]{Proposition}
+\newtheorem{corollary}[theorem]{Corollary}
+\theoremstyle{definition}
+\newtheorem{definition}[theorem]{Definition}
+
+\begin{document}
+
+\section{Warmup}
+\label{sec:warmup}
+
+\begin{definition}\label{def:base}
+The ambient object is fixed.
+\end{definition}
+
+\begin{lemma}\label{lem:key}
+The equation \eqref{eq:key} is valid.
+\end{lemma}
+
+\begin{proposition}\label{prop:key}
+Assume Definition \ref{def:base}. Then \cite{Foundations} and Lemma \ref{lem:key} imply the theorem.
+\end{proposition}
+
+\begin{theorem}\label{thm:main}
+Under Proposition \ref{prop:key}, the key identity \eqref{eq:key} implies the claim.
+\end{theorem}
+
+\begin{proof}
+By Proposition \ref{prop:key} and \eqref{eq:key}, the conclusion follows immediately.
+\end{proof}
+
+\begin{corollary}\label{cor:main}
+The claim of Theorem \ref{thm:main} holds.
+\end{corollary}
+
+\begin{equation}\label{eq:key}
+1 + 1 = 2
+\end{equation}
+
+\end{document}

@@ -14,6 +14,7 @@ import { flattenLatex } from '../flatten/latex-flattener.js';
 import { extractFirstLatexCommand } from './latex-command-extractor.js';
 
 const NODE_KIND_TO_ABBREVIATION: Record<MathNode['kind'], string> = {
+  section: 'sec',
   definition: 'def',
   theorem: 'thm',
   lemma: 'lem',
@@ -24,10 +25,13 @@ const NODE_KIND_TO_ABBREVIATION: Record<MathNode['kind'], string> = {
   example: 'ex',
   conjecture: 'conj',
   notation: 'not',
+  proof: 'proof',
+  equation: 'eq',
   external_dependency: 'ext',
 };
 
 const KIND_TITLE: Partial<Record<MathNode['kind'], string>> = {
+  section: 'Section',
   definition: 'Definition',
   theorem: 'Theorem',
   lemma: 'Lemma',
@@ -38,6 +42,8 @@ const KIND_TITLE: Partial<Record<MathNode['kind'], string>> = {
   example: 'Example',
   conjecture: 'Conjecture',
   notation: 'Notation',
+  proof: 'Proof',
+  equation: 'Equation',
   external_dependency: 'External dependency',
 };
 
@@ -76,6 +82,11 @@ interface HeadingState {
   sectionLabel: string;
   sectionTitle: string;
   headingPath: string;
+}
+
+interface SourceLocation {
+  sourcePath?: string;
+  sourceLine?: number;
 }
 
 function asNodeId(value: string): NodeId {
@@ -397,6 +408,54 @@ function createDiagnostics(
   };
 }
 
+function resolveEnvironmentSpec(envName: string, envSpecs: Map<string, EnvSpec>): EnvSpec | undefined {
+  if (envName === 'proof') {
+    return {
+      kind: 'proof',
+      printedTitle: 'Proof',
+      numbered: false,
+    };
+  }
+
+  if (envName === 'equation') {
+    return {
+      kind: 'equation',
+      printedTitle: 'Equation',
+      numbered: true,
+    };
+  }
+
+  if (envName === 'equation*') {
+    return {
+      kind: 'equation',
+      printedTitle: 'Equation',
+      numbered: false,
+    };
+  }
+
+  return envSpecs.get(envName);
+}
+
+function locationFields(start?: SourceLocation, end?: SourceLocation): Pick<MathNode, 'filePath' | 'startLine' | 'endLine'> {
+  if (!start?.sourcePath || typeof start.sourceLine !== 'number' || start.sourceLine < 1) {
+    return {};
+  }
+
+  if (end?.sourcePath === start.sourcePath && typeof end.sourceLine === 'number' && end.sourceLine >= start.sourceLine) {
+    return {
+      filePath: start.sourcePath,
+      startLine: start.sourceLine,
+      endLine: end.sourceLine,
+    };
+  }
+
+  return {
+    filePath: start.sourcePath,
+    startLine: start.sourceLine,
+    endLine: start.sourceLine,
+  };
+}
+
 function createPlaceholderNode(existingIds: Set<string>): MathNode {
   const id = uniqueNodeId(existingIds, 'sec0::rem:no-extracted-theorems');
 
@@ -436,7 +495,10 @@ export function parseLatexDocument(input: DocumentInput): ParsedDocument {
   const nodes: MathNode[] = [];
   const edges: MathEdge[] = [];
 
-  const body = rawText.includes('\\begin{document}') ? rawText.slice(rawText.indexOf('\\begin{document}')) : rawText;
+  const rawLines = rawText.split(/(?<=\n)/u);
+  const bodyStartIndex = rawLines.findIndex((line) => line.includes('\\begin{document}'));
+  const bodyLines = bodyStartIndex >= 0 ? rawLines.slice(bodyStartIndex) : rawLines;
+  const bodyLineMap = bodyStartIndex >= 0 ? flattened.lineMap.slice(bodyStartIndex) : flattened.lineMap;
   const heading: HeadingState = {
     appendixMode: false,
     sectionIndex: 0,
@@ -453,32 +515,76 @@ export function parseLatexDocument(input: DocumentInput): ParsedDocument {
   let captureSection = '0';
   let captureSectionTitle = '';
   let captureHeadingPath = '';
-  let pendingProofNodeIndex: number | undefined;
+  let captureStartLocation: SourceLocation | undefined;
+  let captureEndLocation: SourceLocation | undefined;
+  let captureProofTargetId: NodeId | undefined;
+  let pendingProofTargetId: NodeId | undefined;
+  let pendingSectionNodeId: NodeId | undefined;
+  const sectionNodeIds = new Map<string, NodeId>();
+  const proofTargetsByNodeId = new Map<NodeId, NodeId>();
 
-  for (const rawLine of body.split(/(?<=\n)/u)) {
+  for (const [lineIndex, rawLine] of bodyLines.entries()) {
+    const sourceLocation = bodyLineMap[lineIndex];
     const uncommented = stripLineComment(rawLine);
+    const trimmed = uncommented.trim();
 
     if (!inEnvironment) {
+      const previousSection = heading.sectionLabel;
       updateHeading(heading, uncommented);
 
-      if (pendingProofNodeIndex !== undefined) {
-        const trimmed = uncommented.trim();
-        if (trimmed) {
-          const pendingNode = nodes[pendingProofNodeIndex];
-          if (pendingNode) {
-            if (trimmed.startsWith('\\begin{proof}')) {
-              pendingNode.proofStatus = 'full';
-            } else if (trimmed.startsWith('\\begin{proof}[') && trimmed.toLowerCase().includes('sketch')) {
-              pendingNode.proofStatus = 'sketch';
-            }
-          }
-          pendingProofNodeIndex = undefined;
+      if (heading.sectionLabel !== previousSection) {
+        const latexLabel = [...uncommented.matchAll(LABEL_RE)].map((match) => match.groups?.label?.trim()).find(Boolean) ?? null;
+        const sectionId = uniqueNodeId(
+          nodeIds,
+          createNodeId(
+            heading.sectionLabel,
+            'section',
+            slugify(latexLabel ?? heading.sectionTitle ?? `section-${heading.sectionLabel}`),
+          ),
+        );
+        const sectionNode: MathNode = {
+          id: sectionId,
+          kind: 'section',
+          label: `Section ${heading.sectionLabel}`,
+          section: heading.sectionLabel,
+          sectionTitle: heading.sectionTitle,
+          number: heading.sectionLabel,
+          latexLabel,
+          statement: heading.sectionTitle || `Section ${heading.sectionLabel}`,
+          proofStatus: 'not_applicable',
+          isMainResult: false,
+          novelty: 'classical',
+          metadata: {
+            headingPath: heading.headingPath,
+            sourceFormat: 'latex',
+          },
+          ...locationFields(sourceLocation, sourceLocation),
+        };
+        nodes.push(sectionNode);
+        sectionNodeIds.set(heading.sectionLabel, sectionId);
+        if (latexLabel) {
+          labelToNodeId.set(latexLabel, sectionId);
+          pendingSectionNodeId = undefined;
+        } else {
+          pendingSectionNodeId = sectionId;
         }
+      } else if (pendingSectionNodeId && trimmed.startsWith('\\label{')) {
+        const latexLabel = [...uncommented.matchAll(LABEL_RE)].map((match) => match.groups?.label?.trim()).find(Boolean) ?? null;
+        if (latexLabel) {
+          const sectionNode = nodes.find((node) => node.id === pendingSectionNodeId);
+          if (sectionNode && !sectionNode.latexLabel) {
+            sectionNode.latexLabel = latexLabel;
+            labelToNodeId.set(latexLabel, pendingSectionNodeId);
+          }
+        }
+      } else if (pendingSectionNodeId && trimmed) {
+        pendingSectionNodeId = undefined;
       }
 
       const beginMatch = BEGIN_ENV_RE.exec(uncommented);
       const candidateEnv = beginMatch?.groups?.env;
-      if (!candidateEnv || !envSpecs.has(candidateEnv)) {
+      const beginSpec = candidateEnv ? resolveEnvironmentSpec(candidateEnv, envSpecs) : undefined;
+      if (!candidateEnv || !beginSpec) {
         continue;
       }
 
@@ -489,9 +595,13 @@ export function parseLatexDocument(input: DocumentInput): ParsedDocument {
       captureSection = heading.sectionLabel;
       captureSectionTitle = heading.sectionTitle;
       captureHeadingPath = heading.headingPath;
+      captureStartLocation = sourceLocation;
+      captureEndLocation = sourceLocation;
+      captureProofTargetId = beginSpec.kind === 'proof' ? pendingProofTargetId : undefined;
       continue;
     }
 
+    captureEndLocation = sourceLocation;
     const endToken = `\\end{${envName}}`;
     if (!uncommented.includes(endToken)) {
       capture.push(uncommented);
@@ -501,12 +611,15 @@ export function parseLatexDocument(input: DocumentInput): ParsedDocument {
     capture.push(uncommented.slice(0, uncommented.indexOf(endToken)));
 
     const statementRaw = capture.join('').trim();
-    const spec = envSpecs.get(envName);
+    const spec = resolveEnvironmentSpec(envName, envSpecs);
     if (!spec) {
       inEnvironment = false;
       capture = [];
       envName = '';
       envTitle = undefined;
+      captureStartLocation = undefined;
+      captureEndLocation = undefined;
+      captureProofTargetId = undefined;
       continue;
     }
 
@@ -536,6 +649,14 @@ export function parseLatexDocument(input: DocumentInput): ParsedDocument {
     const id = uniqueNodeId(nodeIds, createNodeId(captureSection, spec.kind, slug));
     const labelKind = KIND_TITLE[spec.kind] ?? spec.kind;
     const label = `${labelKind} ${number}`.trim() + (envTitle ? ` (${envTitle.replace(/\s+/g, ' ').trim()})` : '');
+    const proofStatus =
+      spec.kind === 'proof'
+        ? envTitle && envTitle.toLowerCase().includes('sketch')
+          ? 'sketch'
+          : 'full'
+        : ['section', 'definition', 'assumption', 'notation', 'equation', 'external_dependency'].includes(spec.kind)
+          ? 'not_applicable'
+          : 'deferred';
 
     const node: MathNode = {
       id,
@@ -546,11 +667,9 @@ export function parseLatexDocument(input: DocumentInput): ParsedDocument {
       number,
       latexLabel,
       statement: statement || `(empty ${labelKind} statement)`,
-      proofStatus: ['definition', 'assumption', 'notation', 'external_dependency'].includes(spec.kind)
-        ? 'not_applicable'
-        : 'deferred',
+      proofStatus,
       isMainResult: false,
-      novelty: spec.kind === 'definition' || spec.kind === 'notation' ? 'classical' : 'new',
+      novelty: ['section', 'definition', 'notation', 'external_dependency'].includes(spec.kind) ? 'classical' : 'new',
       metadata: {
         env: envName,
         headingPath: captureHeadingPath,
@@ -562,6 +681,7 @@ export function parseLatexDocument(input: DocumentInput): ParsedDocument {
           : {}),
         ...(citeKeys.length > 0 ? { citeKeys: [...new Set(citeKeys)].sort() } : {}),
       },
+      ...locationFields(captureStartLocation, captureEndLocation),
     };
 
     nodes.push(node);
@@ -572,15 +692,25 @@ export function parseLatexDocument(input: DocumentInput): ParsedDocument {
     unsupportedRefsByNode.set(id, unsupportedRefs);
     citesByNode.set(id, citeKeys);
 
-    pendingProofNodeIndex =
-      spec.kind === 'definition' || spec.kind === 'assumption' || spec.kind === 'notation' || spec.kind === 'external_dependency'
-        ? undefined
-        : nodes.length - 1;
+    if (spec.kind === 'proof' && captureProofTargetId) {
+      proofTargetsByNodeId.set(id, captureProofTargetId);
+      const proofTargetNode = nodes.find((candidate) => candidate.id === captureProofTargetId);
+      if (proofTargetNode) {
+        proofTargetNode.proofStatus = node.proofStatus;
+      }
+    }
+
+    pendingProofTargetId = ['definition', 'assumption', 'notation', 'external_dependency', 'section', 'proof', 'equation'].includes(spec.kind)
+      ? undefined
+      : id;
 
     inEnvironment = false;
     envName = '';
     envTitle = undefined;
     capture = [];
+    captureStartLocation = undefined;
+    captureEndLocation = undefined;
+    captureProofTargetId = undefined;
   }
 
   const citationNodeIds = new Map<string, NodeId>();
@@ -607,6 +737,51 @@ export function parseLatexDocument(input: DocumentInput): ParsedDocument {
   }
 
   const edgeKeys = new Set<string>();
+  for (const node of nodes) {
+    if (node.kind === 'section' || node.section === '0') {
+      continue;
+    }
+
+    const sectionNodeId = sectionNodeIds.get(node.section);
+    if (!sectionNodeId) {
+      continue;
+    }
+
+    const edgeKey = `${sectionNodeId}->${node.id}->contains->structural`;
+    if (edgeKeys.has(edgeKey)) {
+      continue;
+    }
+
+    edgeKeys.add(edgeKey);
+    edges.push({
+      source: sectionNodeId,
+      target: node.id,
+      kind: 'contains',
+      evidence: 'inferred',
+      provenance: 'structural',
+      detail: `Section ${node.section} contains ${node.label}.`,
+      metadata: {},
+    });
+  }
+
+  for (const [proofNodeId, targetNodeId] of proofTargetsByNodeId.entries()) {
+    const edgeKey = `${proofNodeId}->${targetNodeId}->proves->structural`;
+    if (edgeKeys.has(edgeKey)) {
+      continue;
+    }
+
+    edgeKeys.add(edgeKey);
+    edges.push({
+      source: proofNodeId,
+      target: targetNodeId,
+      kind: 'proves',
+      evidence: 'inferred',
+      provenance: 'structural',
+      detail: 'Structural proof attachment to the preceding theorem-like statement.',
+      metadata: {},
+    });
+  }
+
   const diagnosticWarnings: IngestionWarning[] = [];
   for (const node of nodes) {
     for (const ref of refsByNode.get(node.id) ?? []) {
@@ -638,6 +813,7 @@ export function parseLatexDocument(input: DocumentInput): ParsedDocument {
         target,
         kind: 'uses_in_proof',
         evidence: 'explicit_ref',
+        provenance: 'explicit',
         detail: `Explicit reference via \\${ref.command}{${ref.label}}.`,
         metadata: {
           latexRef: ref.label,
@@ -678,6 +854,7 @@ export function parseLatexDocument(input: DocumentInput): ParsedDocument {
         target,
         kind: 'cites_external',
         evidence: 'external',
+        provenance: 'explicit',
         detail: `Cites \\cite{${citeKey}}.`,
         metadata: {
           citeKey,

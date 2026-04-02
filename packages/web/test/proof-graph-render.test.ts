@@ -38,4 +38,23 @@ describe('GraphPage', () => {
     expect(html).toContain(expectedLabel);
     expect(html).not.toContain('still pending');
   });
+
+  it('renders filter controls for expanded canonical kinds', () => {
+    const fixturePath = resolve(process.cwd(), 'packages/core/test/fixtures/latex/canonical-objects/main.tex');
+    const bundle = BundleSerializer.toJsonBundle(analyzeDocumentPath(fixturePath));
+    const theoremNodeId = bundle.graph.nodes.find((node) => node.latex_label === 'thm:main')?.id ?? null;
+    const model = buildDashboardModel(bundle);
+
+    const html = renderToStaticMarkup(
+      createElement(GraphPage, {
+        model,
+        selectedNodeId: theoremNodeId,
+        onSelectNode: () => {},
+      }),
+    );
+
+    expect(html).toContain('section');
+    expect(html).toContain('proof');
+    expect(html).toContain('equation');
+  });
 });
