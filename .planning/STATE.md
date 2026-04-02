@@ -2,9 +2,9 @@
 gsd_state_version: 1.0
 milestone: v1.1
 milestone_name: Search, Hardening & Corpus
-status: defining_requirements
-stopped_at: drafting v1.1 requirements and roadmap
-last_updated: "2026-04-02T23:06:33Z"
+status: phase_ready
+stopped_at: phase 6 planned and ready for execution
+last_updated: "2026-04-02T23:19:06Z"
 last_activity: 2026-04-03
 progress:
   total_phases: 4
@@ -21,14 +21,14 @@ progress:
 See: .planning/PROJECT.md (updated 2026-04-03)
 
 **Core value:** A mathematician can feed in a TeX paper and get a trustworthy dependency artifact that makes the logical structure of the paper easier to navigate.
-**Current focus:** Defining the `v1.1 Search, Hardening & Corpus` milestone
+**Current focus:** Phase 6 — Searchable Bundle Index & Explorer Navigation
 
 ## Current Position
 
-Phase: Not started (defining requirements)
-Plan: —
-Status: Defining requirements
-Last activity: 2026-04-03 — Started milestone `v1.1 Search, Hardening & Corpus` and scoped it around search, parser hardening, and local corpus support.
+Phase: 6 — Searchable Bundle Index & Explorer Navigation
+Plan: 06-01
+Status: Planned and ready for execution
+Last activity: 2026-04-03 — Wrote Phase 6 context, research, UI contract, and execution plan.
 
 Progress: [░░░░░░░░░░] 0%
 
@@ -66,7 +66,6 @@ Decisions are logged in PROJECT.md. The milestone established:
 
 ### Pending Todos
 
-- Plan Phase 6 for search and explorer navigation.
 - Use `medium_Mueller.flat.tex` and `short_Petri.tex` as the additional corpus acceptance papers.
 
 ### Blockers/Concerns
@@ -78,5 +77,5 @@ Decisions are logged in PROJECT.md. The milestone established:
 ## Session Continuity
 
 Last session: 2026-04-03 CEST
-Stopped at: `v1.1` milestone started; next step is planning Phase 6 from the approved roadmap
-Resume file: .planning/REQUIREMENTS.md
+Stopped at: Phase 6 planned; next step is executing plan `06-01`
+Resume file: .planning/phases/06-searchable-bundle-index-explorer-navigation/06-01-PLAN.md
