@@ -26,7 +26,7 @@ This roadmap stays narrow on the approved v1 success bar: one representative hea
   1. User can analyze a TeX paper or TeX project rooted at `main.tex` and receive a parsed artifact without requiring PDF input.
   2. The representative heavy TeX paper parses with the include, macro, and package handling required by that paper.
   3. User receives explicit diagnostics for unresolved references, citations, includes, or unsupported constructs instead of silent failure.
-**Plans**: TBD
+**Plans**: `01-01`, `01-02` completed on 2026-04-02
 
 ### Phase 2: Canonical Objects & Deterministic Relations
 **Goal**: Users can trust the deterministic canonical artifact as the source of truth for extracted math objects and deterministic dependencies.
@@ -79,7 +79,7 @@ Phases execute in numeric order: 1 -> 2 -> 3 -> 4 -> 5
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 1. Gold-Paper TeX Ingestion Hardening | 0/TBD | Not started | - |
+| 1. Gold-Paper TeX Ingestion Hardening | 2/2 | Completed | 2026-04-02 |
 | 2. Canonical Objects & Deterministic Relations | 0/TBD | Not started | - |
 | 3. Deterministic Dependency Explorer | 0/TBD | Not started | - |
 | 4. Optional Agent Enrichment Review | 0/TBD | Not started | - |
