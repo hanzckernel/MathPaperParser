@@ -10,8 +10,8 @@ This roadmap stays narrow on the approved v1 success bar: one representative hea
 - Integer phases (1, 2, 3): Planned milestone work
 - Decimal phases (2.1, 2.2): Urgent insertions (marked with INSERTED)
 
-- [ ] **Phase 1: Gold-Paper TeX Ingestion Hardening** - Make one heavy `main.tex` project ingest reliably with explicit diagnostics.
-- [ ] **Phase 2: Canonical Objects & Deterministic Relations** - Emit a stable canonical artifact with typed objects, source anchors, and provenance-aware deterministic edges.
+- [x] **Phase 1: Gold-Paper TeX Ingestion Hardening** - Make one heavy `main.tex` project ingest reliably with explicit diagnostics.
+- [x] **Phase 2: Canonical Objects & Deterministic Relations** - Emit a stable canonical artifact with typed objects, source anchors, and provenance-aware deterministic edges.
 - [ ] **Phase 3: Deterministic Dependency Explorer** - Let a local mathematician inspect deterministic dependencies and edge evidence in a local HTML explorer.
 - [ ] **Phase 4: Optional Agent Enrichment Review** - Add opt-in agent-proposed relations as a separate reviewable layer.
 - [ ] **Phase 5: Gold-Paper Acceptance Gate** - Prove the milestone on the representative heavy paper without manual graph editing.
@@ -37,7 +37,7 @@ This roadmap stays narrow on the approved v1 success bar: one representative hea
   2. Each extracted object keeps a stable identifier and a source anchor back to the original TeX file and span.
   3. User gets deterministic explicit and structural relations that are stored with distinct provenance and evidence explaining why each visible deterministic edge exists.
   4. Re-running deterministic parsing on the same TeX input produces stable canonical output apart from explicitly versioned parser metadata.
-**Plans**: TBD
+**Plans**: `02-01`, `02-02`, `02-03` completed on 2026-04-02
 
 ### Phase 3: Deterministic Dependency Explorer
 **Goal**: Users can inspect deterministic dependencies locally and understand why those edges exist without starting from raw TeX.
@@ -80,7 +80,7 @@ Phases execute in numeric order: 1 -> 2 -> 3 -> 4 -> 5
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
 | 1. Gold-Paper TeX Ingestion Hardening | 2/2 | Completed | 2026-04-02 |
-| 2. Canonical Objects & Deterministic Relations | 0/TBD | Not started | - |
+| 2. Canonical Objects & Deterministic Relations | 3/3 | Completed | 2026-04-02 |
 | 3. Deterministic Dependency Explorer | 0/TBD | Not started | - |
 | 4. Optional Agent Enrichment Review | 0/TBD | Not started | - |
 | 5. Gold-Paper Acceptance Gate | 0/TBD | Not started | - |

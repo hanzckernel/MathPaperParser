@@ -5,36 +5,36 @@
 See: .planning/PROJECT.md (updated 2026-04-02)
 
 **Core value:** A mathematician can feed in a TeX paper and get a trustworthy dependency artifact that makes the logical structure of the paper easier to navigate.
-**Current focus:** Phase 2 - Canonical Objects & Deterministic Relations
+**Current focus:** Phase 3 - Deterministic Dependency Explorer
 
 ## Current Position
 
-Phase: 2 of 5 (Canonical Objects & Deterministic Relations)
+Phase: 3 of 5 (Deterministic Dependency Explorer)
 Plan: 0 of TBD in current phase
 Status: Ready to discuss and plan
-Last activity: 2026-04-02 — Phase 1 completed with green acceptance, persisted diagnostics, and stable gold-paper reruns.
+Last activity: 2026-04-02 — Phase 2 completed with anchored canonical objects, provenance-aware deterministic relations, structural-edge traversal guardrails, and green repo verification.
 
-Progress: [██░░░░░░░░] 20%
+Progress: [████░░░░░░] 40%
 
 ## Performance Metrics
 
 **Velocity:**
 - Total plans completed: 2
-- Average duration: 6 min
-- Total execution time: 0.2 hours
+- Average duration: 6.8 min
+- Total execution time: 0.6 hours
 
 **By Phase:**
 
 | Phase | Plans | Total | Avg/Plan |
 |-------|-------|-------|----------|
 | 1. Gold-Paper TeX Ingestion Hardening | 2 | 12 min | 6 min |
-| 2. Canonical Objects & Deterministic Relations | 0 | 0 min | 0 min |
+| 2. Canonical Objects & Deterministic Relations | 3 | 22 min | 7.3 min |
 | 3. Deterministic Dependency Explorer | 0 | 0 min | 0 min |
 | 4. Optional Agent Enrichment Review | 0 | 0 min | 0 min |
 | 5. Gold-Paper Acceptance Gate | 0 | 0 min | 0 min |
 
 **Recent Trend:**
-- Last 5 plans: 01-01, 01-02
+- Last 5 plans: 01-01, 01-02, 02-01, 02-02, 02-03
 - Trend: Improving
 
 ## Accumulated Context
@@ -59,11 +59,11 @@ None yet.
 
 ### Blockers/Concerns
 
-- Phase 2 still needs a planning pass for source anchors, object coverage, and deterministic relation provenance.
-- The gold paper still emits 46 explicit `unresolved_reference` warnings, which are acceptable in Phase 1 but likely relevant context for deterministic relation work.
+- Phase 3 still needs explicit explorer planning for dependency inspection and edge-evidence presentation.
+- The gold paper still emits 46 explicit `unresolved_reference` warnings. They are acceptable for deterministic Phase 2, but they remain relevant context for explorer UX and later enrichment.
 
 ## Session Continuity
 
-Last session: 2026-04-02 21:12 CEST
-Stopped at: Phase 1 completed and Phase 2 is ready to discuss/plan
-Resume file: .planning/phases/01-gold-paper-tex-ingestion-hardening/01-02-SUMMARY.md
+Last session: 2026-04-02 21:56 CEST
+Stopped at: Phase 2 completed and Phase 3 is ready to discuss/plan
+Resume file: .planning/phases/02-canonical-objects-deterministic-relations/02-03-SUMMARY.md
