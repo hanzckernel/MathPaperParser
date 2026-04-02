@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 
 import type { DashboardModel } from '../lib/dashboard-model.js';
 
@@ -94,6 +94,17 @@ function nodeButtonStyle(active: boolean): React.CSSProperties {
   };
 }
 
+function edgeCardStyle(active: boolean): React.CSSProperties {
+  return {
+    border: `1px solid ${active ? 'rgba(251, 191, 36, 0.55)' : 'rgba(148, 163, 184, 0.22)'}`,
+    borderRadius: '14px',
+    padding: '0.7rem',
+    background: active ? 'rgba(251, 191, 36, 0.08)' : 'rgba(15, 23, 42, 0.38)',
+    display: 'grid',
+    gap: '0.45rem',
+  };
+}
+
 function naturalCompare(left: string, right: string): number {
   return left.localeCompare(right, undefined, { numeric: true, sensitivity: 'base' });
 }
@@ -126,6 +137,34 @@ function toggleSelection(values: string[], value: string, allValues: readonly st
   }
 
   return [...values, value];
+}
+
+function edgeKey(edge: DashboardModel['edges'][number]): string {
+  return [
+    edge.source,
+    edge.target,
+    edge.kind,
+    edge.evidence,
+    (edge as { provenance?: string }).provenance ?? 'none',
+  ].join('::');
+}
+
+function preferredEdge(
+  outgoing: DashboardModel['edges'],
+  incoming: DashboardModel['edges'],
+): DashboardModel['edges'][number] | null {
+  return outgoing[0] ?? incoming[0] ?? null;
+}
+
+function edgeMetadataEntries(edge: DashboardModel['edges'][number]): Array<[string, string]> {
+  return Object.entries(edge.metadata)
+    .filter(([, value]) => value !== null && value !== undefined)
+    .map(([key, value]) => [
+      key,
+      typeof value === 'string' || typeof value === 'number' || typeof value === 'boolean'
+        ? String(value)
+        : JSON.stringify(value),
+    ]);
 }
 
 function buildNodePositions(nodes: DashboardModel['nodes'], sectionOrder: string[]): {
@@ -220,6 +259,28 @@ export function GraphPage({
   const { positions, width, height } = buildNodePositions(graphNodes, model.sections.map((section) => section.section));
   const outgoing = selectedNode ? filteredEdges.filter((edge) => edge.source === selectedNode.id) : [];
   const incoming = selectedNode ? filteredEdges.filter((edge) => edge.target === selectedNode.id) : [];
+  const initialEdge = selectedNode ? preferredEdge(outgoing, incoming) : null;
+  const [selectedEdgeKey, setSelectedEdgeKey] = useState<string | null>(() => (initialEdge ? edgeKey(initialEdge) : null));
+
+  useEffect(() => {
+    if (!selectedNode) {
+      setSelectedEdgeKey(null);
+      return;
+    }
+
+    const visibleEdgeKeys = new Set([...outgoing, ...incoming].map((edge) => edgeKey(edge)));
+    if (selectedEdgeKey && visibleEdgeKeys.has(selectedEdgeKey)) {
+      return;
+    }
+
+    setSelectedEdgeKey(initialEdge ? edgeKey(initialEdge) : null);
+  }, [initialEdge, incoming, outgoing, selectedEdgeKey, selectedNode]);
+
+  const selectedEdge =
+    selectedNode && selectedEdgeKey
+      ? [...outgoing, ...incoming].find((edge) => edgeKey(edge) === selectedEdgeKey) ?? null
+      : null;
+  const selectedEdgeMetadata = selectedEdge ? edgeMetadataEntries(selectedEdge) : [];
 
   return (
     <div style={{ display: 'grid', gap: '1rem' }}>
@@ -440,10 +501,17 @@ export function GraphPage({
                   <div style={{ display: 'grid', gap: '0.45rem' }}>
                     {outgoing.length === 0 ? <div style={{ color: '#94a3b8' }}>(none visible)</div> : null}
                     {outgoing.map((edge) => (
-                      <button key={`${edge.source}-${edge.target}-${edge.kind}`} type="button" onClick={() => onSelectNode(edge.target)} style={nodeButtonStyle(false)}>
-                        <div>{model.nodeById.get(edge.target)?.label ?? edge.target}</div>
-                        <div style={{ color: '#94a3b8', marginTop: '0.2rem', fontSize: '0.82rem' }}>{edge.kind} · {edge.evidence}</div>
-                      </button>
+                      <div key={`${edge.source}-${edge.target}-${edge.kind}`} style={edgeCardStyle(selectedEdgeKey === edgeKey(edge))}>
+                        <button type="button" onClick={() => setSelectedEdgeKey(edgeKey(edge))} style={nodeButtonStyle(selectedEdgeKey === edgeKey(edge))}>
+                          <div>{model.nodeById.get(edge.target)?.label ?? edge.target}</div>
+                          <div style={{ color: '#94a3b8', marginTop: '0.2rem', fontSize: '0.82rem' }}>
+                            {edge.kind} · {(edge as { provenance?: string }).provenance ?? 'untyped'} · {edge.evidence}
+                          </div>
+                        </button>
+                        <button type="button" onClick={() => onSelectNode(edge.target)} style={tokenButtonStyle(false, '#64748b')}>
+                          Open target node
+                        </button>
+                      </div>
                     ))}
                   </div>
                 </div>
@@ -453,13 +521,74 @@ export function GraphPage({
                   <div style={{ display: 'grid', gap: '0.45rem' }}>
                     {incoming.length === 0 ? <div style={{ color: '#94a3b8' }}>(none visible)</div> : null}
                     {incoming.map((edge) => (
-                      <button key={`${edge.source}-${edge.target}-${edge.kind}`} type="button" onClick={() => onSelectNode(edge.source)} style={nodeButtonStyle(false)}>
-                        <div>{model.nodeById.get(edge.source)?.label ?? edge.source}</div>
-                        <div style={{ color: '#94a3b8', marginTop: '0.2rem', fontSize: '0.82rem' }}>{edge.kind} · {edge.evidence}</div>
-                      </button>
+                      <div key={`${edge.source}-${edge.target}-${edge.kind}`} style={edgeCardStyle(selectedEdgeKey === edgeKey(edge))}>
+                        <button type="button" onClick={() => setSelectedEdgeKey(edgeKey(edge))} style={nodeButtonStyle(selectedEdgeKey === edgeKey(edge))}>
+                          <div>{model.nodeById.get(edge.source)?.label ?? edge.source}</div>
+                          <div style={{ color: '#94a3b8', marginTop: '0.2rem', fontSize: '0.82rem' }}>
+                            {edge.kind} · {(edge as { provenance?: string }).provenance ?? 'untyped'} · {edge.evidence}
+                          </div>
+                        </button>
+                        <button type="button" onClick={() => onSelectNode(edge.source)} style={tokenButtonStyle(false, '#64748b')}>
+                          Open source node
+                        </button>
+                      </div>
                     ))}
                   </div>
                 </div>
+              </div>
+
+              <div style={{ display: 'grid', gap: '0.75rem', borderTop: '1px solid rgba(148, 163, 184, 0.16)', paddingTop: '0.9rem' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', gap: '1rem', alignItems: 'baseline' }}>
+                  <h3 style={{ margin: 0 }}>Edge Explanation</h3>
+                  {selectedEdge ? (
+                    <span style={{ color: '#94a3b8', fontSize: '0.82rem' }}>{selectedEdge.kind}</span>
+                  ) : null}
+                </div>
+
+                {selectedEdge ? (
+                  <div style={{ display: 'grid', gap: '0.75rem' }}>
+                    <div style={{ display: 'grid', gap: '0.4rem', gridTemplateColumns: 'repeat(auto-fit, minmax(160px, 1fr))' }}>
+                      <div>
+                        <div style={{ color: '#94a3b8', fontSize: '0.78rem', textTransform: 'uppercase', letterSpacing: '0.08em' }}>Source</div>
+                        <div>{model.nodeById.get(selectedEdge.source)?.label ?? selectedEdge.source}</div>
+                      </div>
+                      <div>
+                        <div style={{ color: '#94a3b8', fontSize: '0.78rem', textTransform: 'uppercase', letterSpacing: '0.08em' }}>Target</div>
+                        <div>{model.nodeById.get(selectedEdge.target)?.label ?? selectedEdge.target}</div>
+                      </div>
+                      <div>
+                        <div style={{ color: '#94a3b8', fontSize: '0.78rem', textTransform: 'uppercase', letterSpacing: '0.08em' }}>Provenance</div>
+                        <div>{(selectedEdge as { provenance?: string }).provenance ?? 'untyped'}</div>
+                      </div>
+                      <div>
+                        <div style={{ color: '#94a3b8', fontSize: '0.78rem', textTransform: 'uppercase', letterSpacing: '0.08em' }}>Evidence</div>
+                        <div>{selectedEdge.evidence}</div>
+                      </div>
+                    </div>
+
+                    <div>
+                      <div style={{ color: '#94a3b8', fontSize: '0.78rem', textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: '0.35rem' }}>Why This Edge Exists</div>
+                      <div style={{ lineHeight: 1.6 }}>{selectedEdge.detail}</div>
+                    </div>
+
+                    <div>
+                      <div style={{ color: '#94a3b8', fontSize: '0.78rem', textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: '0.35rem' }}>Supporting Fields</div>
+                      {selectedEdgeMetadata.length === 0 ? (
+                        <div style={{ color: '#94a3b8' }}>(none)</div>
+                      ) : (
+                        <div style={{ display: 'grid', gap: '0.35rem' }}>
+                          {selectedEdgeMetadata.map(([key, value]) => (
+                            <div key={key}>
+                              <strong>{key}</strong>: {value}
+                            </div>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                ) : (
+                  <div style={{ color: '#94a3b8' }}>Select a visible edge from Uses or Used By to inspect why the deterministic relation exists.</div>
+                )}
               </div>
             </div>
           ) : (

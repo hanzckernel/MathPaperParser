@@ -57,4 +57,27 @@ describe('GraphPage', () => {
     expect(html).toContain('proof');
     expect(html).toContain('equation');
   });
+
+  it('renders a structured explanation for the selected dependency edge', () => {
+    const fixturePath = resolve(process.cwd(), 'packages/core/test/fixtures/latex/canonical-objects/main.tex');
+    const bundle = BundleSerializer.toJsonBundle(analyzeDocumentPath(fixturePath));
+    const theoremNodeId = bundle.graph.nodes.find((node) => node.latex_label === 'thm:main')?.id ?? null;
+    const model = buildDashboardModel(bundle);
+
+    const html = renderToStaticMarkup(
+      createElement(GraphPage, {
+        model,
+        selectedNodeId: theoremNodeId,
+        onSelectNode: () => {},
+      }),
+    );
+
+    expect(html).toContain('Edge Explanation');
+    expect(html).toContain('Why This Edge Exists');
+    expect(html).toContain('Provenance');
+    expect(html).toContain('explicit');
+    expect(html).toContain('Evidence');
+    expect(html).toContain('explicit_ref');
+    expect(html).toContain('latexRef');
+  });
 });
