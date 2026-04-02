@@ -108,9 +108,12 @@ describe('paperparser serve app', () => {
     );
     expect(queryResponse.status).toBe(200);
     const query = (await queryResponse.json()) as {
-      results: Array<{ nodeId: string }>;
+      results: Array<{ nodeId: string; nodeKind: string; label: string; number: string }>;
     };
     expect(query.results[0]?.nodeId).toBe('sec1::thm:thm-fixture');
+    expect(query.results[0]?.nodeKind).toBe('theorem');
+    expect(query.results[0]?.label).toContain('Theorem 1.1');
+    expect(query.results[0]?.number).toBe('1.1');
 
     const contextResponse = await handlePaperParserRequest(
       new Request('http://paperparser.local/api/papers/fixture-latex/context/sec1::thm:thm-fixture'),

@@ -19,6 +19,30 @@ describe('BundleQueryService', () => {
     expect(results[0]?.nodeId).toBe('sec1::thm:thm-main');
     expect(results[0]?.mode).toBe('keyword');
     expect(results[0]?.matchedText).toContain('Theorem 2.1');
+    expect(results[0]?.nodeKind).toBe('theorem');
+    expect(results[0]?.label).toContain('Theorem 2.1');
+    expect(results[0]?.number).toBe('2.1');
+    expect(results[0]?.section).toBe('1');
+  });
+
+  it('matches object identity fields such as theorem numbers and latex labels', () => {
+    const fixturePath = resolve(process.cwd(), 'packages/core/test/fixtures/latex/project/main.tex');
+    const bundle = analyzeDocumentPath(fixturePath);
+    const service = new BundleQueryService(bundle);
+
+    const numberResults = service.search({
+      text: '1.1',
+      limit: 1,
+    });
+    expect(numberResults[0]?.nodeId).toBe('sec1::thm:thm-fixture');
+    expect(numberResults[0]?.number).toBe('1.1');
+
+    const latexLabelResults = service.search({
+      text: 'thm:fixture',
+      limit: 1,
+    });
+    expect(latexLabelResults[0]?.nodeId).toBe('sec1::thm:thm-fixture');
+    expect(latexLabelResults[0]?.latexLabel).toBe('thm:fixture');
   });
 
   it('returns node context and reverse impact from the stored graph structure', () => {

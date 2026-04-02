@@ -37,6 +37,22 @@ describe('BundleDataControls', () => {
         onPaperIdInputChange: () => {},
         pendingPaperId: 'uploaded-paper',
         onUploadFileChange: () => {},
+        searchQuery: 'thm',
+        searchResults: [
+          {
+            nodeId: 'sec1::thm:thm-main',
+            nodeKind: 'theorem',
+            label: 'Theorem 2.1',
+            number: '2.1',
+            section: '1',
+            sectionTitle: 'Compactness',
+            latexLabel: 'thm:thm-main',
+            matchedText: 'Theorem 2.1',
+            excerpt: 'Compactness theorem excerpt',
+            href: '#/explorer/sec1%3A%3Athm%3Athm-main',
+          },
+        ],
+        onSearchQueryChange: () => {},
       }),
     );
 
@@ -45,5 +61,8 @@ describe('BundleDataControls', () => {
     expect(html).toContain('Tracked LaTeX Fixture');
     expect(html).toContain('Upload .tex or .md');
     expect(html).toContain('PDF upload stays visible');
+    expect(html).toContain('Search this paper');
+    expect(html).toContain('Open in Explorer');
+    expect(html).toContain('Compactness theorem excerpt');
   });
 });

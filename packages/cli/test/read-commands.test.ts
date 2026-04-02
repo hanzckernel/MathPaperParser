@@ -65,9 +65,12 @@ describe('paperparser cli read commands', () => {
 
     expect(queryExitCode).toBe(0);
     const queryResult = JSON.parse(queryStdout.join('\n')) as {
-      results: Array<{ nodeId: string }>;
+      results: Array<{ nodeId: string; nodeKind: string; label: string; number: string }>;
     };
     expect(queryResult.results[0]?.nodeId).toBe('sec1::thm:thm-main');
+    expect(queryResult.results[0]?.nodeKind).toBe('theorem');
+    expect(queryResult.results[0]?.label).toContain('Theorem 2.1');
+    expect(queryResult.results[0]?.number).toBe('2.1');
 
     const contextStdout: string[] = [];
     const contextExitCode = runCli(['context', 'sec2::lem:lem-bounded', '--store', storePath, '--paper', 'fixture-markdown', '--json'], {

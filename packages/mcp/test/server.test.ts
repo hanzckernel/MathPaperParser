@@ -71,6 +71,8 @@ describe('PaperParser MCP server', () => {
       limit: 1,
     });
     expect(query.results[0]?.nodeId).toBe('sec1::thm:thm-main');
+    expect(query.results[0]?.nodeKind).toBe('theorem');
+    expect(query.results[0]?.number).toBe('2.1');
 
     const context = await server.callTool('get_context', {
       paperId: 'fixture-markdown',
@@ -118,6 +120,8 @@ describe('PaperParser MCP server', () => {
       limit: 1,
     });
     expect(query.results[0]?.nodeId).toBe('sec1::thm:thm-fixture');
+    expect(query.results[0]?.label).toContain('Theorem 1.1');
+    expect(query.results[0]?.number).toBe('1.1');
 
     const context = await server.callTool('get_context', {
       paperId: 'fixture-latex',

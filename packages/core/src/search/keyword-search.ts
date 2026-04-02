@@ -37,8 +37,11 @@ function scoreNode(node: MathNode, queryText: string, tokens: string[]): SearchC
   }
 
   const label = node.label;
+  const number = node.number;
   const statement = node.statement;
   const sectionTitle = node.sectionTitle;
+  const kind = node.kind;
+  const latexLabel = node.latexLabel ?? '';
 
   let score = 0;
   let matchedText = label;
@@ -53,13 +56,34 @@ function scoreNode(node: MathNode, queryText: string, tokens: string[]): SearchC
     matchedText = statement;
   }
 
+  if (number.toLowerCase().includes(normalizedQuery)) {
+    score += 10;
+    matchedText = number;
+  }
+
+  if (latexLabel.toLowerCase().includes(normalizedQuery)) {
+    score += 11;
+    matchedText = latexLabel;
+  }
+
+  if (kind.toLowerCase().includes(normalizedQuery)) {
+    score += 5;
+    matchedText = kind;
+  }
+
   const labelMatches = countTokenMatches(tokens, label);
+  const numberMatches = countTokenMatches(tokens, number);
   const statementMatches = countTokenMatches(tokens, statement);
   const sectionMatches = countTokenMatches(tokens, sectionTitle);
+  const kindMatches = countTokenMatches(tokens, kind);
+  const latexLabelMatches = countTokenMatches(tokens, latexLabel);
 
   score += labelMatches * 4;
+  score += numberMatches * 5;
   score += statementMatches * 2;
   score += sectionMatches;
+  score += kindMatches * 3;
+  score += latexLabelMatches * 5;
 
   if (node.isMainResult) {
     score += 1;
@@ -71,6 +95,12 @@ function scoreNode(node: MathNode, queryText: string, tokens: string[]): SearchC
 
   if (labelMatches > 0) {
     matchedText = label;
+  } else if (numberMatches > 0) {
+    matchedText = number;
+  } else if (latexLabelMatches > 0) {
+    matchedText = latexLabel;
+  } else if (kindMatches > 0) {
+    matchedText = kind;
   } else if (statementMatches > 0) {
     matchedText = statement;
   } else if (sectionMatches > 0) {
@@ -105,5 +135,11 @@ export function runKeywordSearch(nodes: Iterable<MathNode>, query: SearchQuery):
       mode: 'keyword',
       matchedText: candidate.matchedText,
       excerpt: candidate.excerpt,
+      nodeKind: candidate.node.kind,
+      label: candidate.node.label,
+      number: candidate.node.number,
+      section: candidate.node.section,
+      sectionTitle: candidate.node.sectionTitle,
+      latexLabel: candidate.node.latexLabel,
     }));
 }

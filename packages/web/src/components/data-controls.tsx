@@ -22,9 +22,27 @@ export interface BundleDataControlsProps {
   onSelectedPaperChange: (paperId: string) => void;
   onPaperIdInputChange: (value: string) => void;
   onUploadFileChange: (file: File | null) => void;
+  searchQuery: string;
+  searchResults: BundleSearchResultItem[];
+  onSearchQueryChange: (value: string) => void;
+}
+
+export interface BundleSearchResultItem {
+  nodeId: string;
+  nodeKind: string;
+  label: string;
+  number: string;
+  section: string;
+  sectionTitle: string;
+  latexLabel: string | null;
+  matchedText: string;
+  excerpt?: string;
+  href: string;
 }
 
 export function BundleDataControls(props: BundleDataControlsProps) {
+  const hasSearchQuery = props.searchQuery.trim().length > 0;
+
   return (
     <section style={cardStyle()}>
       <div style={{ display: 'flex', justifyContent: 'space-between', gap: '1rem', flexWrap: 'wrap' }}>
@@ -136,6 +154,77 @@ export function BundleDataControls(props: BundleDataControlsProps) {
           ) : null}
         </div>
       ) : null}
+
+      <div style={{ display: 'grid', gap: '0.8rem', marginTop: '1rem' }}>
+        <label style={{ display: 'grid', gap: '0.35rem' }}>
+          <span style={{ color: '#cbd5e1', fontWeight: 600 }}>Search this paper</span>
+          <input
+            value={props.searchQuery}
+            onChange={(event) => props.onSearchQueryChange(event.target.value)}
+            placeholder="label, theorem number, latex label"
+            style={{
+              borderRadius: '12px',
+              border: '1px solid rgba(148, 163, 184, 0.3)',
+              background: 'rgba(15, 23, 42, 0.55)',
+              color: '#e5eef9',
+              padding: '0.75rem 0.85rem',
+            }}
+          />
+        </label>
+
+        {props.searchResults.length > 0 ? (
+          <div style={{ display: 'grid', gap: '0.7rem' }}>
+            {props.searchResults.map((result) => (
+              <a
+                key={`${result.nodeId}-${result.href}`}
+                href={result.href}
+                style={{
+                  display: 'grid',
+                  gap: '0.35rem',
+                  textDecoration: 'none',
+                  borderRadius: '14px',
+                  border: '1px solid rgba(56, 189, 248, 0.28)',
+                  padding: '0.85rem 0.95rem',
+                  background: 'rgba(15, 23, 42, 0.45)',
+                  color: '#e5eef9',
+                }}
+              >
+                <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.45rem', alignItems: 'center' }}>
+                  <strong>{result.label}</strong>
+                  <span style={{ color: '#38bdf8', fontSize: '0.82rem', textTransform: 'uppercase', letterSpacing: '0.06em' }}>
+                    {result.nodeKind}
+                  </span>
+                  <span style={{ color: '#94a3b8', fontSize: '0.88rem' }}>
+                    Section {result.section}
+                    {result.sectionTitle ? ` · ${result.sectionTitle}` : ''}
+                  </span>
+                </div>
+                <div style={{ color: '#cbd5e1', fontSize: '0.9rem' }}>
+                  Match: {result.matchedText}
+                  {result.number ? ` · ${result.number}` : ''}
+                  {result.latexLabel ? ` · ${result.latexLabel}` : ''}
+                </div>
+                {result.excerpt ? <div style={{ color: '#94a3b8', fontSize: '0.92rem' }}>{result.excerpt}</div> : null}
+                <div style={{ color: '#38bdf8', fontWeight: 600 }}>Open in Explorer</div>
+              </a>
+            ))}
+          </div>
+        ) : null}
+
+        {hasSearchQuery && props.searchResults.length === 0 ? (
+          <div
+            style={{
+              borderRadius: '12px',
+              border: '1px dashed rgba(148, 163, 184, 0.24)',
+              padding: '0.85rem 0.95rem',
+              color: '#94a3b8',
+            }}
+          >
+            <strong style={{ color: '#e5eef9' }}>No matches in this paper</strong>
+            <div>Try a label, theorem number, or a distinctive phrase from the statement.</div>
+          </div>
+        ) : null}
+      </div>
     </section>
   );
 }

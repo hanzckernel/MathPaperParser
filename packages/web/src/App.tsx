@@ -1,6 +1,10 @@
-import { useEffect, useState } from 'react';
+import { useDeferredValue, useEffect, useState } from 'react';
 
-import { BundleDataControls } from './components/data-controls.js';
+import { BundleQueryService } from '../../core/src/services/bundle-query-service.js';
+import { BundleSerializer, type SerializedPaperParserBundle } from '../../core/src/serialization/bundle-serializer.js';
+import type { SearchResult } from '../../core/src/types/search.js';
+
+import { BundleDataControls, type BundleSearchResultItem } from './components/data-controls.js';
 import {
   ExplorerPage,
   GraphPage,
@@ -11,20 +15,7 @@ import {
 import { listApiPapers, type ApiPaperListing, uploadSourceDocument } from './lib/api-client.js';
 import { buildDashboardModel, type DashboardModel } from './lib/dashboard-model.js';
 import { loadSerializedPaperData, resolveBundleSource, type BundleSource } from './lib/data-source.js';
-
-type RouteKey = 'overview' | 'graph' | 'explorer' | 'innovation' | 'unknowns';
-
-const ROUTES: RouteKey[] = ['overview', 'graph', 'explorer', 'innovation', 'unknowns'];
-
-function parseRoute(hash: string): RouteKey {
-  const cleaned = hash.replace(/^#\/?/u, '');
-  const route = cleaned.split('/', 1)[0];
-  return ROUTES.includes(route as RouteKey) ? (route as RouteKey) : 'overview';
-}
-
-function navigateTo(route: RouteKey): void {
-  window.location.hash = `#/${route}`;
-}
+import { buildHashRoute, parseHashRoute, ROUTES, type RouteKey } from './lib/hash-route.js';
 
 function appShellStyle(): React.CSSProperties {
   return {
@@ -82,23 +73,49 @@ function selectedPaperIdForControls(source: BundleSource, apiListing: ApiPaperLi
   return source.paperId;
 }
 
+function buildSearchResults(
+  serializedBundle: SerializedPaperParserBundle | null,
+  queryText: string,
+): SearchResult[] {
+  if (!serializedBundle || queryText.trim() === '') {
+    return [];
+  }
+
+  const service = new BundleQueryService(BundleSerializer.fromJsonBundle(serializedBundle));
+  return service.search({ text: queryText, limit: 8 });
+}
+
 export function App() {
-  const [route, setRoute] = useState<RouteKey>(() => (typeof window === 'undefined' ? 'overview' : parseRoute(window.location.hash)));
+  const initialHashRoute = typeof window === 'undefined' ? { route: 'overview' as RouteKey, nodeId: null } : parseHashRoute(window.location.hash);
+  const [route, setRoute] = useState<RouteKey>(() => initialHashRoute.route);
   const [source, setSource] = useState<BundleSource>(() =>
     typeof window === 'undefined' ? { kind: 'static', basePath: './data' } : resolveBundleSource(window.location.search),
   );
   const [model, setModel] = useState<DashboardModel | null>(null);
-  const [selectedNodeId, setSelectedNodeId] = useState<string | null>(null);
+  const [serializedBundle, setSerializedBundle] = useState<SerializedPaperParserBundle | null>(null);
+  const [selectedNodeId, setSelectedNodeId] = useState<string | null>(() => initialHashRoute.nodeId);
   const [apiListing, setApiListing] = useState<ApiPaperListing | null>(null);
   const [pendingPaperId, setPendingPaperId] = useState('');
+  const [searchQuery, setSearchQuery] = useState('');
   const [uploadStatus, setUploadStatus] = useState<'idle' | 'uploading' | 'success' | 'error'>('idle');
   const [uploadMessage, setUploadMessage] = useState<string | null>(null);
   const [status, setStatus] = useState<'loading' | 'ready' | 'error'>('loading');
   const [error, setError] = useState<string | null>(null);
   const selectedPaperId = selectedPaperIdForControls(source, apiListing);
+  const deferredSearchQuery = useDeferredValue(searchQuery);
+  const searchResults: BundleSearchResultItem[] = buildSearchResults(serializedBundle, deferredSearchQuery).map((result) => ({
+    ...result,
+    href: buildHashRoute('explorer', result.nodeId),
+  }));
 
   useEffect(() => {
-    const apply = () => setRoute(parseRoute(window.location.hash));
+    const apply = () => {
+      const nextRoute = parseHashRoute(window.location.hash);
+      setRoute(nextRoute.route);
+      if (nextRoute.nodeId) {
+        setSelectedNodeId(nextRoute.nodeId);
+      }
+    };
     apply();
     window.addEventListener('hashchange', apply);
     return () => window.removeEventListener('hashchange', apply);
@@ -142,6 +159,7 @@ export function App() {
     let cancelled = false;
     setStatus('loading');
     setError(null);
+    setSerializedBundle(null);
 
     loadSerializedPaperData(source)
       .then(({ bundle, enrichment }) => {
@@ -149,9 +167,19 @@ export function App() {
           return;
         }
 
+        setSerializedBundle(bundle);
         const nextModel = buildDashboardModel(bundle, enrichment);
         setModel(nextModel);
-        setSelectedNodeId((current) => current ?? nextModel.mainResults[0]?.nodeId ?? nextModel.nodes[0]?.id ?? null);
+        setSelectedNodeId((current) => {
+          const hashNodeId = typeof window === 'undefined' ? null : parseHashRoute(window.location.hash).nodeId;
+          if (hashNodeId && nextModel.nodeById.has(hashNodeId)) {
+            return hashNodeId;
+          }
+          if (current && nextModel.nodeById.has(current)) {
+            return current;
+          }
+          return nextModel.mainResults[0]?.nodeId ?? nextModel.nodes[0]?.id ?? null;
+        });
         setStatus('ready');
       })
       .catch((loadError) => {
@@ -159,6 +187,7 @@ export function App() {
           return;
         }
 
+        setSerializedBundle(null);
         setStatus('error');
         setError(loadError instanceof Error ? loadError.message : String(loadError));
       });
@@ -180,7 +209,7 @@ export function App() {
             model={model}
             onSelectNode={(nodeId) => {
               setSelectedNodeId(nodeId);
-              navigateTo('explorer');
+              window.location.hash = buildHashRoute('explorer', nodeId);
             }}
           />
         );
@@ -217,7 +246,14 @@ export function App() {
             </div>
             <nav style={{ display: 'flex', flexWrap: 'wrap', gap: '0.6rem' }}>
               {ROUTES.map((candidate) => (
-                <button key={candidate} type="button" onClick={() => navigateTo(candidate)} style={navButtonStyle(route === candidate)}>
+                <button
+                  key={candidate}
+                  type="button"
+                  onClick={() => {
+                    window.location.hash = buildHashRoute(candidate, candidate === 'explorer' ? selectedNodeId : null);
+                  }}
+                  style={navButtonStyle(route === candidate)}
+                >
                   {candidate}
                 </button>
               ))}
@@ -243,10 +279,13 @@ export function App() {
           sourceKind={source.kind}
           apiListing={apiListing}
           pendingPaperId={pendingPaperId}
+          searchQuery={searchQuery}
+          searchResults={searchResults}
           uploadStatus={uploadStatus}
           uploadMessage={uploadMessage}
           {...(source.kind === 'api' ? { apiBaseUrl: source.baseUrl } : {})}
           {...(selectedPaperId ? { selectedPaperId } : {})}
+          onSearchQueryChange={setSearchQuery}
           onRefreshPapers={() => {
             if (source.kind !== 'api') {
               return;

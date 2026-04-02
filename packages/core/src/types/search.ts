@@ -18,6 +18,12 @@ export interface SearchResult {
   mode: SearchMode;
   matchedText: string;
   excerpt?: string;
+  nodeKind: MathNode['kind'];
+  label: string;
+  number: string;
+  section: string;
+  sectionTitle: string;
+  latexLabel: string | null;
 }
 
 export interface NodeContext {
