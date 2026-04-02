@@ -12,7 +12,7 @@ This roadmap stays narrow on the approved v1 success bar: one representative hea
 
 - [x] **Phase 1: Gold-Paper TeX Ingestion Hardening** - Make one heavy `main.tex` project ingest reliably with explicit diagnostics.
 - [x] **Phase 2: Canonical Objects & Deterministic Relations** - Emit a stable canonical artifact with typed objects, source anchors, and provenance-aware deterministic edges.
-- [ ] **Phase 3: Deterministic Dependency Explorer** - Let a local mathematician inspect deterministic dependencies and edge evidence in a local HTML explorer.
+- [x] **Phase 3: Deterministic Dependency Explorer** - Let a local mathematician inspect deterministic dependencies and edge evidence in a local HTML explorer.
 - [ ] **Phase 4: Optional Agent Enrichment Review** - Add opt-in agent-proposed relations as a separate reviewable layer.
 - [ ] **Phase 5: Gold-Paper Acceptance Gate** - Prove the milestone on the representative heavy paper without manual graph editing.
 
@@ -47,7 +47,7 @@ This roadmap stays narrow on the approved v1 success bar: one representative hea
   1. User can open a local interactive HTML explorer generated from the canonical parsed artifact.
   2. User can inspect an extracted object and see its dependencies in the explorer.
   3. User can inspect a relation in the explorer and see a structured explanation of why the edge exists.
-**Plans**: TBD
+**Plans**: `03-01` completed on 2026-04-02
 **UI hint**: yes
 
 ### Phase 4: Optional Agent Enrichment Review
@@ -81,6 +81,6 @@ Phases execute in numeric order: 1 -> 2 -> 3 -> 4 -> 5
 |-------|----------------|--------|-----------|
 | 1. Gold-Paper TeX Ingestion Hardening | 2/2 | Completed | 2026-04-02 |
 | 2. Canonical Objects & Deterministic Relations | 3/3 | Completed | 2026-04-02 |
-| 3. Deterministic Dependency Explorer | 0/TBD | Not started | - |
+| 3. Deterministic Dependency Explorer | 1/1 | Completed | 2026-04-02 |
 | 4. Optional Agent Enrichment Review | 0/TBD | Not started | - |
 | 5. Gold-Paper Acceptance Gate | 0/TBD | Not started | - |
