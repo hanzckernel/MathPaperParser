@@ -5,23 +5,23 @@
 See: .planning/PROJECT.md (updated 2026-04-02)
 
 **Core value:** A mathematician can feed in a TeX paper and get a trustworthy dependency artifact that makes the logical structure of the paper easier to navigate.
-**Current focus:** Phase 4 - Optional Agent Enrichment Review
+**Current focus:** Milestone complete - archival/tagging pending version choice
 
 ## Current Position
 
-Phase: 4 of 5 (Optional Agent Enrichment Review)
-Plan: 0 of TBD in current phase
-Status: Ready to discuss and plan
-Last activity: 2026-04-02 — Phase 3 completed with deterministic edge explanations in the local graph explorer and green repo verification.
+Phase: 5 of 5 (Gold-Paper Acceptance Gate)
+Plan: 1 of 1 in current phase
+Status: All roadmap phases complete
+Last activity: 2026-04-02 — Phase 5 completed with a gold-paper end-to-end CLI acceptance gate and a green built-CLI verification on `long_nalini`.
 
-Progress: [██████░░░░] 60%
+Progress: [██████████] 100%
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 6
-- Average duration: 6.5 min
-- Total execution time: 0.7 hours
+- Total plans completed: 9
+- Average duration: 8.2 min
+- Total execution time: 1.2 hours
 
 **By Phase:**
 
@@ -30,12 +30,12 @@ Progress: [██████░░░░] 60%
 | 1. Gold-Paper TeX Ingestion Hardening | 2 | 12 min | 6 min |
 | 2. Canonical Objects & Deterministic Relations | 3 | 22 min | 7.3 min |
 | 3. Deterministic Dependency Explorer | 1 | 5 min | 5 min |
-| 4. Optional Agent Enrichment Review | 0 | 0 min | 0 min |
-| 5. Gold-Paper Acceptance Gate | 0 | 0 min | 0 min |
+| 4. Optional Agent Enrichment Review | 2 | 30 min | 15 min |
+| 5. Gold-Paper Acceptance Gate | 1 | 9 min | 9 min |
 
 **Recent Trend:**
-- Last 5 plans: 01-02, 02-01, 02-02, 02-03, 03-01
-- Trend: Improving
+- Last 5 plans: 02-03, 03-01, 04-01, 04-02, 05-01
+- Trend: Stable and complete
 
 ## Accumulated Context
 
@@ -52,18 +52,20 @@ Recent decisions affecting current work:
 - Phase 1: `main.bbl` counts as satisfying the local bibliography requirement for the gold paper on the existing ingestion path.
 - Phase 1: `diagnostics.json` is persisted beside `manifest.json`, `graph.json`, and `index.json` without changing canonical bundle schema.
 - Phase 1: Gold-paper reruns are stable in title/authors, node and edge counts, and warning-code shape.
+- Phase 4: `enrichment.json` is now a separate validated sidecar exposed through CLI export, serve, MCP, and the graph route.
+- Phase 5: The real built-CLI workflow on `long_nalini` now completes with 416 nodes, 617 canonical edges, and 20 enrichment candidates.
 
 ### Pending Todos
 
-None yet.
+None.
 
 ### Blockers/Concerns
 
-- Phase 4 still needs a clean split between deterministic and agent-inferred relation storage, review status, and confidence handling.
-- The gold paper still emits 46 explicit `unresolved_reference` warnings. They remain useful context for enrichment because the agent layer may propose edges around those gaps, but it must not overwrite the deterministic graph.
+- The milestone implementation is complete, but archival/tagging via `$gsd-complete-milestone` still needs an explicit version choice.
+- The gold paper still emits unresolved-reference diagnostics. They remain useful context for enrichment and future parser work, but they no longer block the milestone workflow.
 
 ## Session Continuity
 
-Last session: 2026-04-02 22:04 CEST
-Stopped at: Phase 3 completed and Phase 4 is ready to discuss/plan
-Resume file: .planning/phases/03-deterministic-dependency-explorer/03-01-SUMMARY.md
+Last session: 2026-04-02 22:28 CEST
+Stopped at: All roadmap phases complete; milestone archiving/tagging intentionally deferred pending version choice
+Resume file: .planning/phases/05-gold-paper-acceptance-gate/05-01-SUMMARY.md

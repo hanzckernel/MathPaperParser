@@ -13,8 +13,8 @@ This roadmap stays narrow on the approved v1 success bar: one representative hea
 - [x] **Phase 1: Gold-Paper TeX Ingestion Hardening** - Make one heavy `main.tex` project ingest reliably with explicit diagnostics.
 - [x] **Phase 2: Canonical Objects & Deterministic Relations** - Emit a stable canonical artifact with typed objects, source anchors, and provenance-aware deterministic edges.
 - [x] **Phase 3: Deterministic Dependency Explorer** - Let a local mathematician inspect deterministic dependencies and edge evidence in a local HTML explorer.
-- [ ] **Phase 4: Optional Agent Enrichment Review** - Add opt-in agent-proposed relations as a separate reviewable layer.
-- [ ] **Phase 5: Gold-Paper Acceptance Gate** - Prove the milestone on the representative heavy paper without manual graph editing.
+- [x] **Phase 4: Optional Agent Enrichment Review** - Add opt-in agent-proposed relations as a separate reviewable layer.
+- [x] **Phase 5: Gold-Paper Acceptance Gate** - Prove the milestone on the representative heavy paper without manual graph editing.
 
 ## Phase Details
 
@@ -59,7 +59,7 @@ This roadmap stays narrow on the approved v1 success bar: one representative hea
   2. Agent-inferred relations are stored separately from the deterministic canonical artifact and do not overwrite it.
   3. Each agent-inferred relation includes confidence and supporting evidence or explanation that the user can review.
   4. User can filter visible relations by provenance in the explorer so deterministic edges are the default view and agent-inferred edges are opt-in.
-**Plans**: TBD
+**Plans**: `04-01`, `04-02` completed on 2026-04-02
 **UI hint**: yes
 
 ### Phase 5: Gold-Paper Acceptance Gate
@@ -70,7 +70,7 @@ This roadmap stays narrow on the approved v1 success bar: one representative hea
   1. User can parse the representative heavy TeX paper end-to-end and inspect its dependency artifact locally without manual graph editing.
   2. User can repeat the representative-paper workflow from parse to local inspection without inserting manual repair steps between those stages.
   3. User can use the resulting artifact for the milestone’s intended workflow: inspect objects, inspect dependencies, and inspect edge explanations on that one paper.
-**Plans**: TBD
+**Plans**: `05-01` completed on 2026-04-02
 
 ## Progress
 
@@ -82,5 +82,5 @@ Phases execute in numeric order: 1 -> 2 -> 3 -> 4 -> 5
 | 1. Gold-Paper TeX Ingestion Hardening | 2/2 | Completed | 2026-04-02 |
 | 2. Canonical Objects & Deterministic Relations | 3/3 | Completed | 2026-04-02 |
 | 3. Deterministic Dependency Explorer | 1/1 | Completed | 2026-04-02 |
-| 4. Optional Agent Enrichment Review | 0/TBD | Not started | - |
-| 5. Gold-Paper Acceptance Gate | 0/TBD | Not started | - |
+| 4. Optional Agent Enrichment Review | 2/2 | Completed | 2026-04-02 |
+| 5. Gold-Paper Acceptance Gate | 1/1 | Completed | 2026-04-02 |
