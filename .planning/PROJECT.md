@@ -13,7 +13,7 @@ A mathematician can feed in a TeX paper and get a trustworthy dependency artifac
 - **Shipped milestone:** `v1.0 TeX MVP` on 2026-04-02
 - **Active milestone:** `v1.1 Search, Hardening & Corpus` (planning started 2026-04-03)
 - **Representative acceptance paper:** `ref/papers/long_nalini/arXiv-2502.12268v2/main.tex`
-- **Current milestone corpus target:** `long_nalini` plus at least one additional real TeX paper
+- **Current milestone corpus target:** `long_nalini`, `medium_Mueller.flat.tex`, and `short_Petri.tex`
 - **Canonical output:** `manifest.json` / `graph.json` / `index.json`
 - **Additive sidecars:** `diagnostics.json` and optional `enrichment.json`
 - **Accepted workflow:** `analyze -> enrich -> validate -> export`
@@ -26,7 +26,7 @@ A mathematician can feed in a TeX paper and get a trustworthy dependency artifac
 **Target features:**
 - Search by label, title, or object name with direct navigation into the explorer
 - Parser hardening focused on unresolved references and broader TeX coverage beyond the original gold-paper bar
-- Local multi-paper corpus support, including cross-paper navigation where the current architecture can support it cleanly
+- Local multi-paper corpus support across `long_nalini`, `medium_Mueller.flat.tex`, and `short_Petri.tex`, including cross-paper navigation where the current architecture can support it cleanly
 
 ## Requirements
 
@@ -42,8 +42,8 @@ A mathematician can feed in a TeX paper and get a trustworthy dependency artifac
 ### Active
 
 - [ ] Add search by label, title, or object name across the parsed paper, with direct explorer navigation
-- [ ] Reduce unresolved-reference diagnostics on the representative paper and broaden TeX coverage across a small real-paper corpus
-- [ ] Support a local multi-paper corpus with safe paper isolation and cross-paper navigation where evidence is explicit or explainable
+- [ ] Reduce unresolved-reference diagnostics on the representative paper and broaden TeX coverage across the milestone corpus of `long_nalini`, `medium_Mueller.flat.tex`, and `short_Petri.tex`
+- [ ] Support a local multi-paper corpus with safe paper isolation and cross-paper navigation where evidence is explicit or explainable across the milestone corpus
 
 ### Out of Scope
 

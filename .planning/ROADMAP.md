@@ -17,9 +17,9 @@ This roadmap advances the approved `v1.1` scope only: paper-local search, parser
 - Decimal phases (6.1, 6.2): Urgent insertions (marked with INSERTED)
 
 - [ ] **Phase 6: Searchable Bundle Index & Explorer Navigation** - Add paper-local search and direct navigation into the explorer using the shipped stored-paper surfaces.
-- [ ] **Phase 7: TeX Hardening & Diagnostic Reduction** - Reduce unresolved references on the gold paper and broaden deterministic TeX coverage across the milestone corpus.
+- [ ] **Phase 7: TeX Hardening & Diagnostic Reduction** - Reduce unresolved references on the gold paper and broaden deterministic TeX coverage across `medium_Mueller.flat.tex` and `short_Petri.tex`.
 - [ ] **Phase 8: Local Corpus Library & Cross-Paper Navigation** - Support multiple stored papers and explainable cross-paper navigation without collapsing paper boundaries.
-- [ ] **Phase 9: Multi-Paper Acceptance Gate** - Prove the full milestone on `long_nalini` plus at least one additional real paper without manual graph editing.
+- [ ] **Phase 9: Multi-Paper Acceptance Gate** - Prove the full milestone on `long_nalini`, `medium_Mueller.flat.tex`, and `short_Petri.tex` without manual graph editing.
 
 ## Phase Details
 
@@ -40,8 +40,8 @@ This roadmap advances the approved `v1.1` scope only: paper-local search, parser
 **Requirements**: HARD-01, HARD-02, HARD-03, HARD-04, HARD-05
 **Success Criteria** (what must be TRUE):
   1. The `long_nalini` baseline emits fewer unresolved-reference diagnostics than `v1.0`, and any remaining gaps stay explicit.
-  2. At least one additional real TeX paper or project parses without manual repair steps.
-  3. The parser handles the additional reference, bibliography, and inclusion patterns needed by the milestone corpus.
+  2. Both `medium_Mueller.flat.tex` and `short_Petri.tex` parse without manual repair steps.
+  3. The parser handles the additional reference, bibliography, inclusion, and fixture-specific patterns needed by the milestone corpus.
   4. Deterministic parsing remains rerun-stable and safe for downstream consumers.
 
 ### Phase 8: Local Corpus Library & Cross-Paper Navigation
@@ -61,7 +61,7 @@ This roadmap advances the approved `v1.1` scope only: paper-local search, parser
 **Requirements**: ACC-01, ACC-02, ACC-03
 **Success Criteria** (what must be TRUE):
   1. User can complete `analyze -> validate -> search -> inspect` on `long_nalini`.
-  2. User can repeat the same workflow on a corpus containing `long_nalini` plus at least one additional real paper.
+  2. User can repeat the same workflow on a corpus containing `long_nalini`, `medium_Mueller.flat.tex`, and `short_Petri.tex`.
   3. Verification covers search navigation, parser hardening, and corpus behavior without manual graph editing.
 
 ## Progress

@@ -67,13 +67,13 @@ Decisions are logged in PROJECT.md. The milestone established:
 ### Pending Todos
 
 - Plan Phase 6 for search and explorer navigation.
-- Choose the additional real paper that will serve as the second corpus acceptance target.
+- Use `medium_Mueller.flat.tex` and `short_Petri.tex` as the additional corpus acceptance papers.
 
 ### Blockers/Concerns
 
 - The representative paper still emits unresolved-reference diagnostics, and the milestone now commits to reducing that baseline rather than only documenting it.
 - Corpus scope is local-first and explainable; cross-paper navigation should not drift into speculative global linking.
-- The second real-paper acceptance target is not chosen yet.
+- The milestone corpus now spans three papers, which raises the hardening bar for Phase 7 and the acceptance bar for Phase 9.
 
 ## Session Continuity
 

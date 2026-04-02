@@ -15,8 +15,8 @@
 ### Hardening
 
 - [ ] **HARD-01**: User sees fewer unresolved-reference diagnostics on `ref/papers/long_nalini/arXiv-2502.12268v2/main.tex` than the `v1.0` baseline, while remaining gaps stay explicit.
-- [ ] **HARD-02**: User can parse at least one additional real TeX paper or project beyond `long_nalini` without manual graph repair steps.
-- [ ] **HARD-03**: Parser handles a broader set of TeX reference, bibliography, and inclusion patterns encountered in the milestone corpus.
+- [ ] **HARD-02**: User can parse both `ref/papers/medium_Mueller.flat.tex` and `ref/papers/short_Petri.tex` in addition to `long_nalini` without manual graph repair steps.
+- [ ] **HARD-03**: Parser handles the broader set of TeX reference, bibliography, inclusion, and fixture-specific patterns encountered across `long_nalini`, `medium_Mueller.flat.tex`, and `short_Petri.tex`.
 - [ ] **HARD-04**: Unsupported or ambiguous TeX constructs still produce explicit diagnostics instead of silent failure or invented deterministic links.
 - [ ] **HARD-05**: Deterministic parsing remains rerun-stable and keeps the canonical artifact valid for downstream CLI, API, dashboard, and MCP consumers.
 
@@ -30,7 +30,7 @@
 ### Acceptance
 
 - [ ] **ACC-01**: User can complete the local `analyze -> validate -> search -> inspect` workflow on `long_nalini`.
-- [ ] **ACC-02**: User can complete the same workflow on a local corpus containing `long_nalini` plus at least one additional real paper.
+- [ ] **ACC-02**: User can complete the same workflow on a local corpus containing `long_nalini`, `medium_Mueller.flat.tex`, and `short_Petri.tex`.
 - [ ] **ACC-03**: Milestone verification covers search navigation, parser hardening, and corpus behavior without requiring manual graph editing.
 
 ## v2 Requirements
