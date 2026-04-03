@@ -1,13 +1,13 @@
 ---
 gsd_state_version: 1.0
 milestone: v1.3
-milestone_name: Corpus Search & Parse/Render Hardening
-status: defining_requirements
-stopped_at: milestone v1.3 initialized; requirements definition in progress
+milestone_name: Parse/Render Hardening
+status: roadmap_approved
+stopped_at: milestone v1.3 approved; ready for Phase 14 start
 last_updated: "2026-04-03T19:24:26Z"
 last_activity: 2026-04-03
 progress:
-  total_phases: 0
+  total_phases: 3
   completed_phases: 0
   total_plans: 0
   completed_plans: 0
@@ -21,14 +21,14 @@ progress:
 See: .planning/PROJECT.md (updated 2026-04-03)
 
 **Core value:** A mathematician can feed in a TeX paper and get a trustworthy dependency artifact that makes the logical structure of the paper easier to navigate.
-**Current focus:** Defining requirements for `v1.3 Corpus Search & Parse/Render Hardening`
+**Current focus:** Phase 14 planning for `v1.3 Parse/Render Hardening`
 
 ## Current Position
 
-Phase: Not started (defining requirements)
+Phase: 14. Residual TeX Parser Hardening
 Plan: —
-Status: Defining requirements
-Last activity: 2026-04-03 — Started `v1.3 Corpus Search & Parse/Render Hardening` from the shipped `v1.2` baseline.
+Status: Milestone initialized; roadmap drafted
+Last activity: 2026-04-03 — Approved `v1.3 Parse/Render Hardening` and finalized the roadmap for Phases 14-16.
 
 Progress: [░░░░░░░░░░] 0%
 
@@ -61,7 +61,7 @@ Progress: [░░░░░░░░░░] 0%
 **Recent Trend:**
 
 - Last 5 plans: 09-01, 10-01, 11-01, 12-01, 13-01
-- Trend: Stable; shifting from export/dashboard hardening back into corpus discovery plus parser/render depth
+- Trend: Stable; shifting from export/dashboard hardening into narrower parser/render hardening
 
 ## Accumulated Context
 
@@ -83,22 +83,20 @@ Decisions are logged in PROJECT.md. The milestone established:
 - Phase 12 will treat unsupported static runtime conditions as explicit product behavior rather than undefined failure.
 - Phase 12 established a dedicated top-level blocker for unsupported static `file://` usage while leaving API mode unblocked.
 - Phase 13 established `npm run test:acceptance:v1.2` as the reproducible milestone proof and aligned the operator docs with the hardened local workflow.
-- `v1.3` is scoped to corpus-wide search plus deeper parser/render hardening, not collaboration or deployment.
+- `v1.3` is scoped to parser/render hardening only; corpus-wide search is deferred to the next milestone.
 
 ### Pending Todos
 
-- Decide whether to run milestone research first.
-- Define `v1.3` requirements.
-- Create the `v1.3` roadmap and next phase sequence.
+- Start Phase 14 discussion/planning.
 
 ### Blockers/Concerns
 
 - `long_nalini` still emits a bounded residual of `22` unresolved references and `2` unsupported reference-command diagnostics, so future parser work should not assume a perfectly clean gold paper.
 - Unsupported TeX beyond the current normalization set still falls back to raw source instead of full browser-ready math rendering.
-- Corpus-wide search must preserve paper boundaries and explainability instead of becoming an opaque merged-corpus result list.
+- The next parser hardening work should reduce residual diagnostics without weakening deterministic trust or canonical bundle stability.
 
 ## Session Continuity
 
 Last session: 2026-04-03 CEST
-Stopped at: `v1.3` initialized; next step is defining requirements and roadmap
+Stopped at: `v1.3` approved; next step is `$gsd-discuss-phase 14`
 Resume file: .planning/ROADMAP.md

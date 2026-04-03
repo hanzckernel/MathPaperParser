@@ -5,13 +5,6 @@
 
 ## v1 Requirements
 
-### Corpus Search
-
-- [ ] **CORP-05**: User can search across the full local stored corpus from one entry point instead of querying one paper at a time.
-- [ ] **CORP-06**: User sees which paper each corpus-search result comes from before navigating, including paper identity and result-local math metadata.
-- [ ] **CORP-07**: User can jump directly from a corpus-search result into the existing paper-aware explorer/detail flow.
-- [ ] **CORP-08**: Corpus-wide search preserves explicit paper boundaries and explainable result attribution rather than acting like an opaque merged graph.
-
 ### Parser Hardening
 
 - [ ] **HARD-06**: User sees fewer residual unresolved-reference diagnostics on the accepted corpus than the current `v1.2` baseline, while remaining unsupported cases stay explicit.
@@ -26,8 +19,8 @@
 
 ### Reliability & Acceptance
 
-- [ ] **ACC-04**: User can complete the local `analyze -> validate -> corpus-search -> inspect` workflow on the accepted local corpus without manual graph editing.
-- [ ] **ACC-05**: Milestone verification covers corpus-search ranking/attribution, parser hardening, and render hardening with real-corpus acceptance plus targeted regression fixtures.
+- [ ] **ACC-04**: User can complete the local `analyze -> validate -> inspect` workflow on the accepted local corpus with the upgraded parser/render behavior and without manual graph editing.
+- [ ] **ACC-05**: Milestone verification covers parser hardening and render hardening with real-corpus acceptance plus targeted regression fixtures.
 
 ## v2 Requirements
 
@@ -43,36 +36,39 @@
 
 - **INPUT-01**: User can ingest PDF or OCR-derived inputs on the same bundle contract as the current TeX and Markdown flows.
 
+### Corpus
+
+- **CORP-05**: User can search across the full local stored corpus from one entry point instead of querying one paper at a time.
+- **CORP-06**: User sees which paper each corpus-search result comes from before navigating, including paper identity and result-local math metadata.
+- **CORP-07**: User can jump directly from a corpus-search result into the existing paper-aware explorer/detail flow.
+- **CORP-08**: Corpus-wide search preserves explicit paper boundaries and explainable result attribution rather than acting like an opaque merged graph.
+
 ## Out of Scope
 
 | Feature | Reason |
 |---------|--------|
-| Collaborator-facing review workflows in `v1.3` | This milestone is focused on discovery and parse/render fidelity, not multi-user review |
+| Collaborator-facing review workflows in `v1.3` | This milestone is focused on parser/render fidelity, not multi-user review |
 | Hosted or internet-facing deployment in `v1.3` | The product remains local-first and single-user in this milestone |
-| PDF or OCR ingestion in `v1.3` | The milestone is improving corpus search plus TeX parse/render quality, not broadening inputs |
-| Opaque merged-corpus search semantics | Corpus-wide search must preserve explicit paper boundaries and explainable attribution |
+| PDF or OCR ingestion in `v1.3` | The milestone is improving TeX parse/render quality, not broadening inputs |
+| Corpus-wide search in `v1.3` | Deferred to the next milestone so the residual parser/render gaps can be reduced first |
 | Broad “works on arbitrary TeX styles” claims | The hardening scope remains bounded to the accepted corpus plus targeted regression fixtures |
 
 ## Traceability
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| CORP-05 | Phase 14 | Pending |
-| CORP-06 | Phase 14 | Pending |
-| CORP-07 | Phase 14 | Pending |
-| CORP-08 | Phase 14 | Pending |
-| HARD-06 | Phase 15 | Pending |
-| HARD-07 | Phase 15 | Pending |
-| HARD-08 | Phase 15 | Pending |
-| MATH-04 | Phase 16 | Pending |
-| MATH-05 | Phase 16 | Pending |
-| MATH-06 | Phase 16 | Pending |
-| ACC-04 | Phase 17 | Pending |
-| ACC-05 | Phase 17 | Pending |
+| HARD-06 | Phase 14 | Pending |
+| HARD-07 | Phase 14 | Pending |
+| HARD-08 | Phase 14 | Pending |
+| MATH-04 | Phase 15 | Pending |
+| MATH-05 | Phase 15 | Pending |
+| MATH-06 | Phase 15 | Pending |
+| ACC-04 | Phase 16 | Pending |
+| ACC-05 | Phase 16 | Pending |
 
 **Coverage:**
-- v1 requirements: 12 total
-- Mapped to phases: 12
+- v1 requirements: 8 total
+- Mapped to phases: 8
 - Unmapped: 0 ✓
 
 ---
