@@ -2,9 +2,9 @@
 gsd_state_version: 1.0
 milestone: v1.3
 milestone_name: Parse/Render Hardening
-status: phase_complete
-stopped_at: phase 14 complete; ready for phase 15 discussion
-last_updated: "2026-04-03T20:26:59Z"
+status: phase_discussed
+stopped_at: phase 15 discussion complete; ready for planning
+last_updated: "2026-04-03T20:31:43Z"
 last_activity: 2026-04-03
 progress:
   total_phases: 3
@@ -27,8 +27,8 @@ See: .planning/PROJECT.md (updated 2026-04-03)
 
 Phase: 15. Math Fragment Render Hardening
 Plan: —
-Status: Phase 14 complete; next phase not yet discussed
-Last activity: 2026-04-03 — Completed Phase 14 with alias-aware label registration, bounded cleveref resolution, and a reduced accepted-corpus warning budget.
+Status: Discussion complete; context captured
+Last activity: 2026-04-03 — Captured Phase 15 decisions for accepted-corpus-first render hardening, aggressive display salvage, and bounded command rewrites.
 
 Progress: [███░░░░░░░] 33%
 
@@ -90,7 +90,7 @@ Decisions are logged in PROJECT.md. The milestone established:
 
 ### Pending Todos
 
-- Start Phase 15 discussion/planning.
+- Start Phase 15 planning.
 
 ### Blockers/Concerns
 
@@ -101,5 +101,5 @@ Decisions are logged in PROJECT.md. The milestone established:
 ## Session Continuity
 
 Last session: 2026-04-03 CEST
-Stopped at: Phase 14 complete; next step is `$gsd-discuss-phase 15`
+Stopped at: Phase 15 discussion captured; next step is `$gsd-plan-phase 15`
 Resume file: .planning/ROADMAP.md
