@@ -3,8 +3,8 @@ gsd_state_version: 1.0
 milestone: v1.2
 milestone_name: Dashboard, Export & Math Rendering Hardening
 status: in_progress
-stopped_at: Phase 10 complete; ready for Phase 11 context
-last_updated: "2026-04-03T18:15:18Z"
+stopped_at: Phase 11 context captured; planning in progress
+last_updated: "2026-04-03T18:48:00Z"
 last_activity: 2026-04-03
 progress:
   total_phases: 4
@@ -21,14 +21,14 @@ progress:
 See: .planning/PROJECT.md (updated 2026-04-03)
 
 **Core value:** A mathematician can feed in a TeX paper and get a trustworthy dependency artifact that makes the logical structure of the paper easier to navigate.
-**Current focus:** Phase 11 context and planning for `v1.2 Dashboard, Export & Math Rendering Hardening`
+**Current focus:** Phase 11 planning and implementation for `v1.2 Dashboard, Export & Math Rendering Hardening`
 
 ## Current Position
 
 Phase: 11. Dashboard Math Rendering Repair
 Plan: —
-Status: Phase 10 complete; next phase not discussed
-Last activity: 2026-04-03 — Completed Phase 10 export contract hardening with automated verification and recorded summary/verification artifacts.
+Status: Phase 11 context captured; planning next implementation pass
+Last activity: 2026-04-03 — Captured Phase 11 MathJax rendering scope, aggressive normalization, and inline fallback decisions.
 
 Progress: [██░░░░░░░░] 25%
 
@@ -77,7 +77,7 @@ Decisions are logged in PROJECT.md. The milestone established:
 
 ### Pending Todos
 
-- Run `$gsd-discuss-phase 11`.
+- Run `$gsd-plan-phase 11`.
 
 ### Blockers/Concerns
 
@@ -87,5 +87,5 @@ Decisions are logged in PROJECT.md. The milestone established:
 ## Session Continuity
 
 Last session: 2026-04-03 CEST
-Stopped at: Phase 10 complete; next step is `$gsd-discuss-phase 11`
+Stopped at: Phase 11 context captured; next step is `$gsd-plan-phase 11`
 Resume file: .planning/ROADMAP.md
