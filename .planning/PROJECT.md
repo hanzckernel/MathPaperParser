@@ -29,13 +29,11 @@ A mathematician can feed in a TeX paper and get a trustworthy dependency artifac
 - Explicit runtime guardrails for unsupported static `file://` usage and strict `#root` bootstrap enforcement
 - A named repo-level acceptance proof command and aligned local operator guidance for the supported export-and-serve workflow
 
-## Current Milestone: v1.3 Corpus Search & Parse/Render Hardening
+## Current Milestone: v1.3 Parse/Render Hardening
 
-**Goal:** Improve cross-paper discovery and reduce the remaining parser/render failure modes that still surface as unresolved diagnostics, weak extraction, or raw-source math fallback.
+**Goal:** Reduce the remaining parser and math-render failure modes that still surface as unresolved diagnostics, weak extraction, or raw-source fallback on the accepted corpus.
 
 **Target features:**
-- Corpus-wide search across stored papers while keeping paper boundaries explicit and explainable
-- Search results labeled and navigable by source paper instead of flattening the corpus into an opaque global list
 - Deeper parser hardening for the remaining TeX patterns behind unresolved references and incomplete extraction
 - Deeper render compatibility so more extracted mathematical fragments render cleanly instead of falling back to raw source
 - Acceptance proof on the shipped corpus plus targeted representative fixtures for the new parser/render cases
@@ -61,11 +59,9 @@ A mathematician can feed in a TeX paper and get a trustworthy dependency artifac
 
 ### Active
 
-- [ ] Add corpus-wide search across stored papers without weakening paper boundaries or explainability
-- [ ] Improve corpus search result quality with clear source-paper labeling and navigation
 - [ ] Harden the parser against the remaining recurring TeX patterns that still produce unresolved references or incomplete extraction
 - [ ] Expand render compatibility so more extracted math fragments typeset cleanly instead of falling back to raw source
-- [ ] Prove the upgraded search and parse/render workflow on the accepted corpus plus targeted hard cases
+- [ ] Prove the upgraded parse/render workflow on the accepted corpus plus targeted hard cases
 
 ### Out of Scope
 
@@ -82,7 +78,7 @@ The repository is a TypeScript monorepo with active workspace packages in `packa
 
 `v1.0` established the GitNexus-inspired direction: a machine-readable graph artifact first, with human exploration layered on top. `v1.1` proved that this foundation can absorb search and corpus workflows without creating a second source of truth or collapsing paper boundaries.
 
-`v1.2` closed the major reliability gap around local export sharing by hardening the CLI export contract, bundling MathJax with fragment normalization, and turning unsupported static runtime states into explicit product behavior instead of blank pages. `v1.3` intentionally returns to the core math-reading workflow: better discovery across the local corpus and fewer remaining parser/render escapes on the same deterministic artifact model.
+`v1.2` closed the major reliability gap around local export sharing by hardening the CLI export contract, bundling MathJax with fragment normalization, and turning unsupported static runtime states into explicit product behavior instead of blank pages. `v1.3` now narrows to the remaining parser/render gap classes on the same deterministic artifact model, while deferring corpus-wide search to a later milestone.
 
 ## Constraints
 
@@ -90,11 +86,10 @@ The repository is a TypeScript monorepo with active workspace packages in `packa
 - **Trust Model:** Deterministic parse output remains the baseline artifact; probabilistic enrichment must stay optional, labeled, and reviewable
 - **User Mode:** Optimize for a single mathematician working locally before adding collaboration or deployment complexity
 - **Corpus Model:** Preserve paper boundaries unless a future milestone explicitly owns a merged-graph design
-- **Corpus Search:** Search may span the local corpus, but results must remain attributable to individual papers and explainable to the user
 - **Export Reliability:** Static exports are supported through a local HTTP-serving path, not direct `file://` loading
 - **Math Presentation:** Mathematical statements render through a shared MathJax normalization/fallback boundary without mutating the canonical bundle text
 - **Parser/Render Trust:** Parser hardening and render compatibility should improve source fidelity without masking unsupported content as if it were fully understood
-- **Milestone Discipline:** Keep `v1.3` focused on corpus search plus parse/render hardening rather than mixing in collaboration or deployment work
+- **Milestone Discipline:** Keep `v1.3` focused on parse/render hardening rather than mixing in corpus-wide search, collaboration, or deployment work
 
 ## Key Decisions
 
@@ -118,13 +113,13 @@ The repository is a TypeScript monorepo with active workspace packages in `packa
 | Use a bundled MathJax boundary with render-time normalization and explicit fallback | The dashboard needed readable math without changing canonical text or depending on browser addon rescue packages | ✓ Good — Phase 11 made statement rendering reliable on the supported surfaces |
 | Treat unsupported static `file://` usage as an explicit product blocker | A deliberate blocker is safer than a blank or misleading shell when the runtime is unsupported | ✓ Good — Phase 12 now fails fast with an actionable local-server command |
 | Publish a named repo-level acceptance proof for the local export workflow | Closeout and future regressions need one reproducible command instead of scattered manual checks | ✓ Good — `npm run test:acceptance:v1.2` now anchors the shipped workflow proof |
-| Keep corpus-wide discovery explainable at the paper boundary | Cross-paper usefulness should increase without collapsing the trust model into an opaque merged graph | — Pending |
+| Defer corpus-wide search until parser/render hardening stabilizes again | Better global discovery is valuable, but residual extraction and rendering gaps still distort the user-facing reading path | — Pending |
 
 ## Next Milestone Goals
 
-- Make search span the local corpus without collapsing paper-level trust and navigation boundaries
 - Reduce the residual parser and rendering failure classes visible on the accepted corpus and targeted hard cases
 - Preserve the deterministic-bundle-first architecture while improving day-to-day usefulness for mathematical reading and lookup
+- Leave corpus-wide search available as the next milestone candidate after parse/render hardening
 
 ## Evolution
 
