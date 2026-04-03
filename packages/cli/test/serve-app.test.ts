@@ -192,6 +192,71 @@ describe('paperparser serve app', () => {
     expect(related.matches[0]?.evidenceTerms).toEqual(expect.arrayContaining(['compact', 'set']));
   });
 
+  it('serves the real multi-paper corpus workflow over the API without manual repair steps', async () => {
+    const storePath = mkdtempSync(join(tmpdir(), 'paperparser-serve-'));
+    const fixtures = [
+      ['long-nalini', 'ref/papers/long_nalini/arXiv-2502.12268v2/main.tex'],
+      ['medium-mueller', 'ref/papers/medium_Mueller.flat.tex'],
+      ['short-petri', 'ref/papers/short_Petri.tex'],
+    ] as const;
+
+    for (const [paperId, inputPath] of fixtures) {
+      const analyzeResponse = await handlePaperParserRequest(
+        new Request('http://paperparser.local/api/papers', {
+          method: 'POST',
+          headers: {
+            'content-type': 'application/json',
+          },
+          body: JSON.stringify({
+            inputPath,
+            paperId,
+          }),
+        }),
+        { storePath },
+      );
+      expect(analyzeResponse.status).toBe(201);
+    }
+
+    const papersResponse = await handlePaperParserRequest(new Request('http://paperparser.local/api/papers'), { storePath });
+    expect(papersResponse.status).toBe(200);
+    const papers = (await papersResponse.json()) as {
+      papers: Array<{ paperId: string }>;
+    };
+    expect(papers.papers.map((paper) => paper.paperId)).toEqual(['long-nalini', 'medium-mueller', 'short-petri']);
+
+    const mediumQueryResponse = await handlePaperParserRequest(
+      new Request('http://paperparser.local/api/papers/medium-mueller/query?q=torsion'),
+      { storePath },
+    );
+    expect(mediumQueryResponse.status).toBe(200);
+    const mediumQuery = (await mediumQueryResponse.json()) as {
+      results: Array<{ nodeId: string }>;
+    };
+    expect(mediumQuery.results.some((result) => result.nodeId === 'sec12::eq:l2-torsion')).toBe(true);
+
+    const shortContextResponse = await handlePaperParserRequest(
+      new Request('http://paperparser.local/api/papers/short-petri/context/sec1%3A%3Aeq%3Aeq-defcheeger'),
+      { storePath },
+    );
+    expect(shortContextResponse.status).toBe(200);
+    const shortContext = (await shortContextResponse.json()) as {
+      node: { id: string };
+    };
+    expect(shortContext.node.id).toBe('sec1::eq:eq-defcheeger');
+
+    const relatedResponse = await handlePaperParserRequest(
+      new Request('http://paperparser.local/api/papers/long-nalini/related/sec1%3A%3Athm%3At-dream'),
+      { storePath },
+    );
+    expect(relatedResponse.status).toBe(200);
+    const related = (await relatedResponse.json()) as {
+      matches: Array<{ targetPaperId: string; targetNodeId: string; evidenceTerms: string[] }>;
+    };
+    expect(related.matches[0]?.targetPaperId).toBe('short-petri');
+    expect(related.matches[0]?.targetNodeId).toBe('sec1::thm:thm-main');
+    expect(related.matches[0]?.evidenceTerms).toEqual(expect.arrayContaining(['hyperbolic', 'surface']));
+  });
+
   it('serves enrichment.json when a stored paper has a sidecar', async () => {
     const storePath = mkdtempSync(join(tmpdir(), 'paperparser-serve-'));
 

@@ -3,20 +3,30 @@ import type { MathNode, MathNodeKind, NodeId } from '../types/node.js';
 import type { CrossPaperLinkResult, CrossPaperMatch } from '../types/search.js';
 
 const CORPUS_STOP_TERMS = new Set([
+  'all',
+  'alpha',
+  'any',
   'about',
   'above',
   'after',
   'again',
   'along',
   'also',
+  'beta',
   'begin',
   'below',
   'between',
   'bound',
   'bounded',
+  'case',
+  'cdot',
+  'cite',
   'coro',
   'corollary',
+  'delta',
+  'denote',
   'definition',
+  'epsilon',
   'eqn',
   'eqref',
   'equation',
@@ -24,13 +34,19 @@ const CORPUS_STOP_TERMS = new Set([
   'fig',
   'figure',
   'first',
+  'for',
   'frac',
   'from',
+  'gamma',
+  'geq',
   'have',
+  'infty',
   'into',
   'introduction',
   'latex',
+  'lambda',
   'lemma',
+  'leq',
   'left',
   'let',
   'main',
@@ -38,26 +54,35 @@ const CORPUS_STOP_TERMS = new Set([
   'mathcal',
   'mathbf',
   'mathrm',
+  'non',
   'orem',
   'over',
   'preliminaries',
   'proof',
   'proposition',
+  'recall',
   'remark',
   'result',
   'right',
   'section',
   'send',
   'since',
+  'show',
   'such',
+  'tau',
+  'that',
+  'the',
   'theorem',
   'then',
+  'theta',
   'there',
   'therefore',
   'thm',
   'thus',
   'under',
+  'unless',
   'using',
+  'varphi',
   'where',
   'which',
 ]);
@@ -76,7 +101,7 @@ const THEOREM_LIKE_KINDS = new Set<MathNodeKind>([
 
 const DEFAULT_LIMIT = 5;
 const MIN_EVIDENCE_TERMS = 2;
-const MAX_SOURCE_TERMS = 8;
+const MAX_SOURCE_TERMS = 12;
 const MAX_STATEMENT_CHARS = 240;
 
 export interface CorpusBundleRecord {
@@ -102,6 +127,9 @@ function candidateKindsFor(kind: MathNodeKind): Set<MathNodeKind> {
 
 function normalizeToken(token: string): string {
   const lower = token.toLowerCase();
+  if (lower.endsWith('us') || lower.endsWith('is')) {
+    return lower;
+  }
   if (lower.endsWith('ies') && lower.length > 4) {
     return `${lower.slice(0, -3)}y`;
   }
