@@ -19,7 +19,7 @@ This roadmap advances the approved `v1.1` scope only: paper-local search, parser
 - [x] **Phase 6: Searchable Bundle Index & Explorer Navigation** - Add paper-local search and direct navigation into the explorer using the shipped stored-paper surfaces.
 - [x] **Phase 7: TeX Hardening & Diagnostic Reduction** - Reduce unresolved references on the gold paper and broaden deterministic TeX coverage across `medium_Mueller.flat.tex` and `short_Petri.tex`.
 - [x] **Phase 8: Local Corpus Library & Cross-Paper Navigation** - Support multiple stored papers and explainable cross-paper navigation without collapsing paper boundaries.
-- [ ] **Phase 9: Multi-Paper Acceptance Gate** - Prove the full milestone on `long_nalini`, `medium_Mueller.flat.tex`, and `short_Petri.tex` without manual graph editing.
+- [x] **Phase 9: Multi-Paper Acceptance Gate** - Prove the full milestone on `long_nalini`, `medium_Mueller.flat.tex`, and `short_Petri.tex` without manual graph editing.
 
 ## Phase Details
 
@@ -66,10 +66,11 @@ This roadmap advances the approved `v1.1` scope only: paper-local search, parser
   1. User can complete `analyze -> validate -> search -> inspect` on `long_nalini`.
   2. User can repeat the same workflow on a corpus containing `long_nalini`, `medium_Mueller.flat.tex`, and `short_Petri.tex`.
   3. Verification covers search navigation, parser hardening, and corpus behavior without manual graph editing.
+**Plans**: `09-01` completed on 2026-04-03
 
 ## Progress
 
 | Milestone | Scope | Status | Shipped |
 |-----------|-------|--------|---------|
 | v1.0 TeX MVP | Phases 1-5 | Complete | 2026-04-02 |
-| v1.1 Search, Hardening & Corpus | Phases 6-9 | In Progress | — |
+| v1.1 Search, Hardening & Corpus | Phases 6-9 | Complete | 2026-04-03 |

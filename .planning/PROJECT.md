@@ -11,7 +11,7 @@ A mathematician can feed in a TeX paper and get a trustworthy dependency artifac
 ## Current State
 
 - **Shipped milestone:** `v1.0 TeX MVP` on 2026-04-02
-- **Active milestone:** `v1.1 Search, Hardening & Corpus` (planning started 2026-04-03)
+- **Active milestone:** `v1.1 Search, Hardening & Corpus` (all phases complete; ready for closeout)
 - **Representative acceptance paper:** `ref/papers/long_nalini/arXiv-2502.12268v2/main.tex`
 - **Current milestone corpus target:** `long_nalini`, `medium_Mueller.flat.tex`, and `short_Petri.tex`
 - **Canonical output:** `manifest.json` / `graph.json` / `index.json`
@@ -41,10 +41,11 @@ A mathematician can feed in a TeX paper and get a trustworthy dependency artifac
 - ✓ Add search by label, title, or object name across the parsed paper, with direct explorer navigation — `Phase 6`
 - ✓ Reduce unresolved-reference diagnostics on the representative paper and broaden deterministic TeX coverage across `long_nalini`, `medium_Mueller.flat.tex`, and `short_Petri.tex` — `Phase 7`
 - ✓ Support a local multi-paper corpus with safe paper isolation and explainable cross-paper navigation — `Phase 8`
+- ✓ Prove the accepted local workflow on `long_nalini`, `medium_Mueller.flat.tex`, and `short_Petri.tex` without manual graph editing — `Phase 9`
 
 ### Active
 
-- [ ] Prove the accepted local workflow on the three-paper milestone corpus without manual graph editing
+- [ ] Close out `v1.1` cleanly and archive the shipped milestone state
 
 ### Out of Scope
 
@@ -87,6 +88,7 @@ The repository is a TypeScript monorepo with active workspace packages in `packa
 | Keep Phase 7 focused on deterministic parser gaps instead of adding first-class figure nodes | The measured corpus was dominated by nested/same-line equation-like misses and labeled headings; figure nodes would have introduced broader schema churn | ✓ Good — hardening landed with a bounded explicit residual class and no node-kind expansion |
 | Keep Phase 8 corpus behavior as a read model above paper-local bundles | The milestone needs local corpus navigation without destabilizing the canonical schema | ✓ Good — corpus behavior now ships consistently across CLI/API/MCP/Web with paper-local boundaries preserved |
 | Limit cross-paper navigation to explicit or explainable links | Multi-paper workflows need to remain inspectable and trustworthy, not speculative global linkage | ✓ Good — related links now carry evidence terms and may return an explicit empty state |
+| Tighten matcher evidence using real-corpus acceptance instead of synthetic tuning | The acceptance gate should prefer meaningful terms a mathematician can inspect, not just any overlapping tokens | ✓ Good — Phase 9 now prefers the stronger `hyperbolic` / `surface` link on the accepted corpus |
 | Deep-link search results into `#/explorer/<nodeId>` instead of creating a separate search page | Search should accelerate the existing explorer, not fork the navigation model | ✓ Good — Phase 6 made result-to-explorer jumps explicit and testable |
 
 ## Evolution
@@ -100,4 +102,4 @@ This document now tracks the shipped product state and the currently active mile
 4. Keep Current State accurate enough that the next milestone starts from facts rather than memory
 
 ---
-*Last updated: 2026-04-03 after completing Phase 8*
+*Last updated: 2026-04-03 after completing Phase 9*

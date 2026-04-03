@@ -29,9 +29,9 @@
 
 ### Acceptance
 
-- [ ] **ACC-01**: User can complete the local `analyze -> validate -> search -> inspect` workflow on `long_nalini`.
-- [ ] **ACC-02**: User can complete the same workflow on a local corpus containing `long_nalini`, `medium_Mueller.flat.tex`, and `short_Petri.tex`.
-- [ ] **ACC-03**: Milestone verification covers search navigation, parser hardening, and corpus behavior without requiring manual graph editing.
+- [x] **ACC-01**: User can complete the local `analyze -> validate -> search -> inspect` workflow on `long_nalini`.
+- [x] **ACC-02**: User can complete the same workflow on a local corpus containing `long_nalini`, `medium_Mueller.flat.tex`, and `short_Petri.tex`.
+- [x] **ACC-03**: Milestone verification covers search navigation, parser hardening, and corpus behavior without requiring manual graph editing.
 
 ## v2 Requirements
 
@@ -75,9 +75,9 @@
 | CORP-02 | Phase 8 | Completed |
 | CORP-03 | Phase 8 | Completed |
 | CORP-04 | Phase 8 | Completed |
-| ACC-01 | Phase 9 | Pending |
-| ACC-02 | Phase 9 | Pending |
-| ACC-03 | Phase 9 | Pending |
+| ACC-01 | Phase 9 | Completed |
+| ACC-02 | Phase 9 | Completed |
+| ACC-03 | Phase 9 | Completed |
 
 **Coverage:**
 - v1 requirements: 16 total
@@ -86,4 +86,4 @@
 
 ---
 *Requirements defined: 2026-04-03*
-*Last updated: 2026-04-03 after completing Phase 8*
+*Last updated: 2026-04-03 after completing Phase 9*
