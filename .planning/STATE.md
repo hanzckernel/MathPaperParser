@@ -3,8 +3,8 @@ gsd_state_version: 1.0
 milestone: v1.2
 milestone_name: Dashboard, Export & Math Rendering Hardening
 status: in_progress
-stopped_at: Phase 12 complete; ready for Phase 13 context
-last_updated: "2026-04-03T19:18:00Z"
+stopped_at: Phase 13 context captured; planning in progress
+last_updated: "2026-04-03T19:26:00Z"
 last_activity: 2026-04-03
 progress:
   total_phases: 4
@@ -27,8 +27,8 @@ See: .planning/PROJECT.md (updated 2026-04-03)
 
 Phase: 13. Export Acceptance & Operator Guidance
 Plan: —
-Status: Phase 12 complete; next phase not discussed
-Last activity: 2026-04-03 — Completed Phase 12 runtime/bootstrap guardrails with explicit static `file://` blocker behavior and strict `#root` enforcement.
+Status: Phase 13 context captured; reviewing docs and regression proof bundle
+Last activity: 2026-04-03 — Captured Phase 13 acceptance-proof and operator-guidance scope from the completed Phase 10-12 work.
 
 Progress: [██████░░░░] 75%
 
@@ -79,7 +79,7 @@ Decisions are logged in PROJECT.md. The milestone established:
 
 ### Pending Todos
 
-- Run `$gsd-discuss-phase 13`.
+- Run `$gsd-plan-phase 13`.
 
 ### Blockers/Concerns
 
@@ -89,5 +89,5 @@ Decisions are logged in PROJECT.md. The milestone established:
 ## Session Continuity
 
 Last session: 2026-04-03 CEST
-Stopped at: Phase 12 complete; next step is `$gsd-discuss-phase 13`
+Stopped at: Phase 13 context captured; next step is `$gsd-plan-phase 13`
 Resume file: .planning/ROADMAP.md
