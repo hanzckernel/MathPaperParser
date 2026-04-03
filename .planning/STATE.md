@@ -2,9 +2,9 @@
 gsd_state_version: 1.0
 milestone: v1.3
 milestone_name: Parse/Render Hardening
-status: phase_complete
-stopped_at: all v1.3 phases complete; ready for milestone audit
-last_updated: "2026-04-03T22:46:00Z"
+status: milestone_audit_passed
+stopped_at: v1.3 audit passed; ready for milestone closeout
+last_updated: "2026-04-03T21:28:10Z"
 last_activity: 2026-04-03
 progress:
   total_phases: 3
@@ -21,14 +21,14 @@ progress:
 See: .planning/PROJECT.md (updated 2026-04-03)
 
 **Core value:** A mathematician can feed in a TeX paper and get a trustworthy dependency artifact that makes the logical structure of the paper easier to navigate.
-**Current focus:** Milestone audit prep for `v1.3 Parse/Render Hardening`
+**Current focus:** Milestone closeout for `v1.3 Parse/Render Hardening`
 
 ## Current Position
 
 Phase: 16. Parse/Render Acceptance Gate
 Plan: 16-01
-Status: All milestone phases complete; audit is next
-Last activity: 2026-04-03 — Completed the named `v1.3` acceptance-proof command and reran the full parse/render milestone evidence.
+Status: Milestone audit passed; closeout is next
+Last activity: 2026-04-03 — Re-ran the full `v1.3` acceptance proof, verified the live MathJax explorer render, and completed milestone audit.
 
 Progress: [██████████] 100%
 
@@ -94,7 +94,7 @@ Decisions are logged in PROJECT.md. The milestone established:
 
 ### Pending Todos
 
-- Run milestone audit and closeout for `v1.3`.
+- Close out milestone `v1.3`.
 - Fix stale sample artifact problem.
 
 ### Blockers/Concerns

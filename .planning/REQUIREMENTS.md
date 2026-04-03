@@ -7,20 +7,20 @@
 
 ### Parser Hardening
 
-- [ ] **HARD-06**: User sees fewer residual unresolved-reference diagnostics on the accepted corpus than the current `v1.2` baseline, while remaining unsupported cases stay explicit.
-- [ ] **HARD-07**: Parser handles the next targeted deterministic TeX pattern classes behind current residual warnings or incomplete extraction without manual graph repair.
-- [ ] **HARD-08**: Parser hardening remains rerun-stable and does not weaken the canonical bundle contract used by CLI, API, dashboard, and MCP consumers.
+- [x] **HARD-06**: User sees fewer residual unresolved-reference diagnostics on the accepted corpus than the current `v1.2` baseline, while remaining unsupported cases stay explicit.
+- [x] **HARD-07**: Parser handles the next targeted deterministic TeX pattern classes behind current residual warnings or incomplete extraction without manual graph repair.
+- [x] **HARD-08**: Parser hardening remains rerun-stable and does not weaken the canonical bundle contract used by CLI, API, dashboard, and MCP consumers.
 
 ### Render Hardening
 
-- [ ] **MATH-04**: More extracted math fragments render successfully through the dashboard MathJax boundary on the accepted corpus and targeted hard-case fixtures.
-- [ ] **MATH-05**: Render normalization improves support for the next targeted line-break, environment, or reference-command fragment classes without relying on unsupported LaTeX package behavior in the browser.
-- [ ] **MATH-06**: Unsupported or ambiguous render cases still degrade through explicit fallback or diagnostics instead of being silently mis-rendered.
+- [x] **MATH-04**: More extracted math fragments render successfully through the dashboard MathJax boundary on the accepted corpus and targeted hard-case fixtures.
+- [x] **MATH-05**: Render normalization improves support for the next targeted line-break, environment, or reference-command fragment classes without relying on unsupported LaTeX package behavior in the browser.
+- [x] **MATH-06**: Unsupported or ambiguous render cases still degrade through explicit fallback or diagnostics instead of being silently mis-rendered.
 
 ### Reliability & Acceptance
 
-- [ ] **ACC-04**: User can complete the local `analyze -> validate -> inspect` workflow on the accepted local corpus with the upgraded parser/render behavior and without manual graph editing.
-- [ ] **ACC-05**: Milestone verification covers parser hardening and render hardening with real-corpus acceptance plus targeted regression fixtures.
+- [x] **ACC-04**: User can complete the local `analyze -> validate -> inspect` workflow on the accepted local corpus with the upgraded parser/render behavior and without manual graph editing.
+- [x] **ACC-05**: Milestone verification covers parser hardening and render hardening with real-corpus acceptance plus targeted regression fixtures.
 
 ## v2 Requirements
 
