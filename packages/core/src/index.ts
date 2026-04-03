@@ -11,6 +11,7 @@ export * from './persistence/kuzu-schema.js';
 export * from './persistence/kuzu-store.js';
 export * from './search/keyword-search.js';
 export * from './services/bundle-query-service.js';
+export * from './services/corpus-query-service.js';
 export * from './serialization/bundle-serializer.js';
 export * from './serialization/enrichment-serializer.js';
 export * from './types/bundle.js';

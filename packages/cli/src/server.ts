@@ -6,6 +6,7 @@ import {
   BundleQueryService,
   BundleSerializer,
   ConsistencyChecker,
+  CorpusQueryService,
   SchemaValidator,
   analyzeDocumentPath,
 } from '@paperparser/core';
@@ -186,6 +187,9 @@ function handleListRequest(options: Required<PaperParserServeOptions>): Response
       sourceType: paper.manifest.paper.sourceType,
       year: paper.manifest.paper.year,
       isLatest: paper.isLatest,
+      warningCount: paper.warningCount,
+      warningCodes: paper.warningCodes,
+      hasEnrichment: paper.hasEnrichment,
     })),
   });
 }
@@ -236,6 +240,25 @@ function handleImpactRequest(paperId: string, nodeId: string, options: Required<
     paperId,
     ...service.getImpact(nodeId),
   });
+}
+
+function handleRelatedRequest(
+  paperId: string,
+  nodeId: string,
+  requestUrl: URL,
+  options: Required<PaperParserServeOptions>,
+): Response {
+  const limitValue = requestUrl.searchParams.get('limit');
+  const parsedLimit = limitValue ? Number.parseInt(limitValue, 10) : undefined;
+  const service = new CorpusQueryService(
+    listStoredPapers(options.storePath).map((paper) => ({
+      paperId: paper.paperId,
+      bundle: readBundleFromStore(options.storePath, paper.paperId).bundle,
+    })),
+  );
+
+  const queryOptions = typeof parsedLimit === 'number' ? { limit: parsedLimit } : undefined;
+  return jsonResponse(200, service.getRelatedNodes(paperId, nodeId, queryOptions));
 }
 
 function handleValidateRequest(paperId: string, options: Required<PaperParserServeOptions>): Response {
@@ -299,6 +322,9 @@ export async function handlePaperParserRequest(
   }
   if (request.method === 'GET' && action === 'query') {
     return handleQueryRequest(paperId, url, resolvedOptions);
+  }
+  if (request.method === 'GET' && action === 'related' && parts[4]) {
+    return handleRelatedRequest(paperId, decodePathSegment(parts[4]), url, resolvedOptions);
   }
   if (request.method === 'GET' && action === 'context' && parts[4]) {
     return handleContextRequest(paperId, decodePathSegment(parts[4]), resolvedOptions);

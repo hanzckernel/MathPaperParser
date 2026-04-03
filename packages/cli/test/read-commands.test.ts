@@ -20,6 +20,11 @@ describe('paperparser cli read commands', () => {
     const storePath = mkdtempSync(join(tmpdir(), 'paperparser-cli-'));
     analyzeFixture(storePath, 'packages/core/test/fixtures/markdown/paper.md', 'fixture-markdown');
     analyzeFixture(storePath, 'packages/core/test/fixtures/latex/project/main.tex', 'fixture-latex');
+    const enrichExitCode = runCli(['enrich', '--store', storePath, '--paper', 'fixture-latex'], {
+      stdout: () => {},
+      stderr: () => {},
+    });
+    expect(enrichExitCode).toBe(0);
 
     const listStdout: string[] = [];
     const listExitCode = runCli(['list', '--store', storePath, '--json'], {
@@ -30,11 +35,13 @@ describe('paperparser cli read commands', () => {
     expect(listExitCode).toBe(0);
     const listResult = JSON.parse(listStdout.join('\n')) as {
       latestPaperId: string;
-      papers: Array<{ paperId: string; sourceType: string }>;
+      papers: Array<{ paperId: string; sourceType: string; warningCount: number; hasEnrichment: boolean }>;
     };
     expect(listResult.latestPaperId).toBe('fixture-latex');
     expect(listResult.papers.map((paper) => paper.paperId).sort()).toEqual(['fixture-latex', 'fixture-markdown']);
     expect(listResult.papers.find((paper) => paper.paperId === 'fixture-markdown')?.sourceType).toBe('markdown');
+    expect(listResult.papers.find((paper) => paper.paperId === 'fixture-markdown')?.warningCount).toBe(0);
+    expect(listResult.papers.find((paper) => paper.paperId === 'fixture-latex')?.hasEnrichment).toBe(true);
 
     const validateStdout: string[] = [];
     const validateExitCode = runCli(['validate', '--store', storePath, '--paper', 'fixture-markdown', '--json'], {
@@ -97,5 +104,29 @@ describe('paperparser cli read commands', () => {
       dependentNodes: Array<{ id: string }>;
     };
     expect(impactResult.dependentNodes.map((node) => node.id)).toEqual(['sec2::lem:lem-bounded']);
+  });
+
+  it('reports explainable related nodes across the local corpus in json mode', () => {
+    const storePath = mkdtempSync(join(tmpdir(), 'paperparser-cli-'));
+    analyzeFixture(storePath, 'packages/core/test/fixtures/markdown/paper.md', 'fixture-markdown');
+    analyzeFixture(storePath, 'packages/core/test/fixtures/latex/project/main.tex', 'fixture-latex');
+
+    const relatedStdout: string[] = [];
+    const relatedExitCode = runCli(['related', 'sec1::thm:thm-main', '--store', storePath, '--paper', 'fixture-markdown', '--json'], {
+      stdout: (line) => relatedStdout.push(line),
+      stderr: () => {},
+    });
+
+    expect(relatedExitCode).toBe(0);
+    const relatedResult = JSON.parse(relatedStdout.join('\n')) as {
+      sourcePaperId: string;
+      sourceNodeId: string;
+      matches: Array<{ targetPaperId: string; targetNodeId: string; evidenceTerms: string[] }>;
+    };
+    expect(relatedResult.sourcePaperId).toBe('fixture-markdown');
+    expect(relatedResult.sourceNodeId).toBe('sec1::thm:thm-main');
+    expect(relatedResult.matches[0]?.targetPaperId).toBe('fixture-latex');
+    expect(relatedResult.matches[0]?.targetNodeId).toBe('sec1::thm:thm-fixture');
+    expect(relatedResult.matches[0]?.evidenceTerms).toEqual(expect.arrayContaining(['compact', 'set']));
   });
 });

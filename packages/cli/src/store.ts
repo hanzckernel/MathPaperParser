@@ -33,6 +33,36 @@ export interface StoredPaperSummary {
   paperId: string;
   manifest: BundleManifest;
   isLatest: boolean;
+  warningCount: number;
+  warningCodes: string[];
+  hasEnrichment: boolean;
+}
+
+function readDiagnosticsSummary(bundleDir: string): { warningCount: number; warningCodes: string[] } {
+  const diagnosticsPath = join(bundleDir, 'diagnostics.json');
+  if (!existsSync(diagnosticsPath)) {
+    return {
+      warningCount: 0,
+      warningCodes: [],
+    };
+  }
+
+  try {
+    const diagnostics = JSON.parse(readFileSync(diagnosticsPath, 'utf8')) as {
+      warnings?: Array<{ code?: string }>;
+    };
+    const warnings = Array.isArray(diagnostics.warnings) ? diagnostics.warnings : [];
+    const warningCodes = [...new Set(warnings.map((warning) => warning.code).filter((code): code is string => typeof code === 'string'))].sort();
+    return {
+      warningCount: warnings.length,
+      warningCodes,
+    };
+  } catch {
+    return {
+      warningCount: 0,
+      warningCodes: [],
+    };
+  }
 }
 
 function nowIsoUtc(): string {
@@ -187,10 +217,14 @@ export function listStoredPapers(storePath: string): StoredPaperSummary[] {
     .filter((entryPath) => existsSync(join(entryPath, 'manifest.json')))
     .map((entryPath) => {
       const paperId = basename(entryPath);
+      const diagnostics = readDiagnosticsSummary(entryPath);
       return {
         paperId,
         manifest: JsonStore.readBundle(entryPath).manifest,
         isLatest: paperId === latestPaperId,
+        warningCount: diagnostics.warningCount,
+        warningCodes: diagnostics.warningCodes,
+        hasEnrichment: existsSync(join(entryPath, 'enrichment.json')),
       };
     })
     .sort((left, right) => left.paperId.localeCompare(right.paperId));

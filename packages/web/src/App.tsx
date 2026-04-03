@@ -1,5 +1,6 @@
 import { useDeferredValue, useEffect, useState } from 'react';
 
+import type { CrossPaperLinkResult, CrossPaperMatch } from '@paperparser/core';
 import { BundleQueryService } from '../../core/src/services/bundle-query-service.js';
 import { BundleSerializer, type SerializedPaperParserBundle } from '../../core/src/serialization/bundle-serializer.js';
 import type { SearchResult } from '../../core/src/types/search.js';
@@ -12,7 +13,7 @@ import {
   OverviewPage,
   UnknownsPage,
 } from './components/dashboard-pages.js';
-import { listApiPapers, type ApiPaperListing, uploadSourceDocument } from './lib/api-client.js';
+import { getCrossPaperLinks, listApiPapers, type ApiPaperListing, uploadSourceDocument } from './lib/api-client.js';
 import { buildDashboardModel, type DashboardModel } from './lib/dashboard-model.js';
 import { loadSerializedPaperData, resolveBundleSource, type BundleSource } from './lib/data-source.js';
 import { buildHashRoute, parseHashRoute, ROUTES, type RouteKey } from './lib/hash-route.js';
@@ -99,9 +100,13 @@ export function App() {
   const [searchQuery, setSearchQuery] = useState('');
   const [uploadStatus, setUploadStatus] = useState<'idle' | 'uploading' | 'success' | 'error'>('idle');
   const [uploadMessage, setUploadMessage] = useState<string | null>(null);
+  const [crossPaperLinks, setCrossPaperLinks] = useState<CrossPaperLinkResult | null>(null);
+  const [crossPaperStatus, setCrossPaperStatus] = useState<'idle' | 'loading' | 'ready' | 'error'>('idle');
+  const [crossPaperError, setCrossPaperError] = useState<string | null>(null);
   const [status, setStatus] = useState<'loading' | 'ready' | 'error'>('loading');
   const [error, setError] = useState<string | null>(null);
   const selectedPaperId = selectedPaperIdForControls(source, apiListing);
+  const currentPaper = selectedPaperId ? apiListing?.papers.find((paper) => paper.paperId === selectedPaperId) : undefined;
   const deferredSearchQuery = useDeferredValue(searchQuery);
   const searchResults: BundleSearchResultItem[] = buildSearchResults(serializedBundle, deferredSearchQuery).map((result) => ({
     ...result,
@@ -197,6 +202,50 @@ export function App() {
     };
   }, [source]);
 
+  useEffect(() => {
+    if (source.kind !== 'api' || route !== 'explorer' || !selectedPaperId || !selectedNodeId) {
+      setCrossPaperLinks(null);
+      setCrossPaperStatus('idle');
+      setCrossPaperError(null);
+      return;
+    }
+
+    let cancelled = false;
+    setCrossPaperStatus('loading');
+    setCrossPaperError(null);
+    getCrossPaperLinks(source.baseUrl, selectedPaperId, selectedNodeId)
+      .then((result) => {
+        if (!cancelled) {
+          setCrossPaperLinks(result);
+          setCrossPaperStatus('ready');
+        }
+      })
+      .catch((relatedError) => {
+        if (!cancelled) {
+          setCrossPaperLinks(null);
+          setCrossPaperStatus('error');
+          setCrossPaperError(relatedError instanceof Error ? relatedError.message : String(relatedError));
+        }
+      });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [route, selectedNodeId, selectedPaperId, source]);
+
+  const openRelatedMatch = (match: CrossPaperMatch) => {
+    if (source.kind !== 'api') {
+      return;
+    }
+
+    setSelectedNodeId(match.targetNodeId);
+    setSource({
+      ...source,
+      paperId: match.targetPaperId,
+    });
+    window.location.hash = buildHashRoute('explorer', match.targetNodeId);
+  };
+
   const page = (() => {
     if (!model) {
       return null;
@@ -222,7 +271,18 @@ export function App() {
           />
         );
       case 'explorer':
-        return <ExplorerPage model={model} selectedNodeId={selectedNodeId} onSelectNode={setSelectedNodeId} />;
+        return (
+          <ExplorerPage
+            model={model}
+            selectedNodeId={selectedNodeId}
+            onSelectNode={setSelectedNodeId}
+            crossPaperStatus={crossPaperStatus}
+            crossPaperLinks={crossPaperLinks}
+            crossPaperError={crossPaperError}
+            onOpenRelated={openRelatedMatch}
+            {...(currentPaper ? { currentPaper } : {})}
+          />
+        );
       case 'innovation':
         return <InnovationPage model={model} />;
       case 'unknowns':

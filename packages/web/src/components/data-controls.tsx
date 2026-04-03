@@ -152,6 +152,47 @@ export function BundleDataControls(props: BundleDataControlsProps) {
               {props.uploadMessage}
             </div>
           ) : null}
+
+          {props.apiListing ? (
+            <div style={{ display: 'grid', gap: '0.7rem' }}>
+              <div style={{ color: '#cbd5e1', fontWeight: 600 }}>Local corpus</div>
+              <div style={{ display: 'grid', gap: '0.75rem', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))' }}>
+                {props.apiListing.papers.map((paper) => {
+                  const selected = paper.paperId === props.selectedPaperId;
+                  return (
+                    <button
+                      key={`corpus-${paper.paperId}`}
+                      type="button"
+                      onClick={() => props.onSelectedPaperChange(paper.paperId)}
+                      style={{
+                        textAlign: 'left',
+                        borderRadius: '14px',
+                        border: selected ? '1px solid rgba(56, 189, 248, 0.45)' : '1px solid rgba(148, 163, 184, 0.22)',
+                        background: selected ? 'rgba(56, 189, 248, 0.12)' : 'rgba(15, 23, 42, 0.38)',
+                        color: '#e5eef9',
+                        padding: '0.85rem 0.95rem',
+                        cursor: 'pointer',
+                        display: 'grid',
+                        gap: '0.45rem',
+                      }}
+                    >
+                      <div style={{ fontWeight: 700 }}>{paper.title}</div>
+                      <div style={{ color: '#94a3b8', fontSize: '0.9rem' }}>
+                        {paper.paperId} · {paper.sourceType} · {paper.year}
+                      </div>
+                      <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.45rem', fontSize: '0.82rem' }}>
+                        {paper.isLatest ? <span style={{ color: '#fbbf24' }}>Latest</span> : null}
+                        <span style={{ color: '#cbd5e1' }}>{paper.warningCount} warnings</span>
+                        <span style={{ color: paper.hasEnrichment ? '#86efac' : '#94a3b8' }}>
+                          {paper.hasEnrichment ? 'Enrichment ready' : 'No enrichment'}
+                        </span>
+                      </div>
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+          ) : null}
         </div>
       ) : null}
 

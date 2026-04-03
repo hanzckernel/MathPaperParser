@@ -1,4 +1,6 @@
 import type { DashboardModel } from '../lib/dashboard-model.js';
+import type { ApiPaperSummary } from '../lib/api-client.js';
+import type { CrossPaperMatch, CrossPaperLinkResult } from '@paperparser/core';
 export { GraphPage } from './proof-graph-page.js';
 
 function cardStyle(): React.CSSProperties {
@@ -68,10 +70,20 @@ export function ExplorerPage({
   model,
   selectedNodeId,
   onSelectNode,
+  currentPaper,
+  crossPaperStatus,
+  crossPaperLinks,
+  crossPaperError,
+  onOpenRelated,
 }: {
   model: DashboardModel;
   selectedNodeId: string | null;
   onSelectNode: (nodeId: string) => void;
+  currentPaper?: ApiPaperSummary;
+  crossPaperStatus?: 'idle' | 'loading' | 'ready' | 'error';
+  crossPaperLinks?: CrossPaperLinkResult | null;
+  crossPaperError?: string | null;
+  onOpenRelated?: (match: CrossPaperMatch) => void;
 }) {
   const selectedNode = selectedNodeId ? model.nodeById.get(selectedNodeId) ?? null : null;
   const outgoing = selectedNode ? model.outgoingById.get(selectedNode.id) ?? [] : [];
@@ -122,6 +134,11 @@ export function ExplorerPage({
               <div style={{ color: '#94a3b8' }}>
                 {selectedNode.kind} · {selectedNode.proof_status}
               </div>
+              {currentPaper ? (
+                <div style={{ color: '#94a3b8', marginTop: '0.35rem' }}>
+                  {currentPaper.paperId} · {currentPaper.title}
+                </div>
+              ) : null}
             </div>
             <div style={{ whiteSpace: 'pre-wrap', lineHeight: 1.6 }}>{selectedNode.statement}</div>
             <div style={{ display: 'grid', gap: '0.75rem', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))' }}>
@@ -140,6 +157,43 @@ export function ExplorerPage({
                 ))}
               </div>
             </div>
+            {currentPaper ? (
+              <div style={{ display: 'grid', gap: '0.75rem' }}>
+                <strong>Related Across Corpus</strong>
+                {crossPaperStatus === 'loading' ? <div style={{ color: '#94a3b8' }}>Looking for explainable corpus links…</div> : null}
+                {crossPaperStatus === 'error' ? (
+                  <div style={{ color: '#fecaca' }}>{crossPaperError ?? 'Failed to load related corpus links.'}</div>
+                ) : null}
+                {crossPaperStatus === 'ready' && (crossPaperLinks?.matches.length ?? 0) === 0 ? (
+                  <div style={{ color: '#94a3b8' }}>(no explainable links in the local corpus)</div>
+                ) : null}
+                {crossPaperLinks?.matches.map((match) => (
+                  <button
+                    key={`${match.targetPaperId}:${match.targetNodeId}`}
+                    type="button"
+                    onClick={() => onOpenRelated?.(match)}
+                    style={{
+                      textAlign: 'left',
+                      border: '1px solid rgba(56, 189, 248, 0.28)',
+                      borderRadius: '14px',
+                      padding: '0.85rem 0.95rem',
+                      background: 'rgba(15, 23, 42, 0.45)',
+                      color: 'inherit',
+                      cursor: 'pointer',
+                      display: 'grid',
+                      gap: '0.35rem',
+                    }}
+                  >
+                    <div style={{ fontWeight: 700 }}>{match.targetLabel}</div>
+                    <div style={{ color: '#94a3b8', fontSize: '0.92rem' }}>
+                      {match.targetPaperId} · {match.targetPaperTitle}
+                    </div>
+                    <div style={{ color: '#cbd5e1', fontSize: '0.92rem' }}>{match.detail}</div>
+                    <div style={{ color: '#38bdf8', fontWeight: 600 }}>Open in Explorer</div>
+                  </button>
+                ))}
+              </div>
+            ) : null}
           </div>
         ) : (
           <p style={{ color: '#94a3b8' }}>Select a result from the left column.</p>

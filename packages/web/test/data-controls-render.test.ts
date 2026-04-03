@@ -20,6 +20,8 @@ describe('BundleDataControls', () => {
               sourceType: 'markdown',
               year: 2026,
               isLatest: true,
+              warningCount: 0,
+              hasEnrichment: false,
             },
             {
               paperId: 'fixture-latex',
@@ -27,6 +29,8 @@ describe('BundleDataControls', () => {
               sourceType: 'latex',
               year: 2026,
               isLatest: false,
+              warningCount: 2,
+              hasEnrichment: true,
             },
           ],
         },
@@ -59,6 +63,10 @@ describe('BundleDataControls', () => {
     expect(html).toContain('API Mode');
     expect(html).toContain('fixture-markdown');
     expect(html).toContain('Tracked LaTeX Fixture');
+    expect(html).toContain('Local corpus');
+    expect(html).toContain('0 warnings');
+    expect(html).toContain('2 warnings');
+    expect(html).toContain('Enrichment ready');
     expect(html).toContain('Upload .tex or .md');
     expect(html).toContain('PDF upload stays visible');
     expect(html).toContain('Search this paper');

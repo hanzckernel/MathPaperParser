@@ -1,9 +1,13 @@
+import type { CrossPaperLinkResult } from '@paperparser/core';
+
 export interface ApiPaperSummary {
   paperId: string;
   title: string;
   sourceType: string;
   year: number;
   isLatest: boolean;
+  warningCount: number;
+  hasEnrichment: boolean;
 }
 
 export interface ApiPaperListing {
@@ -36,6 +40,18 @@ async function fetchJson<T>(fetchImpl: typeof fetch, url: string, init?: Request
 
 export async function listApiPapers(baseUrl: string, fetchImpl: typeof fetch = fetch): Promise<ApiPaperListing> {
   return fetchJson<ApiPaperListing>(fetchImpl, `${trimTrailingSlash(baseUrl)}/api/papers`);
+}
+
+export async function getCrossPaperLinks(
+  baseUrl: string,
+  paperId: string,
+  nodeId: string,
+  fetchImpl: typeof fetch = fetch,
+): Promise<CrossPaperLinkResult> {
+  return fetchJson<CrossPaperLinkResult>(
+    fetchImpl,
+    `${trimTrailingSlash(baseUrl)}/api/papers/${encodeURIComponent(paperId)}/related/${encodeURIComponent(nodeId)}`,
+  );
 }
 
 export async function uploadSourceDocument(

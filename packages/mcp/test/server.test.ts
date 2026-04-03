@@ -48,6 +48,7 @@ describe('PaperParser MCP server', () => {
       'impact_analysis',
       'trace_proof_chain',
       'search_concepts',
+      'cross_paper_links',
       'validate_bundle',
     ]);
 
@@ -100,6 +101,7 @@ describe('PaperParser MCP server', () => {
 
     const papers = await server.readResource('paperparser://papers');
     expect(papers.latestPaperId).toBe('fixture-markdown');
+    expect(papers.papers[0]?.hasEnrichment).toBe(true);
 
     const manifest = await server.readResource('paperparser://papers/fixture-markdown/manifest');
     expect(manifest.paper.source_type).toBe('markdown');
@@ -111,6 +113,7 @@ describe('PaperParser MCP server', () => {
 
   it('serves the same MCP surface for a stored latex paper', async () => {
     const storePath = mkdtempSync(join(tmpdir(), 'paperparser-mcp-'));
+    writeBundle(storePath, 'fixture-markdown', 'packages/core/test/fixtures/markdown/paper.md');
     writeBundle(storePath, 'fixture-latex', 'packages/core/test/fixtures/latex/project/main.tex');
     const server = createPaperParserMcpServer({ storePath });
 
@@ -139,5 +142,14 @@ describe('PaperParser MCP server', () => {
 
     const graph = await server.readResource('paperparser://papers/fixture-latex/graph');
     expect(graph.nodes.some((node: { id: string }) => node.id === 'sec1::thm:thm-fixture')).toBe(true);
+
+    const related = await server.callTool('cross_paper_links', {
+      paperId: 'fixture-markdown',
+      nodeId: 'sec1::thm:thm-main',
+      limit: 3,
+    });
+    expect(related.matches[0]?.targetPaperId).toBe('fixture-latex');
+    expect(related.matches[0]?.targetNodeId).toBe('sec1::thm:thm-fixture');
+    expect(related.matches[0]?.evidenceTerms).toEqual(expect.arrayContaining(['compact', 'set']));
   });
 });

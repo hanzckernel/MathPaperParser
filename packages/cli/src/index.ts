@@ -4,6 +4,7 @@ import {
   BundleSerializer,
   BundleQueryService,
   ConsistencyChecker,
+  CorpusQueryService,
   EnrichmentSerializer,
   SchemaValidator,
   analyzeDocumentPath,
@@ -65,6 +66,7 @@ function usage(): string {
     `       ${PAPERPARSER_CLI_NAME} export [--store <path>] [--paper <id>] [--output <path>]`,
     `       ${PAPERPARSER_CLI_NAME} list [--store <path>]`,
     `       ${PAPERPARSER_CLI_NAME} query <question> [--store <path>] [--paper <id>]`,
+    `       ${PAPERPARSER_CLI_NAME} related <node-id> [--store <path>] [--paper <id>] [--limit <n>]`,
     `       ${PAPERPARSER_CLI_NAME} context <node-id> [--store <path>] [--paper <id>]`,
     `       ${PAPERPARSER_CLI_NAME} impact <node-id> [--store <path>] [--paper <id>]`,
     `       ${PAPERPARSER_CLI_NAME} mcp [--store <path>]`,
@@ -202,6 +204,9 @@ function runList(argv: string[], io: CliIo): number {
         sourceType: paper.manifest.paper.sourceType,
         year: paper.manifest.paper.year,
         isLatest: paper.isLatest,
+        warningCount: paper.warningCount,
+        warningCodes: paper.warningCodes,
+        hasEnrichment: paper.hasEnrichment,
       })),
     });
     return 0;
@@ -213,6 +218,48 @@ function runList(argv: string[], io: CliIo): number {
     io.stdout(`${paper.paperId}\t${paper.manifest.paper.sourceType}\t${paper.manifest.paper.title}`);
   }
   return 0;
+}
+
+function runRelated(argv: string[], io: CliIo): number {
+  const nodeId = argv[1];
+  if (!nodeId) {
+    io.stderr(usage());
+    return 1;
+  }
+
+  const storeFlag = readFlag(argv, '--store');
+  const paperFlag = readFlag(argv, '--paper');
+  const limitFlag = readFlag(argv, '--limit');
+  const jsonMode = hasFlag(argv, '--json');
+  const cwd = io.cwd ?? process.cwd();
+  const storePath = resolveStorePath(storeFlag, cwd);
+  const limit = limitFlag ? Number.parseInt(limitFlag, 10) : undefined;
+
+  try {
+    const { paperId } = readBundleFromStore(storePath, paperFlag);
+    const corpus = listStoredPapers(storePath).map((paper) => ({
+      paperId: paper.paperId,
+      bundle: readBundleFromStore(storePath, paper.paperId).bundle,
+    }));
+    const service = new CorpusQueryService(corpus);
+    const options = typeof limit === 'number' ? { limit } : undefined;
+    const related = service.getRelatedNodes(paperId, nodeId, options);
+
+    if (jsonMode) {
+      writeJson(io, related);
+      return 0;
+    }
+
+    io.stdout(`paper_id=${related.sourcePaperId}`);
+    io.stdout(`node_id=${related.sourceNodeId}`);
+    for (const match of related.matches) {
+      io.stdout(`${match.targetPaperId}\t${match.targetNodeId}\t${match.evidenceTerms.join(',')}`);
+    }
+    return 0;
+  } catch (error) {
+    io.stderr(error instanceof Error ? error.message : String(error));
+    return 1;
+  }
 }
 
 function runExport(argv: string[], io: CliIo): number {
@@ -399,6 +446,8 @@ export function runCli(argv: string[], io: CliIo = defaultIo()): number {
       return runList(argv, io);
     case 'query':
       return runQuery(argv, io);
+    case 'related':
+      return runRelated(argv, io);
     case 'context':
       return runContext(argv, io);
     case 'impact':

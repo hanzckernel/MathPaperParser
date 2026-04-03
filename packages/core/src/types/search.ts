@@ -1,4 +1,4 @@
-import type { MainResult, ProofStrategy, SectionSummary } from './bundle.js';
+import type { MainResult, PaperSourceType, ProofStrategy, SectionSummary } from './bundle.js';
 import type { MathEdge } from './edge.js';
 import type { MathNode, NodeId } from './node.js';
 
@@ -42,4 +42,26 @@ export interface ImpactAnalysis {
   incomingEdges: MathEdge[];
   dependentNodes: MathNode[];
   impactedMainResults: MainResult[];
+}
+
+export interface CrossPaperMatch {
+  targetPaperId: string;
+  targetPaperTitle: string;
+  targetPaperSourceType: PaperSourceType;
+  targetNodeId: NodeId;
+  targetNodeKind: MathNode['kind'];
+  targetLabel: string;
+  targetNumber: string;
+  targetSection: string;
+  targetSectionTitle: string;
+  targetLatexLabel: string | null;
+  evidenceTerms: string[];
+  detail: string;
+  score: number;
+}
+
+export interface CrossPaperLinkResult {
+  sourcePaperId: string;
+  sourceNodeId: NodeId;
+  matches: CrossPaperMatch[];
 }

@@ -1,6 +1,7 @@
 import {
   BundleQueryService,
   ConsistencyChecker,
+  CorpusQueryService,
   SchemaValidator,
   type ImpactAnalysis,
   type NodeContext,
@@ -43,6 +44,7 @@ type ToolName =
   | 'impact_analysis'
   | 'trace_proof_chain'
   | 'search_concepts'
+  | 'cross_paper_links'
   | 'validate_bundle';
 
 type JsonRpcId = string | number | null;
@@ -125,6 +127,19 @@ const TOOL_DEFINITIONS: McpToolDefinition[] = [
         limit: { type: 'number' },
       },
       required: ['query'],
+    },
+  },
+  {
+    name: 'cross_paper_links',
+    description: 'Return explainable related nodes from other stored papers without collapsing paper boundaries.',
+    inputSchema: {
+      type: 'object',
+      properties: {
+        paperId: { type: 'string' },
+        nodeId: { type: 'string' },
+        limit: { type: 'number' },
+      },
+      required: ['nodeId'],
     },
   },
   {
@@ -227,6 +242,8 @@ export class PaperParserMcpServer {
         return this.getImpact(paperId, asString(args.nodeId, 'nodeId'));
       case 'trace_proof_chain':
         return this.traceProofChain(paperId, asString(args.nodeId, 'nodeId'));
+      case 'cross_paper_links':
+        return this.getCrossPaperLinks(paperId, asString(args.nodeId, 'nodeId'), asOptionalNumber(args.limit));
       case 'validate_bundle':
         return this.validateBundle(paperId);
       default:
@@ -245,6 +262,9 @@ export class PaperParserMcpServer {
           sourceType: paper.manifest.paper.sourceType,
           year: paper.manifest.paper.year,
           isLatest: paper.isLatest,
+          warningCount: paper.warningCount,
+          warningCodes: paper.warningCodes,
+          hasEnrichment: paper.hasEnrichment,
         })),
       };
     }
@@ -423,6 +443,18 @@ export class PaperParserMcpServer {
       dependencyChain: context.dependencyChain,
       proofFlow: context.proofFlow,
     };
+  }
+
+  private getCrossPaperLinks(paperId: string | undefined, nodeId: string, limit?: number) {
+    const { paperId: resolvedPaperId } = readBundleFromStore(this.storePath, paperId);
+    const service = new CorpusQueryService(
+      listStoredPapers(this.storePath).map((paper) => ({
+        paperId: paper.paperId,
+        bundle: readBundleFromStore(this.storePath, paper.paperId).bundle,
+      })),
+    );
+    const options = typeof limit === 'number' ? { limit } : undefined;
+    return service.getRelatedNodes(resolvedPaperId, nodeId, options);
   }
 
   private validateBundle(

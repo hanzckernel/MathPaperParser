@@ -45,10 +45,12 @@ describe('paperparser serve app', () => {
     expect(papersResponse.status).toBe(200);
     const papers = (await papersResponse.json()) as {
       latestPaperId: string;
-      papers: Array<{ paperId: string; sourceType: string }>;
+      papers: Array<{ paperId: string; sourceType: string; warningCount: number; hasEnrichment: boolean }>;
     };
     expect(papers.latestPaperId).toBe('uploaded-markdown');
     expect(papers.papers.map((paper) => paper.paperId)).toEqual(['uploaded-markdown']);
+    expect(papers.papers[0]?.warningCount).toBe(0);
+    expect(papers.papers[0]?.hasEnrichment).toBe(false);
 
     const manifestResponse = await handlePaperParserRequest(
       new Request('http://paperparser.local/api/papers/uploaded-markdown/manifest'),
@@ -138,6 +140,56 @@ describe('paperparser serve app', () => {
     };
     expect(impact.node.id).toBe('sec1::thm:thm-fixture');
     expect(impact.dependentNodes).toEqual([]);
+  });
+
+  it('serves explainable cross-paper related results for a stored corpus', async () => {
+    const storePath = mkdtempSync(join(tmpdir(), 'paperparser-serve-'));
+
+    const markdownAnalyze = await handlePaperParserRequest(
+      new Request('http://paperparser.local/api/papers', {
+        method: 'POST',
+        headers: {
+          'content-type': 'application/json',
+        },
+        body: JSON.stringify({
+          inputPath: 'packages/core/test/fixtures/markdown/paper.md',
+          paperId: 'fixture-markdown',
+        }),
+      }),
+      { storePath },
+    );
+    expect(markdownAnalyze.status).toBe(201);
+
+    const latexAnalyze = await handlePaperParserRequest(
+      new Request('http://paperparser.local/api/papers', {
+        method: 'POST',
+        headers: {
+          'content-type': 'application/json',
+        },
+        body: JSON.stringify({
+          inputPath: 'packages/core/test/fixtures/latex/project/main.tex',
+          paperId: 'fixture-latex',
+        }),
+      }),
+      { storePath },
+    );
+    expect(latexAnalyze.status).toBe(201);
+
+    const relatedResponse = await handlePaperParserRequest(
+      new Request('http://paperparser.local/api/papers/fixture-markdown/related/sec1%3A%3Athm%3Athm-main'),
+      { storePath },
+    );
+    expect(relatedResponse.status).toBe(200);
+    const related = (await relatedResponse.json()) as {
+      sourcePaperId: string;
+      sourceNodeId: string;
+      matches: Array<{ targetPaperId: string; targetNodeId: string; evidenceTerms: string[] }>;
+    };
+    expect(related.sourcePaperId).toBe('fixture-markdown');
+    expect(related.sourceNodeId).toBe('sec1::thm:thm-main');
+    expect(related.matches[0]?.targetPaperId).toBe('fixture-latex');
+    expect(related.matches[0]?.targetNodeId).toBe('sec1::thm:thm-fixture');
+    expect(related.matches[0]?.evidenceTerms).toEqual(expect.arrayContaining(['compact', 'set']));
   });
 
   it('serves enrichment.json when a stored paper has a sidecar', async () => {
