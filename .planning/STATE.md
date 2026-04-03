@@ -2,9 +2,9 @@
 gsd_state_version: 1.0
 milestone: v1.3
 milestone_name: Parse/Render Hardening
-status: phase_discussed
-stopped_at: phase 15 discussion complete; ready for planning
-last_updated: "2026-04-03T20:31:43Z"
+status: phase_planned
+stopped_at: phase 15 plan 15-01 created; ready for execution
+last_updated: "2026-04-03T20:45:00Z"
 last_activity: 2026-04-03
 progress:
   total_phases: 3
@@ -21,14 +21,14 @@ progress:
 See: .planning/PROJECT.md (updated 2026-04-03)
 
 **Core value:** A mathematician can feed in a TeX paper and get a trustworthy dependency artifact that makes the logical structure of the paper easier to navigate.
-**Current focus:** Phase 15 discussion for `v1.3 Parse/Render Hardening`
+**Current focus:** Phase 15 implementation prep for `v1.3 Parse/Render Hardening`
 
 ## Current Position
 
 Phase: 15. Math Fragment Render Hardening
-Plan: —
-Status: Discussion complete; context captured
-Last activity: 2026-04-03 — Captured Phase 15 decisions for accepted-corpus-first render hardening, aggressive display salvage, and bounded command rewrites.
+Plan: 15-01
+Status: Planned; ready for execution
+Last activity: 2026-04-03 — Planned accepted-corpus-first render hardening around list-environment flattening, bounded display salvage, and wrapper normalization.
 
 Progress: [███░░░░░░░] 33%
 
@@ -90,16 +90,17 @@ Decisions are logged in PROJECT.md. The milestone established:
 
 ### Pending Todos
 
-- Start Phase 15 planning.
+- Execute Plan 15-01 for Math Fragment Render Hardening.
 
 ### Blockers/Concerns
 
 - `long_nalini` still emits `7` explicit unresolved references, primarily in the deferred figure-reference slice.
 - Unsupported TeX beyond the current normalization set still falls back to raw source instead of full browser-ready math rendering.
 - Phase 15 should not assume all extracted math fragments are now render-safe just because the parser residual budget dropped.
+- The main accepted-corpus render risk is still fallback overuse from list-like and wrapper-heavy statement fragments.
 
 ## Session Continuity
 
 Last session: 2026-04-03 CEST
-Stopped at: Phase 15 discussion captured; next step is `$gsd-plan-phase 15`
+Stopped at: Phase 15 planned; next step is execute `15-01`
 Resume file: .planning/ROADMAP.md
