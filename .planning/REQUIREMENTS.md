@@ -22,10 +22,10 @@
 
 ### Corpus
 
-- [ ] **CORP-01**: User can store and list multiple parsed papers in the local corpus without collisions between paper IDs, bundles, or diagnostics.
-- [ ] **CORP-02**: User can switch the explorer between stored papers without manual rebuilding or file shuffling.
-- [ ] **CORP-03**: User can follow cross-paper navigation when the system has explicit or explainable evidence for the link.
-- [ ] **CORP-04**: Cross-paper views preserve paper boundaries and show which paper each object and relation belongs to.
+- [x] **CORP-01**: User can store and list multiple parsed papers in the local corpus without collisions between paper IDs, bundles, or diagnostics.
+- [x] **CORP-02**: User can switch the explorer between stored papers without manual rebuilding or file shuffling.
+- [x] **CORP-03**: User can follow cross-paper navigation when the system has explicit or explainable evidence for the link.
+- [x] **CORP-04**: Cross-paper views preserve paper boundaries and show which paper each object and relation belongs to.
 
 ### Acceptance
 
@@ -71,10 +71,10 @@
 | HARD-03 | Phase 7 | Completed |
 | HARD-04 | Phase 7 | Completed |
 | HARD-05 | Phase 7 | Completed |
-| CORP-01 | Phase 8 | Pending |
-| CORP-02 | Phase 8 | Pending |
-| CORP-03 | Phase 8 | Pending |
-| CORP-04 | Phase 8 | Pending |
+| CORP-01 | Phase 8 | Completed |
+| CORP-02 | Phase 8 | Completed |
+| CORP-03 | Phase 8 | Completed |
+| CORP-04 | Phase 8 | Completed |
 | ACC-01 | Phase 9 | Pending |
 | ACC-02 | Phase 9 | Pending |
 | ACC-03 | Phase 9 | Pending |
@@ -86,4 +86,4 @@
 
 ---
 *Requirements defined: 2026-04-03*
-*Last updated: 2026-04-03 after completing Phase 7*
+*Last updated: 2026-04-03 after completing Phase 8*

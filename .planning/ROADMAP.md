@@ -18,7 +18,7 @@ This roadmap advances the approved `v1.1` scope only: paper-local search, parser
 
 - [x] **Phase 6: Searchable Bundle Index & Explorer Navigation** - Add paper-local search and direct navigation into the explorer using the shipped stored-paper surfaces.
 - [x] **Phase 7: TeX Hardening & Diagnostic Reduction** - Reduce unresolved references on the gold paper and broaden deterministic TeX coverage across `medium_Mueller.flat.tex` and `short_Petri.tex`.
-- [ ] **Phase 8: Local Corpus Library & Cross-Paper Navigation** - Support multiple stored papers and explainable cross-paper navigation without collapsing paper boundaries.
+- [x] **Phase 8: Local Corpus Library & Cross-Paper Navigation** - Support multiple stored papers and explainable cross-paper navigation without collapsing paper boundaries.
 - [ ] **Phase 9: Multi-Paper Acceptance Gate** - Prove the full milestone on `long_nalini`, `medium_Mueller.flat.tex`, and `short_Petri.tex` without manual graph editing.
 
 ## Phase Details
@@ -55,6 +55,7 @@ This roadmap advances the approved `v1.1` scope only: paper-local search, parser
   2. User can switch the explorer between stored papers without manual rebuild steps.
   3. Cross-paper navigation only appears when the system has explicit or explainable evidence for the link.
   4. Cross-paper views clearly identify the paper origin of each object and relation.
+**Plans**: `08-01` completed on 2026-04-03
 **UI hint**: yes
 
 ### Phase 9: Multi-Paper Acceptance Gate

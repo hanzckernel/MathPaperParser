@@ -17,7 +17,7 @@ A mathematician can feed in a TeX paper and get a trustworthy dependency artifac
 - **Canonical output:** `manifest.json` / `graph.json` / `index.json`
 - **Additive sidecars:** `diagnostics.json` and optional `enrichment.json`
 - **Accepted workflow:** `analyze -> enrich -> validate -> export`
-- **Current non-blocking debt:** `long_nalini` still emits `22` unresolved references plus `2` explicit unsupported reference-command diagnostics, but the residual is now bounded and reviewable instead of baseline-sized noise
+- **Current non-blocking debt:** `long_nalini` still emits `22` unresolved references plus `2` explicit unsupported reference-command diagnostics, and corpus links are intentionally limited to deterministic explainable evidence rather than a global merged graph
 
 ## Current Milestone: v1.1 Search, Hardening & Corpus
 
@@ -26,7 +26,7 @@ A mathematician can feed in a TeX paper and get a trustworthy dependency artifac
 **Target features:**
 - Search by label, title, or object name with direct navigation into the explorer
 - Parser hardening focused on unresolved references and broader TeX coverage beyond the original gold-paper bar
-- Local multi-paper corpus support across `long_nalini`, `medium_Mueller.flat.tex`, and `short_Petri.tex`, including cross-paper navigation where the current architecture can support it cleanly
+- Local multi-paper corpus support across `long_nalini`, `medium_Mueller.flat.tex`, and `short_Petri.tex`, including explainable cross-paper navigation without collapsing paper boundaries
 
 ## Requirements
 
@@ -40,10 +40,11 @@ A mathematician can feed in a TeX paper and get a trustworthy dependency artifac
 - ✓ Prove the full local workflow on `long_nalini` without manual graph editing — `v1.0`
 - ✓ Add search by label, title, or object name across the parsed paper, with direct explorer navigation — `Phase 6`
 - ✓ Reduce unresolved-reference diagnostics on the representative paper and broaden deterministic TeX coverage across `long_nalini`, `medium_Mueller.flat.tex`, and `short_Petri.tex` — `Phase 7`
+- ✓ Support a local multi-paper corpus with safe paper isolation and explainable cross-paper navigation — `Phase 8`
 
 ### Active
 
-- [ ] Support a local multi-paper corpus with safe paper isolation and cross-paper navigation where evidence is explicit or explainable across the milestone corpus
+- [ ] Prove the accepted local workflow on the three-paper milestone corpus without manual graph editing
 
 ### Out of Scope
 
@@ -84,7 +85,8 @@ The repository is a TypeScript monorepo with active workspace packages in `packa
 | Make `v1.1` about search, hardening, and corpus support instead of broader input formats | These three additions compound directly on top of the shipped v1 artifact and raise day-to-day usefulness without weakening the trust model | — Pending |
 | Reuse the existing stored-paper and canonical-bundle surfaces for search and corpus features | Search and corpus workflows should stay aligned across CLI, API, dashboard, and MCP instead of growing separate data paths | ✓ Good — Phase 6 search now reuses the shared core query path in the web shell |
 | Keep Phase 7 focused on deterministic parser gaps instead of adding first-class figure nodes | The measured corpus was dominated by nested/same-line equation-like misses and labeled headings; figure nodes would have introduced broader schema churn | ✓ Good — hardening landed with a bounded explicit residual class and no node-kind expansion |
-| Limit cross-paper navigation to explicit or explainable links | Multi-paper workflows need to remain inspectable and trustworthy, not speculative global linkage | — Pending |
+| Keep Phase 8 corpus behavior as a read model above paper-local bundles | The milestone needs local corpus navigation without destabilizing the canonical schema | ✓ Good — corpus behavior now ships consistently across CLI/API/MCP/Web with paper-local boundaries preserved |
+| Limit cross-paper navigation to explicit or explainable links | Multi-paper workflows need to remain inspectable and trustworthy, not speculative global linkage | ✓ Good — related links now carry evidence terms and may return an explicit empty state |
 | Deep-link search results into `#/explorer/<nodeId>` instead of creating a separate search page | Search should accelerate the existing explorer, not fork the navigation model | ✓ Good — Phase 6 made result-to-explorer jumps explicit and testable |
 
 ## Evolution
@@ -98,4 +100,4 @@ This document now tracks the shipped product state and the currently active mile
 4. Keep Current State accurate enough that the next milestone starts from facts rather than memory
 
 ---
-*Last updated: 2026-04-03 after completing Phase 7*
+*Last updated: 2026-04-03 after completing Phase 8*
