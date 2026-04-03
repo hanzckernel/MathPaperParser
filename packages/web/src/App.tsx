@@ -13,10 +13,12 @@ import {
   OverviewPage,
   UnknownsPage,
 } from './components/dashboard-pages.js';
+import { RuntimeBlockerPage } from './components/runtime-blocker.js';
 import { getCrossPaperLinks, listApiPapers, type ApiPaperListing, uploadSourceDocument } from './lib/api-client.js';
 import { buildDashboardModel, type DashboardModel } from './lib/dashboard-model.js';
 import { loadSerializedPaperData, resolveBundleSource, type BundleSource } from './lib/data-source.js';
 import { buildHashRoute, parseHashRoute, ROUTES, type RouteKey } from './lib/hash-route.js';
+import { getStaticBundleLoadBlocker } from './lib/runtime-environment.js';
 
 function appShellStyle(): React.CSSProperties {
   return {
@@ -166,6 +168,16 @@ export function App() {
     setError(null);
     setSerializedBundle(null);
 
+    const blocker =
+      typeof window === 'undefined' ? null : getStaticBundleLoadBlocker(source, window.location.protocol);
+    if (blocker) {
+      setStatus('error');
+      setError(blocker);
+      return () => {
+        cancelled = true;
+      };
+    }
+
     loadSerializedPaperData(source)
       .then(({ bundle, enrichment }) => {
         if (cancelled) {
@@ -289,6 +301,20 @@ export function App() {
         return <UnknownsPage model={model} />;
     }
   })();
+
+  const runtimeBlocker =
+    status === 'error' && error?.includes('served over HTTP')
+      ? (
+          <RuntimeBlockerPage
+            title="Static export requires a local server"
+            message={error}
+          />
+        )
+      : null;
+
+  if (runtimeBlocker) {
+    return runtimeBlocker;
+  }
 
   return (
     <main style={appShellStyle()}>

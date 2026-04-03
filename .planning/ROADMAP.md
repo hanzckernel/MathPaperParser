@@ -20,7 +20,7 @@ This roadmap advances the approved `v1.2` scope only: export contract hardening,
 
 - [x] **Phase 10: Export Contract Hardening** - Make CLI export deterministic for latest-paper selection and complete static data payloads.
 - [x] **Phase 11: Dashboard Math Rendering Repair** - Restore readable MathJax-based mathematical rendering in the current dashboard without changing the canonical bundle text contract.
-- [ ] **Phase 12: Dashboard Bootstrap & Runtime Guardrails** - Eliminate silent render failures by aligning the exported shell, React mount expectations, and unsupported static runtime behavior.
+- [x] **Phase 12: Dashboard Bootstrap & Runtime Guardrails** - Eliminate silent render failures by aligning the exported shell, React mount expectations, and unsupported static runtime behavior.
 - [ ] **Phase 13: Export Acceptance & Operator Guidance** - Prove the supported local export workflow and document the serving/runtime expectations clearly.
 
 ## Phase Details
@@ -56,7 +56,7 @@ This roadmap advances the approved `v1.2` scope only: export contract hardening,
   2. Static exports opened directly from `file://` show a clear actionable blocker message instead of a silent or persistent render failure.
   3. API-backed dashboard usage is not incorrectly blocked by static-export safeguards.
   4. Built dashboard shells and exported artifacts no longer disagree about the mount target or bootstrap assumptions.
-**Plans**: `12-01` pending
+**Plans**: `12-01` completed on 2026-04-03
 **UI hint**: yes
 
 ### Phase 13: Export Acceptance & Operator Guidance

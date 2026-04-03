@@ -9,7 +9,7 @@
 
 - [x] **EXPORT-01**: User can export the latest stored paper with `--paper latest` and get the intended paper bundle.
 - [x] **EXPORT-02**: User gets a complete static export with `manifest.json`, `graph.json`, `index.json`, and an explicit `enrichment.json` value even when no enrichment sidecar exists.
-- [ ] **EXPORT-03**: User can load the exported dashboard over HTTP without missing-shell or missing-data bootstrap failures.
+- [x] **EXPORT-03**: User can load the exported dashboard over HTTP without missing-shell or missing-data bootstrap failures.
 
 ### Math Rendering
 
@@ -19,9 +19,9 @@
 
 ### Dashboard Runtime
 
-- [ ] **DASH-01**: User sees a clear actionable error instead of a blank or stuck page when a static export is opened directly from `file://`.
-- [ ] **DASH-02**: User gets a consistent React mount target across the built dashboard shell and exported artifacts.
-- [ ] **DASH-03**: API-backed dashboard usage remains available when the app is not in static-export mode, even if the page is opened from a local file context.
+- [x] **DASH-01**: User sees a clear actionable error instead of a blank or stuck page when a static export is opened directly from `file://`.
+- [x] **DASH-02**: User gets a consistent React mount target across the built dashboard shell and exported artifacts.
+- [x] **DASH-03**: API-backed dashboard usage remains available when the app is not in static-export mode, even if the page is opened from a local file context.
 
 ### Reliability & Docs
 
@@ -61,10 +61,10 @@
 | MATH-01 | Phase 11 | Completed |
 | MATH-02 | Phase 11 | Completed |
 | MATH-03 | Phase 11 | Completed |
-| EXPORT-03 | Phase 12 | Pending |
-| DASH-01 | Phase 12 | Pending |
-| DASH-02 | Phase 12 | Pending |
-| DASH-03 | Phase 12 | Pending |
+| EXPORT-03 | Phase 12 | Completed |
+| DASH-01 | Phase 12 | Completed |
+| DASH-02 | Phase 12 | Completed |
+| DASH-03 | Phase 12 | Completed |
 | REL-01 | Phase 13 | Pending |
 | REL-02 | Phase 13 | Pending |
 

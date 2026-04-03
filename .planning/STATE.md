@@ -3,15 +3,15 @@ gsd_state_version: 1.0
 milestone: v1.2
 milestone_name: Dashboard, Export & Math Rendering Hardening
 status: in_progress
-stopped_at: Phase 12 context captured; planning in progress
-last_updated: "2026-04-03T19:10:00Z"
+stopped_at: Phase 12 complete; ready for Phase 13 context
+last_updated: "2026-04-03T19:18:00Z"
 last_activity: 2026-04-03
 progress:
   total_phases: 4
-  completed_phases: 2
-  total_plans: 2
-  completed_plans: 2
-  percent: 50
+  completed_phases: 3
+  total_plans: 3
+  completed_plans: 3
+  percent: 75
 ---
 
 # Project State
@@ -21,16 +21,16 @@ progress:
 See: .planning/PROJECT.md (updated 2026-04-03)
 
 **Core value:** A mathematician can feed in a TeX paper and get a trustworthy dependency artifact that makes the logical structure of the paper easier to navigate.
-**Current focus:** Phase 12 context and planning for `v1.2 Dashboard, Export & Math Rendering Hardening`
+**Current focus:** Phase 13 context and planning for `v1.2 Dashboard, Export & Math Rendering Hardening`
 
 ## Current Position
 
-Phase: 12. Dashboard Bootstrap & Runtime Guardrails
+Phase: 13. Export Acceptance & Operator Guidance
 Plan: —
-Status: Phase 12 context captured; reviewing existing bootstrap/runtime work
-Last activity: 2026-04-03 — Captured Phase 12 decisions for strict `#root`, explicit static `file://` blocker, and allowed API mode over `file://`.
+Status: Phase 12 complete; next phase not discussed
+Last activity: 2026-04-03 — Completed Phase 12 runtime/bootstrap guardrails with explicit static `file://` blocker behavior and strict `#root` enforcement.
 
-Progress: [████░░░░░░] 50%
+Progress: [██████░░░░] 75%
 
 ## Performance Metrics
 
@@ -75,10 +75,11 @@ Decisions are logged in PROJECT.md. The milestone established:
 - Phase 11 will repair dashboard math rendering with MathJax plus fragment normalization, without changing the canonical bundle contract.
 - Phase 11 established a shared statement-rendering boundary with render-time normalization and explicit inline fallback for unsupported fragments.
 - Phase 12 will treat unsupported static runtime conditions as explicit product behavior rather than undefined failure.
+- Phase 12 established a dedicated top-level blocker for unsupported static `file://` usage while leaving API mode unblocked.
 
 ### Pending Todos
 
-- Run `$gsd-plan-phase 12`.
+- Run `$gsd-discuss-phase 13`.
 
 ### Blockers/Concerns
 
@@ -88,5 +89,5 @@ Decisions are logged in PROJECT.md. The milestone established:
 ## Session Continuity
 
 Last session: 2026-04-03 CEST
-Stopped at: Phase 12 context captured; next step is `$gsd-plan-phase 12`
+Stopped at: Phase 12 complete; next step is `$gsd-discuss-phase 13`
 Resume file: .planning/ROADMAP.md
