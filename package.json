@@ -10,6 +10,7 @@
     "build": "npm run build --workspaces --if-present",
     "test": "vitest run --config vitest.config.ts",
     "test:acceptance:v1.2": "vitest run --config vitest.config.ts packages/cli/test/export-command.test.ts packages/web/test/data-source.test.ts packages/web/test/math-render.test.ts packages/web/test/proof-graph-render.test.ts packages/web/test/runtime-blocker-render.test.ts packages/web/test/bootstrap.test.ts packages/web/test/runtime-environment.test.ts packages/web/test/exported-dashboard-shell.test.ts packages/web/test/operator-guidance-docs.test.ts",
+    "test:acceptance:v1.3": "vitest run --config vitest.config.ts packages/core/test/ingestion-pipeline.test.ts packages/core/test/gold-paper-ingestion.test.ts packages/cli/test/gold-paper-acceptance.test.ts packages/web/test/math-render.test.ts packages/web/test/proof-graph-render.test.ts packages/web/test/operator-guidance-docs.test.ts",
     "typecheck": "npm run typecheck --workspaces --if-present",
     "lint": "npm run typecheck"
   },

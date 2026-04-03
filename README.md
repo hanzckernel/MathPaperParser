@@ -42,7 +42,14 @@ npm test
 npm run typecheck
 ```
 
-Run the accepted `v1.2` dashboard/export proof bundle:
+Run the accepted `v1.3` parse/render proof bundle:
+
+```bash
+npm run test:acceptance:v1.3
+npm run typecheck
+```
+
+The earlier `v1.2` export/runtime proof bundle is still available when you specifically want the hardened static dashboard/export path:
 
 ```bash
 npm run test:acceptance:v1.2

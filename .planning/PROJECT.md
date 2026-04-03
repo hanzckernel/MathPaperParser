@@ -17,7 +17,7 @@ A mathematician can feed in a TeX paper and get a trustworthy dependency artifac
 - **Canonical output:** `manifest.json` / `graph.json` / `index.json`
 - **Additive sidecars:** `diagnostics.json` and optional `enrichment.json`
 - **Accepted workflows:** `analyze -> validate -> search -> inspect`, `export -> serve -> browse`, optional `enrich`, and explainable cross-paper `related`
-- **Current non-blocking debt:** `long_nalini` still emits `7` unresolved references concentrated in the deferred figure-reference slice, cross-paper navigation remains intentionally paper-local, unsupported TeX beyond the new list/wrapper/`cases` normalization set still falls back to raw source, and Nyquist validation artifacts are still missing for phases 10-15
+- **Current non-blocking debt:** `long_nalini` still emits `7` unresolved references concentrated in the deferred figure-reference slice, cross-paper navigation remains intentionally paper-local, unsupported TeX beyond the new list/wrapper/`cases` normalization set still falls back to raw source, and Nyquist validation artifacts are still missing for phases 10-16
 
 ## Last Shipped Milestone: v1.2 Dashboard, Export & Math Rendering Hardening
 
@@ -61,7 +61,7 @@ A mathematician can feed in a TeX paper and get a trustworthy dependency artifac
 
 - [ ] Harden the parser against the remaining recurring TeX patterns that still produce unresolved references or incomplete extraction
 - [x] Expand render compatibility so more extracted math fragments typeset cleanly instead of falling back to raw source
-- [ ] Prove the upgraded parse/render workflow on the accepted corpus plus targeted hard cases
+- [x] Prove the upgraded parse/render workflow on the accepted corpus plus targeted hard cases
 
 ### Out of Scope
 

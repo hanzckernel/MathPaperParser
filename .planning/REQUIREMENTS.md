@@ -63,8 +63,8 @@
 | MATH-04 | Phase 15 | Complete |
 | MATH-05 | Phase 15 | Complete |
 | MATH-06 | Phase 15 | Complete |
-| ACC-04 | Phase 16 | Pending |
-| ACC-05 | Phase 16 | Pending |
+| ACC-04 | Phase 16 | Complete |
+| ACC-05 | Phase 16 | Complete |
 
 **Coverage:**
 - v1 requirements: 8 total

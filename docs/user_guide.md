@@ -385,9 +385,25 @@ node packages/cli/dist/index.js mcp --store ./tmp/paper-store
 4. `cd ./out/site && python3 -m http.server 8000`
 5. Open the printed local URL in your browser
 
-### Accepted v1.2 proof workflow
+### Accepted v1.3 proof workflow
 
-Run the focused regression bundle for the hardened export/dashboard path:
+Run the current parse/render milestone proof for the accepted local corpus plus the targeted parser/render regressions:
+
+```bash
+npm run test:acceptance:v1.3
+npm run typecheck
+```
+
+This bundle covers:
+
+- the accepted `long_nalini` and multi-paper local workflow
+- the targeted parser hardening fixtures from Phase 14
+- the targeted MathJax normalization regressions from Phase 15
+- the current theorem-explorer and proof-graph statement-rendering surfaces
+
+### Archived v1.2 export/runtime proof
+
+Run the earlier focused regression bundle for the hardened export/dashboard path:
 
 ```bash
 npm run test:acceptance:v1.2
