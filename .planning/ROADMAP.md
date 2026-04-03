@@ -18,7 +18,7 @@ This roadmap advances the approved `v1.2` scope only: export contract hardening,
 - Integer phases (10, 11, 12, 13): Planned milestone work
 - Decimal phases (10.1, 10.2): Urgent insertions (marked with INSERTED)
 
-- [ ] **Phase 10: Export Contract Hardening** - Make CLI export deterministic for latest-paper selection and complete static data payloads.
+- [x] **Phase 10: Export Contract Hardening** - Make CLI export deterministic for latest-paper selection and complete static data payloads.
 - [ ] **Phase 11: Dashboard Math Rendering Repair** - Restore readable MathJax-based mathematical rendering in the current dashboard without changing the canonical bundle text contract.
 - [ ] **Phase 12: Dashboard Bootstrap & Runtime Guardrails** - Eliminate silent render failures by aligning the exported shell, React mount expectations, and unsupported static runtime behavior.
 - [ ] **Phase 13: Export Acceptance & Operator Guidance** - Prove the supported local export workflow and document the serving/runtime expectations clearly.
@@ -33,7 +33,7 @@ This roadmap advances the approved `v1.2` scope only: export contract hardening,
   1. `paperparser export --paper latest` resolves the latest stored paper instead of treating `latest` as a literal ID.
   2. Every static export writes `manifest.json`, `graph.json`, `index.json`, and `enrichment.json`, with explicit `null` when enrichment is absent.
   3. The resulting exported data layout stays compatible with the shipped dashboard data loader for both Markdown and TeX fixture papers.
-**Plans**: `10-01` pending
+**Plans**: `10-01` completed on 2026-04-03
 
 ### Phase 11: Dashboard Math Rendering Repair
 **Goal**: Users can read mathematical statements and equations naturally in the current dashboard instead of parsing raw source strings.
@@ -75,4 +75,4 @@ This roadmap advances the approved `v1.2` scope only: export contract hardening,
 |-----------|-------|--------|---------|
 | v1.0 TeX MVP | Phases 1-5 | Complete | 2026-04-02 |
 | v1.1 Search, Hardening & Corpus | Phases 6-9 | Complete | 2026-04-03 |
-| v1.2 Dashboard, Export & Math Rendering Hardening | Phases 10-13 | Planned | — |
+| v1.2 Dashboard, Export & Math Rendering Hardening | Phases 10-13 | In Progress | — |

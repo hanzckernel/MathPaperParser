@@ -7,8 +7,8 @@
 
 ### Export
 
-- [ ] **EXPORT-01**: User can export the latest stored paper with `--paper latest` and get the intended paper bundle.
-- [ ] **EXPORT-02**: User gets a complete static export with `manifest.json`, `graph.json`, `index.json`, and an explicit `enrichment.json` value even when no enrichment sidecar exists.
+- [x] **EXPORT-01**: User can export the latest stored paper with `--paper latest` and get the intended paper bundle.
+- [x] **EXPORT-02**: User gets a complete static export with `manifest.json`, `graph.json`, `index.json`, and an explicit `enrichment.json` value even when no enrichment sidecar exists.
 - [ ] **EXPORT-03**: User can load the exported dashboard over HTTP without missing-shell or missing-data bootstrap failures.
 
 ### Math Rendering
@@ -56,8 +56,8 @@
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| EXPORT-01 | Phase 10 | Pending |
-| EXPORT-02 | Phase 10 | Pending |
+| EXPORT-01 | Phase 10 | Completed |
+| EXPORT-02 | Phase 10 | Completed |
 | MATH-01 | Phase 11 | Pending |
 | MATH-02 | Phase 11 | Pending |
 | MATH-03 | Phase 11 | Pending |

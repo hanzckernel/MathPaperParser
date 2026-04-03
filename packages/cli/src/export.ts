@@ -1,6 +1,6 @@
-import { mkdirSync, writeFileSync } from 'node:fs';
+import { existsSync, mkdirSync, mkdtempSync, renameSync, rmSync, writeFileSync } from 'node:fs';
 import { spawnSync } from 'node:child_process';
-import { join, resolve } from 'node:path';
+import { dirname, join, resolve } from 'node:path';
 
 import { readSerializedBundleFromStore, resolveStorePath } from './store.js';
 
@@ -25,10 +25,13 @@ export function exportStaticDashboard(options: ExportStaticDashboardOptions = {}
   const resolvedStorePath = resolveStorePath(options.storePath, cwd);
   const { paperId, serializedBundle, serializedEnrichment } = readSerializedBundleFromStore(resolvedStorePath, options.paperId);
   const outputPath = resolve(cwd, options.outputPath ?? join('exports', paperId));
+  const outputParentPath = dirname(outputPath);
+  mkdirSync(outputParentPath, { recursive: true });
+  const tempOutputPath = mkdtempSync(join(outputParentPath, '.paperparser-export-'));
 
   const build = spawnSync(
     npmCommand(),
-    ['run', 'build', '--workspace', '@paperparser/web', '--', '--outDir', outputPath],
+    ['run', 'build', '--workspace', '@paperparser/web', '--', '--outDir', tempOutputPath],
     {
       cwd,
       encoding: 'utf8',
@@ -36,17 +39,25 @@ export function exportStaticDashboard(options: ExportStaticDashboardOptions = {}
   );
 
   if (build.status !== 0) {
+    rmSync(tempOutputPath, { recursive: true, force: true });
     throw new Error(build.stderr || build.stdout || 'Failed to build the React dashboard for export.');
   }
 
-  const dataDir = join(outputPath, 'data');
+  const dataDir = join(tempOutputPath, 'data');
   mkdirSync(dataDir, { recursive: true });
   writeFileSync(join(dataDir, 'manifest.json'), `${JSON.stringify(serializedBundle.manifest, null, 2)}\n`, 'utf8');
   writeFileSync(join(dataDir, 'graph.json'), `${JSON.stringify(serializedBundle.graph, null, 2)}\n`, 'utf8');
   writeFileSync(join(dataDir, 'index.json'), `${JSON.stringify(serializedBundle.index, null, 2)}\n`, 'utf8');
-  if (serializedEnrichment) {
-    writeFileSync(join(dataDir, 'enrichment.json'), `${JSON.stringify(serializedEnrichment, null, 2)}\n`, 'utf8');
+  writeFileSync(
+    join(dataDir, 'enrichment.json'),
+    serializedEnrichment ? `${JSON.stringify(serializedEnrichment, null, 2)}\n` : 'null\n',
+    'utf8',
+  );
+
+  if (existsSync(outputPath)) {
+    rmSync(outputPath, { recursive: true, force: true });
   }
+  renameSync(tempOutputPath, outputPath);
 
   return {
     paperId,

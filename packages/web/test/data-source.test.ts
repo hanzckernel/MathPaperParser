@@ -3,6 +3,31 @@ import { describe, expect, it, vi } from 'vitest';
 import { loadSerializedPaperData } from '../src/lib/data-source.js';
 
 describe('web data source enrichment loading', () => {
+  it('treats explicit null enrichment as absent in static export mode', async () => {
+    const fetchMock = vi.fn<Parameters<typeof fetch>, ReturnType<typeof fetch>>();
+    fetchMock.mockResolvedValueOnce(
+      new Response(JSON.stringify({ schema_version: '0.2.0', paper: { title: 'Static Title' } }), { status: 200 }),
+    );
+    fetchMock.mockResolvedValueOnce(
+      new Response(JSON.stringify({ schema_version: '0.2.0', nodes: [], edges: [] }), { status: 200 }),
+    );
+    fetchMock.mockResolvedValueOnce(
+      new Response(JSON.stringify({ schema_version: '0.2.0', main_results: [], stats: {} }), { status: 200 }),
+    );
+    fetchMock.mockResolvedValueOnce(new Response('null', { status: 200 }));
+
+    const loaded = await loadSerializedPaperData(
+      {
+        kind: 'static',
+        basePath: '/export/data',
+      },
+      fetchMock as typeof fetch,
+    );
+
+    expect(loaded.bundle.manifest.paper.title).toBe('Static Title');
+    expect(loaded.enrichment).toBeUndefined();
+  });
+
   it('loads enrichment.json alongside static manifest/graph/index when present', async () => {
     const fetchMock = vi.fn<Parameters<typeof fetch>, ReturnType<typeof fetch>>();
     fetchMock.mockResolvedValueOnce(

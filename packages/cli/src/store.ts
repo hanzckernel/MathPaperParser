@@ -139,7 +139,7 @@ export function readLatestPaper(storePath: string): LatestPaperRecord | undefine
 }
 
 export function resolveStoredPaperId(storePath: string, explicitPaperId?: string): string {
-  if (explicitPaperId) {
+  if (explicitPaperId && explicitPaperId !== 'latest') {
     return explicitPaperId;
   }
 
