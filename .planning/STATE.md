@@ -2,9 +2,9 @@
 gsd_state_version: 1.0
 milestone: v1.3
 milestone_name: Parse/Render Hardening
-status: phase_discussed
-stopped_at: phase 14 discussion complete; ready for planning
-last_updated: "2026-04-03T20:11:44Z"
+status: phase_planned
+stopped_at: phase 14 planned; ready for execution
+last_updated: "2026-04-03T20:20:14Z"
 last_activity: 2026-04-03
 progress:
   total_phases: 3
@@ -26,9 +26,9 @@ See: .planning/PROJECT.md (updated 2026-04-03)
 ## Current Position
 
 Phase: 14. Residual TeX Parser Hardening
-Plan: —
-Status: Discussion complete; context captured
-Last activity: 2026-04-03 — Captured Phase 14 implementation decisions for residual parser hardening and queued the phase for planning.
+Plan: 14-01
+Status: Planned; execution ready
+Last activity: 2026-04-03 — Planned Phase 14 around multiline heading labels, multi-label targets, bounded cleveref resolution, and duplicate-label diagnostics.
 
 Progress: [░░░░░░░░░░] 0%
 
@@ -87,7 +87,7 @@ Decisions are logged in PROJECT.md. The milestone established:
 
 ### Pending Todos
 
-- Start Phase 14 planning.
+- Execute Plan 14-01.
 
 ### Blockers/Concerns
 
@@ -98,5 +98,5 @@ Decisions are logged in PROJECT.md. The milestone established:
 ## Session Continuity
 
 Last session: 2026-04-03 CEST
-Stopped at: Phase 14 discussion captured; next step is `$gsd-plan-phase 14`
+Stopped at: Phase 14 planned; next step is execution of `14-01`
 Resume file: .planning/ROADMAP.md
