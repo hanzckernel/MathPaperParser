@@ -1,96 +1,96 @@
-# Architecture Research: PaperParser v1.3
+# Architecture Research: PaperParser v1.4
 
-**Milestone:** `v1.3 Corpus Search & Parse/Render Hardening`
+**Milestone:** `v1.4 GCP Cloud Run Deployment Hardening`
 **Status:** Complete
-**Date:** 2026-04-03
+**Date:** 2026-04-04
+**Confidence:** HIGH
 
 ## Existing Architecture to Reuse
 
-- Per-paper search lives in `packages/core/src/services/bundle-query-service.ts`
-- Cross-paper related matching lives in `packages/core/src/services/corpus-query-service.ts`
-- CLI query and related commands are wired in `packages/cli/src/index.ts`
-- Web math rendering normalization lives in `packages/web/src/lib/math-render.tsx`
-- Parser diagnostics and residual warnings are surfaced through `diagnostics.json`
+- The CLI server already exposes the paper APIs from `packages/cli/src/server.ts`
+- The React dashboard already builds as static assets in `packages/web`
+- The dashboard already supports API mode through `?api=...`
+- The current persistent store is file-backed under `.paperparser-data/`
+- The current deployment-readiness doc already enumerates the concrete blockers
 
 ## Recommended Integration Shape
 
-### 1. Corpus search as a new service, not a replacement
+### 1. One deployed runtime, not split web and API by default
 
-Add:
-- `packages/core/src/services/corpus-search-service.ts`
-
-Inputs:
-- `listStoredPapers()` metadata
-- per-paper bundles from store
-
-Outputs:
-- corpus search result objects with:
-  - `paperId`
-  - paper title/source type
-  - node id/kind/label/number
-  - section metadata
-  - matched field(s)
-  - score
-  - excerpt
+Recommended shape:
+- Build the React dashboard as static assets
+- Serve those assets from the same Node runtime that exposes `/api/*`
+- Keep browser traffic same-origin by default
 
 Why:
-- This keeps corpus search parallel to, not tangled with, `related`
-- It preserves the paper-local canonical bundle contract
+- The repo currently has no supported CORS deployment contract
+- Same-origin avoids inventing a second deployment problem while the service is still being hardened
 
-### 2. Shared ranking primitives
+### 2. Deploy through Cloud Run as a containerized service
 
-Current issue:
-- `runKeywordSearch()` and `CorpusQueryService` currently use different heuristics
+Recommended shape:
+- Multi-stage Docker build from the monorepo
+- Final image runs the Node server and serves both static web assets and API routes
+- Container listens on the Cloud Run `PORT`
 
-Recommended direction:
-- Extract shared tokenization and field-weight logic into a shared search helper module
-- Let corpus search add paper-level metadata and result grouping on top
+Why:
+- Cloud Run expects an HTTP container
+- A committed container artifact is a stronger repo-level contract than ad hoc manual deployment
 
-### 3. API and CLI boundaries
+### 3. Bounded persistence bridge for the current store
 
-Recommended additions:
-- CLI command: `paperparser corpus-search <query>`
-- API route: `GET /api/corpus/query?q=...`
+Recommended shape:
+- Keep the current store-path contract in application code
+- Mount a Cloud Storage bucket into the container as the deployed store path
+- Treat this as a bounded compatibility bridge, not a permanent local-disk abstraction
 
-Do not:
-- overload the current single-paper `/api/papers/:paperId/query`
-- infer corpus mode from missing `paper`
+Why:
+- It minimizes milestone churn versus a full persistence redesign
+- It supports the current file-backed bundle layout with explicit operational constraints
 
-### 4. Web/UI boundary
+### 4. Access and ingress boundary
 
-Recommended direction:
-- Add a corpus-search surface that links back into the existing paper-aware explorer flow
-- Reuse current route/navigation patterns rather than inventing a disconnected global search page
+Recommended shape:
+- Keep the service authenticated by default
+- If shared browser access is needed, use a deliberate ingress model rather than direct public exposure
+- Favor an external Application Load Balancer when you need load-balancer features such as IAP or future Cloud Armor controls
 
-### 5. Parser/render hardening boundary
+Why:
+- The repo has no product-level auth yet
+- The current API cannot safely be treated as a public anonymous internet API
 
-Parser hardening belongs in:
-- `packages/core/src/ingestion/parsers/latex-parser.ts`
-- related regression fixtures/tests
+### 5. Operability boundary
 
-Render hardening belongs in:
-- `packages/web/src/lib/math-render.tsx`
+Add:
+- `/healthz`
+- `/readyz`
+- structured logs to stdout/stderr
+- explicit request and upload limits
 
-Important boundary:
-- Parser should improve extracted text fidelity and explicit diagnostics
-- Renderer should normalize browser-facing fragments
-- Do not silently rely on render-time rescue to cover parser ambiguity
+Do not treat:
+- Cloud Run deployment success
+as equivalent to
+- application readiness for real traffic
 
 ## Suggested Build Order
 
-1. Add targeted regression fixtures for residual parser/render failures
-2. Build corpus-search core service and types
-3. Wire CLI/API corpus-search interfaces
-4. Add web corpus-search UI/navigation
-5. Expand parser hardening on the residual failure classes
-6. Expand render normalization and MathJax overflow handling
-7. Prove everything on the accepted corpus plus targeted hard-case fixtures
+1. Harden the current server surface for deployed mode
+2. Add combined web/API serving and container packaging
+3. Wire Cloud Run runtime config and persistence
+4. Add ingress/access policy and operator docs
+5. Add acceptance proof for the GCP deployment path
 
 ## Sources
 
 - Local code:
-  - `packages/core/src/services/bundle-query-service.ts`
-  - `packages/core/src/services/corpus-query-service.ts`
-  - `packages/core/src/search/keyword-search.ts`
+  - `packages/cli/src/server.ts`
   - `packages/cli/src/index.ts`
-  - `packages/web/src/lib/math-render.tsx`
+  - `packages/web/src/App.tsx`
+  - `packages/web/src/lib/data-source.ts`
+- Local docs:
+  - `docs/deployment_readiness.md`
+  - `README.md`
+- Official docs:
+  - https://cloud.google.com/run/docs/quickstarts/build-and-deploy/deploy-nodejs-service
+  - https://cloud.google.com/run/docs/securing/ingress
+  - https://cloud.google.com/run/docs/configuring/services/cloud-storage-volume-mounts

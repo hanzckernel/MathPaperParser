@@ -1,72 +1,129 @@
-# Pitfalls Research: PaperParser v1.3
+# Pitfalls Research: PaperParser v1.4
 
-**Milestone:** `v1.3 Corpus Search & Parse/Render Hardening`
+**Milestone:** `v1.4 GCP Cloud Run Deployment Hardening`
 **Status:** Complete
-**Date:** 2026-04-03
+**Date:** 2026-04-04
+**Confidence:** HIGH
 
-## Pitfall 1: Turning corpus search into an opaque merged graph
+## Pitfall 1: Deploying the current local-only API surface unchanged
 
-Risk:
-- Cross-paper search becomes less trustworthy if results lose paper attribution or if ranking cannot be inspected.
+**What goes wrong:**
+- Remote clients can ask the server to read arbitrary filesystem paths through JSON `inputPath`
+- Upload requests can consume unbounded memory
 
-Prevention:
-- Keep every result explicitly tied to `paperId`
-- Expose matched field(s) and paper metadata in results
-- Reuse existing paper-aware navigation instead of inventing a graph-wide abstraction layer
+**Why it happens:**
+- The current API was designed for localhost tooling, not shared deployment
 
-## Pitfall 2: Letting paper-local and corpus-wide ranking drift arbitrarily
+**How to avoid:**
+- Remove or gate JSON `inputPath` ingestion in deployed mode
+- Add explicit request-size and upload-size limits
 
-Risk:
-- Users will get inconsistent search behavior across CLI/API/web surfaces.
+**Warning signs:**
+- Deployed service still accepts local-path analysis over HTTP
+- No hard failure on oversized uploads
 
-Prevention:
-- Share tokenization and scoring helpers where possible
-- Add acceptance assertions for ranking quality, not just non-empty results
+**Phase to address:**
+- earliest deployment-hardening phase
 
-## Pitfall 3: Treating render fallback as a parser substitute
+---
 
-Risk:
-- Browser normalization grows into an implicit parser layer, making unsupported content look more understood than it is.
+## Pitfall 2: Treating split web/API deployment as a free default
 
-Prevention:
-- Keep parser hardening and render normalization separate
-- Preserve explicit diagnostics for unsupported parse cases
-- Use render fallback as a local UI boundary, not as canonical recovery logic
+**What goes wrong:**
+- Browser deployment fails into CORS confusion or undocumented proxy assumptions
 
-## Pitfall 4: Over-promising MathJax compatibility
+**Why it happens:**
+- The current repo supports API mode, but not a documented cross-origin production contract
 
-Risk:
-- MathJax does not implement full LaTeX and does not support every package, so broad compatibility promises will fail.
+**How to avoid:**
+- Make same-origin the default supported topology
+- Only split origins if the milestone explicitly adds and tests that contract
 
-Prevention:
-- Normalize only the targeted fragment classes you can test
-- Add explicit fixture coverage for each newly supported class
-- Keep unsupported macros/environments visible through fallback or diagnostics
+**Warning signs:**
+- The Cloud Run service ships, but the dashboard only works when manually editing query params or proxy settings
 
-Official reference:
-- [MathJax TeX support](https://docs.mathjax.org/en/stable/input/tex/)
+**Phase to address:**
+- topology/serving phase
 
-## Pitfall 5: Adding a search dependency before proving the current need
+---
 
-Risk:
-- A new search library adds integration complexity, index-format questions, and ranking drift before the milestone proves it is necessary.
+## Pitfall 3: Assuming Cloud Storage mounts behave like a local POSIX disk
 
-Prevention:
-- Start with a core-service implementation on the current architecture
-- Treat Lunr or FlexSearch as fallback stack decisions if ranking/scale evidence forces them
+**What goes wrong:**
+- Latency, caching, or write expectations drift from what the mounted object-store bridge actually provides
 
-## Pitfall 6: Using synthetic tests as the only proof
+**Why it happens:**
+- The current app is filesystem-oriented, so it is tempting to pretend a mounted bucket is “just disk”
 
-Risk:
-- Corpus-search relevance and parser/render improvements can look good on fixtures but fail on real papers.
+**How to avoid:**
+- Use the mount as a bounded store bridge only
+- Keep write patterns simple and explicit
+- Document the persistence contract and limitations
 
-Prevention:
-- Keep the accepted corpus in the acceptance proof
-- Add a small number of targeted hard-case fixtures alongside the real-corpus run
+**Warning signs:**
+- Code starts depending on local-disk semantics outside the existing bundle store flow
+
+**Phase to address:**
+- persistence phase
+
+---
+
+## Pitfall 4: Exposing the wrong endpoint to the internet
+
+**What goes wrong:**
+- Traffic reaches the raw `run.app` service path instead of the intended ingress layer or access model
+
+**Why it happens:**
+- Cloud Run ingress defaults are easy to leave open if the operator only thinks about IAM or only thinks about the load balancer
+
+**How to avoid:**
+- Define the supported ingress model explicitly
+- Restrict ingress and disable the default URL when the load balancer is the intended public entry point
+
+**Warning signs:**
+- The service is reachable in more places than the runbook describes
+
+**Phase to address:**
+- topology/access phase
+
+---
+
+## Pitfall 5: Shipping a deploy command without an operability contract
+
+**What goes wrong:**
+- The app can be deployed, but operators cannot tell whether it is healthy, ready, or safe to roll back
+
+**Why it happens:**
+- Teams often stop at “container runs” instead of completing health, logs, and runbook work
+
+**How to avoid:**
+- Add `/healthz` and `/readyz`
+- Emit structured logs
+- Publish rollout and rollback instructions
+- Add a deployment acceptance proof
+
+**Warning signs:**
+- No documented smoke test after deploy
+- No log fields that help distinguish request failures from app failures
+
+**Phase to address:**
+- operability and acceptance phase
 
 ## Summary
 
-The biggest failure mode is not technical impossibility. It is boundary drift:
-- corpus search drifting into opaque cross-paper semantics
-- parser hardening drifting into UI-only normalization
-- render hardening drifting into silent pseudo-support
+The biggest failure mode is not Cloud Run itself. It is exporting local assumptions into a shared environment:
+- local-only filesystem trust
+- implicit browser topology
+- storage semantics the platform does not actually promise
+- deployment success without operational proof
+
+## Sources
+
+- Official docs:
+  - https://cloud.google.com/run/docs/securing/ingress
+  - https://cloud.google.com/run/docs/authenticating/overview
+  - https://cloud.google.com/run/docs/configuring/healthchecks
+  - https://cloud.google.com/run/docs/configuring/services/cloud-storage-volume-mounts
+- Local docs:
+  - `docs/deployment_readiness.md`
+  - `packages/cli/src/server.ts`

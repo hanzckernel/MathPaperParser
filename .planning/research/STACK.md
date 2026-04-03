@@ -1,98 +1,83 @@
-# Stack Research: PaperParser v1.3
+# Stack Research: PaperParser v1.4
 
-**Milestone:** `v1.3 Corpus Search & Parse/Render Hardening`
+**Milestone:** `v1.4 GCP Cloud Run Deployment Hardening`
 **Status:** Complete
-**Date:** 2026-04-03
+**Date:** 2026-04-04
+**Confidence:** HIGH
 
 ## Recommendation
 
 Default recommendation:
-- Keep the existing TypeScript monorepo and current query services.
-- Add corpus search as a new core service above the existing per-paper `BundleQueryService`.
-- Do not add a heavy search dependency by default in this milestone.
-- Keep MathJax as the browser renderer and expand normalization/fallback coverage before considering any renderer switch.
+- Keep the existing TypeScript monorepo and current Node HTTP server as the serving runtime.
+- Package the app as a versioned container image and deploy it to Cloud Run from Artifact Registry.
+- Serve the React dashboard and the API from the same Cloud Run service so the browser path is same-origin by default.
+- Use a Cloud Storage volume mount only as the bounded persistence bridge for the current filesystem-backed store, not as a general-purpose local disk replacement.
+- Treat Cloud Run ingress, IAM, request limits, and health checks as part of the product contract, not just deployment settings.
 
-## Stack Options
+## Core Stack
 
-### Search stack
+| Technology | Purpose | Why Recommended |
+|------------|---------|-----------------|
+| Cloud Run services | Primary deployment target | Native fit for HTTP container workloads, autoscaling, and the chosen GCP target |
+| Artifact Registry | Container image storage | Standard image registry for Cloud Run deployments |
+| Versioned Dockerfile | Supported packaging artifact | More reproducible than ad hoc source deploy for a repo that wants a durable deployment contract |
+| Cloud Storage volume mount | Store-path persistence bridge | Lets the current file-backed bundle store run on Cloud Run with bounded code churn |
+| Cloud Logging via stdout/stderr | Structured logs and request correlation | Cloud Run automatically ships container logs and request logs to Cloud Logging |
 
-#### Option A: Extend the current in-repo search/index logic (Recommended)
+## Supporting GCP Services
 
-Why it fits this milestone:
-- Lowest architectural risk because `BundleQueryService` and `CorpusQueryService` already exist in `packages/core`.
-- Keeps ranking explainable and paper-aware.
-- Avoids adding a dependency before the true corpus-search needs are proven on the accepted corpus.
+| Service | When to Use | Notes |
+|---------|-------------|-------|
+| External Application Load Balancer | When the dashboard and API need one shared public hostname with load-balancer controls | Cloud Run ingress can be restricted to `internal-and-cloud-load-balancing` to force traffic through the load balancer |
+| Identity-Aware Proxy | When access should be limited to trusted users without building a full app-auth system first | Better fit than a public unauthenticated API for the current app state |
+| Secret Manager | When deployment needs API keys or other operator secrets later | Better than baking secrets into images or env files |
+| Terraform | When the deployment path needs repeatable infra creation | Useful, but not required for the first supported deployment slice |
 
-Recommended additions:
-- A new `CorpusSearchService` in `packages/core/src/services/`
-- A corpus-level result type that includes `paperId`, paper metadata, and node metadata
-- Shared ranking helpers so paper-local and corpus-wide search do not drift arbitrarily
+## Recommended Stack Decision
 
-#### Option B: Evaluate Lunr if ranking quality becomes the main blocker
+1. **Use Cloud Run + Artifact Registry as the primary deploy path.**
+2. **Prefer a checked-in Dockerfile** over relying only on `gcloud run deploy --source`, because the milestone goal is a supported packaging story, not a one-off deploy shortcut.
+3. **Serve web + API from one runtime** so the deployed dashboard does not depend on a separate CORS strategy.
+4. **Use Cloud Storage volume mounts only as a transitional persistence layer** for the current store structure.
+5. **Keep the first supported shared access model authenticated and bounded**, ideally through load-balancer controls or a private Cloud Run service, unless the milestone explicitly adds end-user auth.
 
-Useful capabilities from the official Lunr docs:
-- BM25 scoring
-- field-restricted search
-- per-term boosts
-- fuzzy matching
+## Alternatives Considered
 
-Why it is not the default:
-- It introduces a second ranking model when the current product already has a custom search model
-- The milestone goal is explainable local corpus search, not generic text-search breadth
+| Recommended | Alternative | When to Use Alternative |
+|-------------|-------------|-------------------------|
+| Versioned Dockerfile | `gcloud run deploy --source` | Fine for quick experiments, but weaker as the repo’s supported packaging contract |
+| Same-origin combined service | Split static site + separate API service with CORS | Only when there is a strong reason to decouple front and back ends |
+| Cloud Storage mount bridge | Full persistence redesign first | Better long term, but likely too much scope for the first deployment milestone |
 
-Official reference:
-- [Lunr searching guide](https://lunrjs.com/guides/searching.html)
+## What NOT to Use
 
-#### Option C: FlexSearch only if large persistent corpus indexing becomes a hard requirement
+| Avoid | Why | Use Instead |
+|-------|-----|-------------|
+| Direct public exposure of the current API surface | The repo still has remote-path ingestion, unbounded uploads, and no app auth | Harden the API first and keep access bounded |
+| Treating the Cloud Storage mount like a normal local SSD | It is a mounted object-store bridge with different performance and semantics | Use it as a bounded store path, not as a general mutable scratch disk |
+| A split-origin dashboard/API deployment by default | The current app has no supported CORS deployment contract | Same-origin serving through one service or a deliberate load-balancer setup |
 
-Useful capabilities from the official FlexSearch docs/repo:
-- multi-field document search
-- workers
-- persistent indexes
-- browser and Node support
+## Key Official Findings
 
-Why it is not the default:
-- More moving parts than this milestone needs
-- Better fit for a later milestone with explicit persistent corpus indexing or larger-scale shared deployment concerns
-
-Official reference:
-- [FlexSearch README](https://github.com/nextapps-de/flexsearch?tab=readme-ov-file)
-
-### Math/render stack
-
-Keep:
-- `mathjax@4.x`
-- local bundled `tex-chtml-nofont`
-- normalization in `packages/web/src/lib/math-render.tsx`
-
-Research-backed notes:
-- MathJax 4 now supports automatic line breaking, including inline expressions and configurable display overflow behavior.
-- MathJax still implements only a subset of TeX/LaTeX, and not all LaTeX packages are available.
-
-Implication:
-- The milestone should improve normalization and fragment shaping, not assume browser-side package compatibility will close the remaining gap.
-
-Official references:
-- [MathJax line breaking](https://docs.mathjax.org/en/stable/output/linebreaks.html)
-- [MathJax TeX support](https://docs.mathjax.org/en/stable/input/tex/)
-
-## Recommended Stack Decision for v1.3
-
-1. Add no new required dependency for corpus search in the first phase.
-2. Build corpus search on top of the current core services and node metadata.
-3. Keep Lunr as the fallback option if ranking quality cannot be reached quickly with the in-repo scorer.
-4. Keep FlexSearch out of scope for `v1.3` unless persistent large-corpus indexing becomes a demonstrated requirement.
-5. Keep MathJax and invest in better normalization, diagnostics, and render-safe fragment shaping.
+- Cloud Run can deploy from source, but that path builds behind the scenes with Cloud Build and stores images in Artifact Registry.
+- Cloud Run services are private by default at the IAM layer.
+- Cloud Run ingress defaults still allow internet reachability unless explicitly restricted.
+- Cloud Run supports startup and liveness probes.
+- Cloud Run supports Cloud Storage volume mounts in the second-generation execution environment.
+- Cloud Run request timeout defaults to 300 seconds and can be configured.
 
 ## Sources
 
-- Local code:
-  - `packages/core/src/services/bundle-query-service.ts`
-  - `packages/core/src/services/corpus-query-service.ts`
-  - `packages/core/src/search/keyword-search.ts`
-  - `packages/web/src/lib/math-render.tsx`
-- External:
-  - [MathJax line breaking](https://docs.mathjax.org/en/stable/output/linebreaks.html)
-  - [MathJax TeX support](https://docs.mathjax.org/en/stable/input/tex/)
-  - [Lunr searching guide](https://lunrjs.com/guides/searching.html)
-  - [FlexSearch README](https://github.com/nextapps-de/flexsearch?tab=readme-ov-file)
+- Official docs:
+  - https://cloud.google.com/run/docs/quickstarts/build-and-deploy/deploy-nodejs-service
+  - https://cloud.google.com/run/docs/deploying-source-code
+  - https://cloud.google.com/artifact-registry/docs/docker/pushing-and-pulling
+  - https://cloud.google.com/run/docs/configuring/healthchecks
+  - https://cloud.google.com/run/docs/configuring/request-timeout
+  - https://cloud.google.com/run/docs/configuring/services/cloud-storage-volume-mounts
+  - https://cloud.google.com/run/docs/securing/ingress
+  - https://cloud.google.com/run/docs/authenticating/overview
+  - https://cloud.google.com/run/docs/logging
+- Local docs:
+  - `docs/deployment_readiness.md`
+  - `README.md`

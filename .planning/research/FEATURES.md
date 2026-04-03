@@ -1,70 +1,97 @@
-# Feature Research: PaperParser v1.3
+# Feature Research: PaperParser v1.4
 
-**Milestone:** `v1.3 Corpus Search & Parse/Render Hardening`
+**Milestone:** `v1.4 GCP Cloud Run Deployment Hardening`
 **Status:** Complete
-**Date:** 2026-04-03
+**Date:** 2026-04-04
+**Confidence:** HIGH
 
-## Category: Corpus Search
-
-### Table stakes
-
-- Search across all stored papers, not only one selected paper
-- Return paper-aware result metadata: `paperId`, title, source type, node id, node kind, section title
-- Keep direct navigation into the existing explorer/detail flow
-- Make ranking understandable enough that a mathematician can see why a result surfaced
-
-### Differentiators
-
-- Result grouping by paper or paper-first facets
-- Match reasons such as matched field (`label`, `latexLabel`, `statement`, `sectionTitle`)
-- Search modes or filters that stay faithful to math use: theorem-like only, exact label, section/title bias
-
-### Anti-features for this milestone
-
-- Opaque merged-corpus search with no paper attribution
-- Embedding-heavy semantic search as the default ranking path
-- Hosted/shared search infrastructure
-
-## Category: Parser Hardening
+## Category: Cloud Run Packaging
 
 ### Table stakes
 
-- Reduce recurring unresolved-reference diagnostics on the accepted corpus
-- Add explicit regression fixtures for the next unresolved-pattern classes instead of only broad corpus assertions
-- Preserve explicit diagnostics when a pattern is still unsupported
+- A checked-in deployment artifact for Cloud Run, not just manual local commands
+- One documented deploy command or workflow that produces a runnable service revision
+- Explicit runtime configuration for port, store path, region, and service account
 
 ### Differentiators
 
-- Better extraction around the theorem/equation boundary cases already hinted by residual warnings
-- Broader support for reference-command variants only when they can be kept deterministic
-- Better statement shaping where parser output feeds rendering quality
+- Repeatable infra/deploy config, such as Terraform or committed service YAML
+- Tagged or immutable image references for rollback-friendly deployment
 
-### Anti-features for this milestone
+### Anti-features
 
-- Broad "handles arbitrary TeX" claims
-- Schema churn that widens the canonical artifact without strong evidence
+- “Just run `gcloud` by hand” as the only deployment story
+- A deployment process that depends on unpublished local machine state
 
-## Category: Render Hardening
+## Category: Topology and Access
 
 ### Table stakes
 
-- Fewer `MathTextBlock` fallbacks on accepted and targeted hard-case fixtures
-- Better handling of environments and macros already partially normalized today
-- More explicit render diagnostics so unsupported content is inspectable
+- A supported same-origin web/API topology for the browser dashboard
+- A defined access model for shared deployment: authenticated internal users, or explicit public access with compensating controls
+- Clear ingress expectations for Cloud Run and any load-balancer layer
 
 ### Differentiators
 
-- Better width/overflow handling for long expressions using MathJax 4 line-breaking options where safe
-- Safer normalization for structured display math and theorem wrappers without mutating the canonical source text
+- Identity-Aware Proxy for trusted-user access without adding full product auth yet
+- Optional custom domain and load-balancer path once the base topology works
 
-### Anti-features for this milestone
+### Anti-features
 
-- Renderer replacement
-- Silent coercion that hides unsupported fragments as if they were correctly understood
+- Split-origin web/API deployment without an explicit CORS contract
+- Public `run.app` exposure that bypasses intended load-balancer or auth controls
+
+## Category: API Safety
+
+### Table stakes
+
+- Remove or restrict JSON `inputPath` ingestion for deployed environments
+- Add bounded request and upload handling
+- Add explicit health and readiness endpoints
+- Emit structured logs for operator debugging
+
+### Differentiators
+
+- Environment-aware runtime modes that keep localhost ergonomics while hardening deployed mode
+- Safer upload lifecycle and explicit operator-visible limits
+
+### Anti-features
+
+- Keeping local-only filesystem trust assumptions in the internet-facing mode
+- Using “it is behind Cloud Run” as a substitute for application-side safety
+
+## Category: Persistence and Operations
+
+### Table stakes
+
+- Define where the persistent paper store lives on GCP
+- Document deployment config, persistence, upgrade, and rollback steps
+- Add acceptance coverage that proves the Cloud Run target is actually deployable
+
+### Differentiators
+
+- Infra as code for bucket/service wiring
+- Production-minded operational checks for logs, readiness, and smoke verification
+
+### Anti-features
+
+- Assuming the ephemeral container filesystem is a persistent store
+- Declaring production readiness without a runbook or rollback path
 
 ## Research Takeaway
 
 The natural scope split is:
-1. Corpus-wide search as a new read model
-2. Parser hardening on the residual deterministic gap classes
-3. Render hardening on top of improved extracted fragments plus expanded normalization
+1. harden the current server boundary for deployment
+2. package and route the combined web/API runtime for Cloud Run
+3. define persistence plus operator proof for the GCP path
+
+## Sources
+
+- Official docs:
+  - https://cloud.google.com/run/docs/authenticating/overview
+  - https://cloud.google.com/run/docs/securing/ingress
+  - https://cloud.google.com/run/docs/configuring/healthchecks
+  - https://cloud.google.com/run/docs/configuring/request-timeout
+  - https://cloud.google.com/run/docs/configuring/services/cloud-storage-volume-mounts
+- Local docs:
+  - `docs/deployment_readiness.md`
