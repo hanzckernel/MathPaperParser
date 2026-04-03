@@ -2,16 +2,16 @@
 gsd_state_version: 1.0
 milestone: v1.3
 milestone_name: Parse/Render Hardening
-status: phase_planned
-stopped_at: phase 14 planned; ready for execution
-last_updated: "2026-04-03T20:20:14Z"
+status: phase_complete
+stopped_at: phase 14 complete; ready for phase 15 discussion
+last_updated: "2026-04-03T20:26:59Z"
 last_activity: 2026-04-03
 progress:
   total_phases: 3
-  completed_phases: 0
-  total_plans: 0
-  completed_plans: 0
-  percent: 0
+  completed_phases: 1
+  total_plans: 1
+  completed_plans: 1
+  percent: 33
 ---
 
 # Project State
@@ -21,16 +21,16 @@ progress:
 See: .planning/PROJECT.md (updated 2026-04-03)
 
 **Core value:** A mathematician can feed in a TeX paper and get a trustworthy dependency artifact that makes the logical structure of the paper easier to navigate.
-**Current focus:** Phase 14 planning for `v1.3 Parse/Render Hardening`
+**Current focus:** Phase 15 discussion for `v1.3 Parse/Render Hardening`
 
 ## Current Position
 
-Phase: 14. Residual TeX Parser Hardening
-Plan: 14-01
-Status: Planned; execution ready
-Last activity: 2026-04-03 — Planned Phase 14 around multiline heading labels, multi-label targets, bounded cleveref resolution, and duplicate-label diagnostics.
+Phase: 15. Math Fragment Render Hardening
+Plan: —
+Status: Phase 14 complete; next phase not yet discussed
+Last activity: 2026-04-03 — Completed Phase 14 with alias-aware label registration, bounded cleveref resolution, and a reduced accepted-corpus warning budget.
 
-Progress: [░░░░░░░░░░] 0%
+Progress: [███░░░░░░░] 33%
 
 ## Performance Metrics
 
@@ -57,6 +57,7 @@ Progress: [░░░░░░░░░░] 0%
 | 11. Dashboard Math Rendering Repair | 1 | 28 min | 28 min |
 | 12. Dashboard Bootstrap & Runtime Guardrails | 1 | 18 min | 18 min |
 | 13. Export Acceptance & Operator Guidance | 1 | 16 min | 16 min |
+| 14. Residual TeX Parser Hardening | 1 | 7 min | 7 min |
 
 **Recent Trend:**
 
@@ -84,19 +85,21 @@ Decisions are logged in PROJECT.md. The milestone established:
 - Phase 12 established a dedicated top-level blocker for unsupported static `file://` usage while leaving API mode unblocked.
 - Phase 13 established `npm run test:acceptance:v1.2` as the reproducible milestone proof and aligned the operator docs with the hardened local workflow.
 - `v1.3` is scoped to parser/render hardening only; corpus-wide search is deferred to the next milestone.
+- Phase 14 reduced the accepted-corpus `long_nalini` residual budget to `7` unresolved references and `0` unsupported reference-command diagnostics without adding figure-schema work.
+- Phase 14 made duplicate labels explicit with first-definition-wins semantics instead of silent overwrite.
 
 ### Pending Todos
 
-- Execute Plan 14-01.
+- Start Phase 15 discussion/planning.
 
 ### Blockers/Concerns
 
-- `long_nalini` still emits a bounded residual of `22` unresolved references and `2` unsupported reference-command diagnostics, so future parser work should not assume a perfectly clean gold paper.
+- `long_nalini` still emits `7` explicit unresolved references, primarily in the deferred figure-reference slice.
 - Unsupported TeX beyond the current normalization set still falls back to raw source instead of full browser-ready math rendering.
-- The next parser hardening work should reduce residual diagnostics without weakening deterministic trust or canonical bundle stability.
+- Phase 15 should not assume all extracted math fragments are now render-safe just because the parser residual budget dropped.
 
 ## Session Continuity
 
 Last session: 2026-04-03 CEST
-Stopped at: Phase 14 planned; next step is execution of `14-01`
+Stopped at: Phase 14 complete; next step is `$gsd-discuss-phase 15`
 Resume file: .planning/ROADMAP.md

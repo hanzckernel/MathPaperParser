@@ -16,7 +16,7 @@
 - Integer phases (14, 15, 16): Planned milestone work
 - Decimal phases (14.1, 14.2): Urgent insertions (marked with INSERTED)
 
-- [ ] **Phase 14: Residual TeX Parser Hardening** - Reduce the remaining deterministic parser gaps behind unresolved diagnostics and incomplete extraction.
+- [x] **Phase 14: Residual TeX Parser Hardening** - Reduce the remaining deterministic parser gaps behind unresolved diagnostics and incomplete extraction.
 - [ ] **Phase 15: Math Fragment Render Hardening** - Expand render-safe normalization so more extracted mathematical fragments typeset cleanly without overstating compatibility.
 - [ ] **Phase 16: Parse/Render Acceptance Gate** - Prove the upgraded parse/render workflow on the accepted corpus plus targeted hard-case fixtures.
 
@@ -57,4 +57,4 @@
 | v1.0 TeX MVP | Phases 1-5 | Complete | 2026-04-02 |
 | v1.1 Search, Hardening & Corpus | Phases 6-9 | Complete | 2026-04-03 |
 | v1.2 Dashboard, Export & Math Rendering Hardening | Phases 10-13 | Complete | 2026-04-03 |
-| v1.3 Parse/Render Hardening | Phases 14-16 | Planned | - |
+| v1.3 Parse/Render Hardening | Phases 14-16 | In Progress | - |

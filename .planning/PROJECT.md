@@ -17,7 +17,7 @@ A mathematician can feed in a TeX paper and get a trustworthy dependency artifac
 - **Canonical output:** `manifest.json` / `graph.json` / `index.json`
 - **Additive sidecars:** `diagnostics.json` and optional `enrichment.json`
 - **Accepted workflows:** `analyze -> validate -> search -> inspect`, `export -> serve -> browse`, optional `enrich`, and explainable cross-paper `related`
-- **Current non-blocking debt:** `long_nalini` still emits `22` unresolved references plus `2` explicit unsupported reference-command diagnostics, cross-paper navigation remains intentionally paper-local, unsupported TeX beyond the current normalization set falls back to raw source, and Nyquist validation artifacts are still missing for phases 10-13
+- **Current non-blocking debt:** `long_nalini` still emits `7` unresolved references concentrated in the deferred figure-reference slice, cross-paper navigation remains intentionally paper-local, unsupported TeX beyond the current normalization set falls back to raw source, and Nyquist validation artifacts are still missing for phases 10-14
 
 ## Last Shipped Milestone: v1.2 Dashboard, Export & Math Rendering Hardening
 

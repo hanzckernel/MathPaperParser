@@ -57,9 +57,9 @@
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| HARD-06 | Phase 14 | Pending |
-| HARD-07 | Phase 14 | Pending |
-| HARD-08 | Phase 14 | Pending |
+| HARD-06 | Phase 14 | Complete |
+| HARD-07 | Phase 14 | Complete |
+| HARD-08 | Phase 14 | Complete |
 | MATH-04 | Phase 15 | Pending |
 | MATH-05 | Phase 15 | Pending |
 | MATH-06 | Phase 15 | Pending |
