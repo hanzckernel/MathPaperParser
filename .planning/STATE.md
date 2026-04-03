@@ -95,6 +95,7 @@ Decisions are logged in PROJECT.md. The milestone established:
 ### Pending Todos
 
 - Run milestone audit and closeout for `v1.3`.
+- Fix stale sample artifact problem.
 
 ### Blockers/Concerns
 
