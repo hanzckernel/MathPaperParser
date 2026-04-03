@@ -10,33 +10,24 @@ A mathematician can feed in a TeX paper and get a trustworthy dependency artifac
 
 ## Current State
 
-- **Shipped milestone:** `v1.2 Dashboard, Export & Math Rendering Hardening` on 2026-04-03
-- **Active milestone:** `v1.3 Parse/Render Hardening`
+- **Shipped milestone:** `v1.3 Parse/Render Hardening` on 2026-04-03
+- **Active milestone:** none yet; next planning cycle not started
 - **Representative acceptance paper:** `ref/papers/long_nalini/arXiv-2502.12268v2/main.tex`
 - **Accepted local corpus:** `long_nalini`, `medium_Mueller.flat.tex`, and `short_Petri.tex`
 - **Canonical output:** `manifest.json` / `graph.json` / `index.json`
 - **Additive sidecars:** `diagnostics.json` and optional `enrichment.json`
 - **Accepted workflows:** `analyze -> validate -> search -> inspect`, `export -> serve -> browse`, optional `enrich`, and explainable cross-paper `related`
-- **Current non-blocking debt:** `long_nalini` still emits `7` unresolved references concentrated in the deferred figure-reference slice, cross-paper navigation remains intentionally paper-local, unsupported TeX beyond the new list/wrapper/`cases` normalization set still falls back to raw source, and Nyquist validation artifacts are still missing for phases 10-16
+- **Current non-blocking debt:** `long_nalini` still emits `7` unresolved references concentrated in the deferred figure-reference slice, cross-paper navigation remains intentionally paper-local, unsupported TeX beyond the current normalization set still falls back to raw source, and Nyquist validation artifacts are still missing for phases 10-16
 
-## Last Shipped Milestone: v1.2 Dashboard, Export & Math Rendering Hardening
-
-**Goal:** Make static dashboard exports, dashboard startup behavior, and mathematical equation rendering reliable enough that local sharing and demo flows do not fail with a blank page, raw LaTeX-heavy text, or misleading render state.
-
-**Delivered:**
-- Deterministic static export output, including strict `--paper latest` resolution and explicit `enrichment.json` handling
-- Shared MathJax-based statement rendering with line-break and package-dependent fragment normalization plus inline fallback
-- Explicit runtime guardrails for unsupported static `file://` usage and strict `#root` bootstrap enforcement
-- A named repo-level acceptance proof command and aligned local operator guidance for the supported export-and-serve workflow
-
-## Current Milestone: v1.3 Parse/Render Hardening
+## Last Shipped Milestone: v1.3 Parse/Render Hardening
 
 **Goal:** Reduce the remaining parser and math-render failure modes that still surface as unresolved diagnostics, weak extraction, or raw-source fallback on the accepted corpus.
 
-**Target features:**
-- Deeper parser hardening for the remaining TeX patterns behind unresolved references and incomplete extraction
-- Deeper render compatibility so more extracted mathematical fragments render cleanly instead of falling back to raw source
-- Acceptance proof on the shipped corpus plus targeted representative fixtures for the new parser/render cases
+**Delivered:**
+- Alias-aware label resolution, bounded `\cref` / `\Cref` support, and explicit duplicate-label warnings that reduced the accepted-corpus residual parser budget to `7` unresolved references
+- Broader shared MathJax normalization for list-heavy, wrapper-heavy, and bounded `cases` fragments plus preserved explicit fallback for unsupported structures
+- Exported-dashboard MathJax runtime hardening so browser rendering waits for `startup.promise` and static exports ship the required `assets/sre/` worker payloads
+- A named repo-level `npm run test:acceptance:v1.3` proof command with aligned docs and fresh acceptance/browser verification
 
 ## Requirements
 
@@ -56,12 +47,17 @@ A mathematician can feed in a TeX paper and get a trustworthy dependency artifac
 - ✓ Restore reliable MathJax-based mathematical rendering in the current web dashboard, including normalization of line-broken and package-dependent TeX fragments — `v1.2`
 - ✓ Eliminate persistent exported-dashboard rendering failures by aligning shell, bootstrap, and runtime expectations — `v1.2`
 - ✓ Document and verify the supported local export workflow so failures are reproducible and diagnosable — `v1.2`
+- ✓ Harden the parser against the remaining recurring TeX patterns that still produce unresolved references or incomplete extraction — `v1.3`
+- ✓ Expand render compatibility so more extracted math fragments typeset cleanly instead of falling back to raw source — `v1.3`
+- ✓ Prove the upgraded parse/render workflow on the accepted corpus plus targeted hard cases — `v1.3`
 
 ### Active
 
-- [ ] Harden the parser against the remaining recurring TeX patterns that still produce unresolved references or incomplete extraction
-- [x] Expand render compatibility so more extracted math fragments typeset cleanly instead of falling back to raw source
-- [x] Prove the upgraded parse/render workflow on the accepted corpus plus targeted hard cases
+- [ ] Add corpus-wide search across stored papers while preserving explicit paper attribution and explainable result boundaries
+- [ ] Deep-link corpus-search results into the existing paper-aware explorer flow without inventing opaque merged-graph semantics
+- [ ] Provide a collaborator-facing review/export artifact that preserves the canonical trust model
+- [ ] Define a supported shared deployment story for combined web/API usage
+- [ ] Extend ingestion beyond TeX and Markdown to PDF or OCR-derived inputs without weakening the bundle contract
 
 ### Out of Scope
 
@@ -78,7 +74,7 @@ The repository is a TypeScript monorepo with active workspace packages in `packa
 
 `v1.0` established the GitNexus-inspired direction: a machine-readable graph artifact first, with human exploration layered on top. `v1.1` proved that this foundation can absorb search and corpus workflows without creating a second source of truth or collapsing paper boundaries.
 
-`v1.2` closed the major reliability gap around local export sharing by hardening the CLI export contract, bundling MathJax with fragment normalization, and turning unsupported static runtime states into explicit product behavior instead of blank pages. `v1.3` now narrows to the remaining parser/render gap classes on the same deterministic artifact model, while deferring corpus-wide search to a later milestone.
+`v1.2` closed the major reliability gap around local export sharing by hardening the CLI export contract, bundling MathJax with fragment normalization, and turning unsupported static runtime states into explicit product behavior instead of blank pages. `v1.3` then reduced residual parser gaps, broadened accepted-corpus render salvage, and fixed the remaining exported MathJax runtime/export-asset failures discovered during browser verification. The next milestone can return to broader discovery features, especially corpus-wide search, from a more reliable parser/render baseline.
 
 ## Constraints
 
@@ -113,13 +109,14 @@ The repository is a TypeScript monorepo with active workspace packages in `packa
 | Use a bundled MathJax boundary with render-time normalization and explicit fallback | The dashboard needed readable math without changing canonical text or depending on browser addon rescue packages | ✓ Good — Phase 11 made statement rendering reliable on the supported surfaces |
 | Treat unsupported static `file://` usage as an explicit product blocker | A deliberate blocker is safer than a blank or misleading shell when the runtime is unsupported | ✓ Good — Phase 12 now fails fast with an actionable local-server command |
 | Publish a named repo-level acceptance proof for the local export workflow | Closeout and future regressions need one reproducible command instead of scattered manual checks | ✓ Good — `npm run test:acceptance:v1.2` now anchors the shipped workflow proof |
-| Defer corpus-wide search until parser/render hardening stabilizes again | Better global discovery is valuable, but residual extraction and rendering gaps still distort the user-facing reading path | — Pending |
+| Defer corpus-wide search until parser/render hardening stabilizes again | Better global discovery is valuable, but residual extraction and rendering gaps still distort the user-facing reading path | ✓ Good — `v1.3` shipped the bounded hardening first, so search can start from a cleaner baseline |
+| Treat MathJax `startup.promise` and `assets/sre/` as part of the supported export runtime contract | Script `onload` and partial asset copies were not enough to guarantee real browser rendering on exported dashboards | ✓ Good — the browser path now matches the acceptance claim for exported theorem rendering |
 
 ## Next Milestone Goals
 
-- Reduce the residual parser and rendering failure classes visible on the accepted corpus and targeted hard cases
-- Preserve the deterministic-bundle-first architecture while improving day-to-day usefulness for mathematical reading and lookup
-- Leave corpus-wide search available as the next milestone candidate after parse/render hardening
+- Add corpus-wide search from one entry point while keeping paper boundaries explicit and inspectable
+- Build on the cleaner parser/render baseline instead of compensating for raw-source fallback in the discovery layer
+- Keep collaboration, deployment, and broader ingestion out of scope unless the next milestone explicitly expands there
 
 ## Evolution
 
@@ -132,4 +129,4 @@ This document tracks the shipped product state plus the next-milestone starting 
 4. Keep Current State accurate enough that the next milestone starts from facts rather than memory
 
 ---
-*Last updated: 2026-04-03 after starting milestone v1.3*
+*Last updated: 2026-04-03 after shipping milestone v1.3*

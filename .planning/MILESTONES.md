@@ -1,5 +1,18 @@
 # Milestones
 
+## v1.3 Parse/Render Hardening (Shipped: 2026-04-03)
+
+**Phases completed:** 3 phases, 3 plans, 9 tasks
+
+**Key accomplishments:**
+
+- Reduced the accepted-corpus residual parser budget to `7` explicit unresolved references with alias-aware labels, bounded `\cref` / `\Cref` handling, and deterministic duplicate-label warnings
+- Salvaged list-heavy, wrapper-heavy, and bounded `cases` math fragments through the shared MathJax boundary instead of dropping them to raw-source fallback
+- Fixed the exported-dashboard MathJax startup race and made `assets/sre/` worker files part of the static export contract
+- Published and re-verified `npm run test:acceptance:v1.3` as the named parse/render proof for the accepted corpus and hard-case fixtures
+
+---
+
 ## v1.2 Dashboard, Export & Math Rendering Hardening (Shipped: 2026-04-03)
 
 **Phases completed:** 4 phases, 4 plans, 12 tasks

@@ -2,9 +2,9 @@
 gsd_state_version: 1.0
 milestone: v1.3
 milestone_name: Parse/Render Hardening
-status: milestone_audit_passed
-stopped_at: v1.3 audit passed; ready for milestone closeout
-last_updated: "2026-04-03T21:28:10Z"
+status: milestone_closed
+stopped_at: v1.3 archived and tagged; ready for next milestone setup
+last_updated: "2026-04-03T21:50:00Z"
 last_activity: 2026-04-03
 progress:
   total_phases: 3
@@ -21,14 +21,14 @@ progress:
 See: .planning/PROJECT.md (updated 2026-04-03)
 
 **Core value:** A mathematician can feed in a TeX paper and get a trustworthy dependency artifact that makes the logical structure of the paper easier to navigate.
-**Current focus:** Milestone closeout for `v1.3 Parse/Render Hardening`
+**Current focus:** Awaiting next milestone definition after `v1.3 Parse/Render Hardening`
 
 ## Current Position
 
 Phase: 16. Parse/Render Acceptance Gate
 Plan: 16-01
-Status: Milestone audit passed; closeout is next
-Last activity: 2026-04-03 — Re-ran the full `v1.3` acceptance proof, verified the live MathJax explorer render, and completed milestone audit.
+Status: Milestone closed and archived
+Last activity: 2026-04-03 — Archived `v1.3`, tagged the shipped milestone, and left the workspace ready for the next milestone setup.
 
 Progress: [██████████] 100%
 
@@ -64,7 +64,7 @@ Progress: [██████████] 100%
 **Recent Trend:**
 
 - Last 5 plans: 12-01, 13-01, 14-01, 15-01, 16-01
-- Trend: Stable; all `v1.3` implementation phases are complete and the milestone is ready for audit
+- Trend: Stable; all `v1.3` implementation phases are complete and the milestone is fully archived
 
 ## Accumulated Context
 
@@ -91,10 +91,10 @@ Decisions are logged in PROJECT.md. The milestone established:
 - Phase 14 made duplicate labels explicit with first-definition-wins semantics instead of silent overwrite.
 - Phase 15 now salvages accepted-corpus list-heavy and wrapper-heavy statement fragments plus bounded `cases` displays through the shared MathJax boundary.
 - Phase 16 established `npm run test:acceptance:v1.3` as the reproducible milestone proof for parser and render hardening.
+- Exported dashboard MathJax readiness now waits for `startup.promise`, and static exports must carry `assets/sre/` as part of the supported browser contract.
 
 ### Pending Todos
 
-- Close out milestone `v1.3`.
 - Fix stale sample artifact problem.
 
 ### Blockers/Concerns
@@ -106,5 +106,5 @@ Decisions are logged in PROJECT.md. The milestone established:
 ## Session Continuity
 
 Last session: 2026-04-03 CEST
-Stopped at: All `v1.3` phases complete; next step is milestone audit and closeout
+Stopped at: `v1.3` closed; next step is `$gsd-new-milestone`
 Resume file: .planning/ROADMAP.md
