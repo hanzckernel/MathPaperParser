@@ -2,16 +2,16 @@
 gsd_state_version: 1.0
 milestone: v1.2
 milestone_name: Dashboard, Export & Math Rendering Hardening
-status: in_progress
-stopped_at: Phase 13 context captured; planning in progress
-last_updated: "2026-04-03T19:26:00Z"
+status: completed
+stopped_at: Milestone v1.2 complete; ready for audit/archive
+last_updated: "2026-04-03T19:32:00Z"
 last_activity: 2026-04-03
 progress:
   total_phases: 4
-  completed_phases: 3
-  total_plans: 3
-  completed_plans: 3
-  percent: 75
+  completed_phases: 4
+  total_plans: 4
+  completed_plans: 4
+  percent: 100
 ---
 
 # Project State
@@ -21,16 +21,16 @@ progress:
 See: .planning/PROJECT.md (updated 2026-04-03)
 
 **Core value:** A mathematician can feed in a TeX paper and get a trustworthy dependency artifact that makes the logical structure of the paper easier to navigate.
-**Current focus:** Phase 13 context and planning for `v1.2 Dashboard, Export & Math Rendering Hardening`
+**Current focus:** Milestone completion and archival for `v1.2 Dashboard, Export & Math Rendering Hardening`
 
 ## Current Position
 
 Phase: 13. Export Acceptance & Operator Guidance
 Plan: —
-Status: Phase 13 context captured; reviewing docs and regression proof bundle
-Last activity: 2026-04-03 — Captured Phase 13 acceptance-proof and operator-guidance scope from the completed Phase 10-12 work.
+Status: All milestone phases complete
+Last activity: 2026-04-03 — Completed Phase 13 acceptance proof and operator guidance, including the named `v1.2` proof command and aligned local workflow docs.
 
-Progress: [██████░░░░] 75%
+Progress: [██████████] 100%
 
 ## Performance Metrics
 
@@ -76,10 +76,11 @@ Decisions are logged in PROJECT.md. The milestone established:
 - Phase 11 established a shared statement-rendering boundary with render-time normalization and explicit inline fallback for unsupported fragments.
 - Phase 12 will treat unsupported static runtime conditions as explicit product behavior rather than undefined failure.
 - Phase 12 established a dedicated top-level blocker for unsupported static `file://` usage while leaving API mode unblocked.
+- Phase 13 established `npm run test:acceptance:v1.2` as the reproducible milestone proof and aligned the operator docs with the hardened local workflow.
 
 ### Pending Todos
 
-- Run `$gsd-plan-phase 13`.
+- Run `$gsd-complete-milestone`.
 
 ### Blockers/Concerns
 
@@ -89,5 +90,5 @@ Decisions are logged in PROJECT.md. The milestone established:
 ## Session Continuity
 
 Last session: 2026-04-03 CEST
-Stopped at: Phase 13 context captured; next step is `$gsd-plan-phase 13`
+Stopped at: Milestone v1.2 complete; next step is `$gsd-complete-milestone`
 Resume file: .planning/ROADMAP.md

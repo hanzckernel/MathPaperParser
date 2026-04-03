@@ -25,8 +25,8 @@
 
 ### Reliability & Docs
 
-- [ ] **REL-01**: Milestone regression tests cover export completeness, latest-paper resolution, dashboard shell bootstrap, and runtime-environment guards.
-- [ ] **REL-02**: User can follow repo documentation to export and serve a dashboard bundle using the supported local workflow without guessing hidden prerequisites.
+- [x] **REL-01**: Milestone regression tests cover export completeness, latest-paper resolution, dashboard shell bootstrap, and runtime-environment guards.
+- [x] **REL-02**: User can follow repo documentation to export and serve a dashboard bundle using the supported local workflow without guessing hidden prerequisites.
 
 ## v2 Requirements
 
@@ -65,8 +65,8 @@
 | DASH-01 | Phase 12 | Completed |
 | DASH-02 | Phase 12 | Completed |
 | DASH-03 | Phase 12 | Completed |
-| REL-01 | Phase 13 | Pending |
-| REL-02 | Phase 13 | Pending |
+| REL-01 | Phase 13 | Completed |
+| REL-02 | Phase 13 | Completed |
 
 **Coverage:**
 - v1 requirements: 11 total

@@ -1,38 +1,66 @@
 # PaperParser v2 Alpha
 
-PaperParser is a TypeScript monorepo for extracting a math-paper bundle from source documents and exploring it through a CLI, API, React dashboard, and MCP server.
+PaperParser is a TypeScript monorepo for extracting a math-paper bundle from source documents and exploring it through a CLI, HTTP API, React dashboard, and MCP server.
 
-**Alpha scope**
-- Robust `.tex` and `.md` ingestion
-- Shared bundle contract at schema `0.2.0`
-- CLI for analyze/query/context/impact/validate/export/serve/mcp
-- React dashboard that loads static exports or the `serve` API
-- MCP tools/resources over the same stored-paper backend
+## Status
 
-**Beta scope**
-- Robust `.pdf` ingestion on the same contract and product surfaces
+As of March 11, 2026, the repo passes:
+
+- `npm run build`
+- `npm test`
+- `npm run typecheck`
+
+That makes the project usable for local development, static exports, and internal alpha evaluation. It is **not ready for internet-facing production deployment yet**. See [docs/deployment_readiness.md](docs/deployment_readiness.md) for the current blockers and the minimum release checklist.
+
+## Supported Inputs
+
+Alpha support today:
+
+- `.md` academic Markdown
+- `.tex` entry files
+- LaTeX project directories with `main.tex`
+
+Not ready yet:
+
+- `.pdf` ingestion in the v2 TypeScript pipeline
 
 ## Quickstart
 
-Install and build:
+Verified on March 11, 2026 with Node `v22.20.0` and npm `10.9.3`.
+
+Install dependencies and build everything:
 
 ```bash
 npm install
 npm run build
 ```
 
-Analyze a tracked Markdown or LaTeX fixture into the default store `.paperparser-data/`:
+Run the full verification suite:
+
+```bash
+npm test
+npm run typecheck
+```
+
+Run the accepted `v1.2` dashboard/export proof bundle:
+
+```bash
+npm run test:acceptance:v1.2
+npm run typecheck
+```
+
+Analyze a Markdown or LaTeX fixture into the default store `.paperparser-data/`:
 
 ```bash
 node packages/cli/dist/index.js analyze packages/core/test/fixtures/markdown/paper.md
 node packages/cli/dist/index.js analyze packages/core/test/fixtures/latex/project/main.tex --paper fixture-latex
 ```
 
-Inspect stored papers:
+Inspect the stored papers:
 
 ```bash
-node packages/cli/dist/index.js list
 node packages/cli/dist/index.js status
+node packages/cli/dist/index.js list
 node packages/cli/dist/index.js query "main theorem" --paper latest
 node packages/cli/dist/index.js context sec1::thm:thm-main --paper latest --json
 node packages/cli/dist/index.js impact sec1::thm:thm-main --paper latest --json
@@ -45,7 +73,7 @@ node packages/cli/dist/index.js validate --paper latest
 node packages/cli/dist/index.js export --paper latest --output ./out/paperparser-site
 ```
 
-Run the API backend for uploads, queries, and the dashboard:
+Run the API backend:
 
 ```bash
 node packages/cli/dist/index.js serve --host 127.0.0.1 --port 3000
@@ -57,40 +85,50 @@ Run the MCP server on stdio:
 node packages/cli/dist/index.js mcp
 ```
 
-## Data Outputs
+## Main Workflows
 
-Each analyzed paper is stored under `.paperparser-data/<paper-id>/` with:
+### CLI workflow
 
-- `manifest.json`
-- `graph.json`
-- `index.json`
+Use the CLI when you want a local-first pipeline:
 
-The `export` command writes those same files to `data/` inside a static dashboard bundle.
+1. Analyze a source document into `.paperparser-data/`
+2. Validate or query the stored paper
+3. Export a static dashboard bundle if needed
 
-## Web App
+### Web dashboard workflow
 
 The React app lives in `packages/web`.
 
-- Static export mode reads `./data/{manifest,graph,index}.json`
-- API mode reads `?api=http://host:port&paper=<paper-id>`
-- `.tex` and `.md` upload/analyze flows go through `serve`
-- `.pdf` is visible in the UI but remains a beta ingestion target
+- Static mode reads `./data/manifest.json`, `./data/graph.json`, `./data/index.json`, and `./data/enrichment.json`
+- API mode reads from `?api=http://host:port&paper=<paper-id>`
+- Upload and analyze flows require the `serve` API
 
-## Repo Map
+Static exports are supported when served over HTTP. Opening the exported dashboard directly from `file://` is intentionally blocked; from the export directory, run `python3 -m http.server 8000` and open the printed local URL instead.
 
-- `packages/core` — bundle types, validation, persistence, ingestion, search, query services
-- `packages/cli` — `paperparser` command surface and HTTP backend
-- `packages/web` — React dashboard
-- `packages/mcp` — MCP tools/resources over stored papers
-- `schema/` — public bundle contract and examples
-- `docs/` — architecture, schema, and protocol references
+Statement-bearing dashboard views render through bundled MathJax with a small normalization pass for extracted fragments. Unsupported fragments fall back inline to raw source instead of breaking the page.
 
-## Legacy Reference Material
+### MCP workflow
 
-The following paths remain in the repo as reference implementations while beta work continues:
+The MCP server exposes the same stored-paper backend to agent tooling over stdio.
 
-- `tools/` — legacy Python helpers
-- `dashboard/` — legacy Svelte dashboard
-- `prompts/` — prompt-suite workflow for older manual review flows
+## Repository Map
 
-They are no longer the default TeX/Markdown workflow in v2 alpha.
+- `packages/core` - bundle types, validation, persistence, ingestion, search, query services
+- `packages/cli` - CLI commands plus the HTTP API server
+- `packages/web` - React dashboard
+- `packages/mcp` - MCP tools and resources
+- `schema/` - public bundle contract and examples
+- `docs/` - user guide, deployment notes, schema, and architecture
+
+Legacy reference material kept during beta preparation:
+
+- `tools/`
+- `dashboard/`
+- `prompts/`
+
+## Documentation
+
+- [Comprehensive user guide](docs/user_guide.md)
+- [Deployment readiness](docs/deployment_readiness.md)
+- [Architecture](docs/architecture.md)
+- [Schema spec](docs/schema_spec.md)
