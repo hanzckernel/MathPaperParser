@@ -9,12 +9,13 @@
 \section{Warmup}
 \label{sec:warmup}
 
-\subsection{Nested statements}
+\subsection{Nested
+statements}
 \label{subsec:nested}
 
-\begin{lemma}\label{lem:outer}
+\begin{lemma}\label{lem:outer}\label{lem:outer-alias}
 The identities \eqref{eq:nested-align} and \eqref{eq:inline} live inside this statement.
-\begin{align}\label{eq:nested-align}
+\begin{align}\label{eq:nested-align}\label{eq:nested-align-alias}
 a &= b
 \end{align}
 \begin{eqnarray}\label{eq:inline} c &=& d \end{eqnarray}
@@ -34,7 +35,7 @@ Nested lemma inside a proof.
 \label{subsubsec:detail}
 
 \begin{theorem}\label{thm:uses-headings}
-From \ref{subsec:nested}, \ref{subsubsec:detail}, and \eqref{eq:nested-align}, the claim follows.
+From \ref{subsec:nested}, \ref{subsubsec:detail}, \ref{lem:outer-alias}, and \eqref{eq:nested-align-alias}, the claim follows.
 \end{theorem}
 
 \end{document}

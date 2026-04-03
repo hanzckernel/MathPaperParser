@@ -1,0 +1,23 @@
+\documentclass{amsart}
+\usepackage{amsmath,amsthm}
+
+\newtheorem{lemma}{Lemma}[section]
+\newtheorem{theorem}[lemma]{Theorem}
+
+\begin{document}
+
+\section{Duplicate labels}
+
+\begin{lemma}\label{lem:shared}
+First definition should own the shared label.
+\end{lemma}
+
+\begin{lemma}\label{lem:shared}
+Second definition reuses the shared label.
+\end{lemma}
+
+\begin{theorem}\label{thm:uses-shared}
+By Lemma \ref{lem:shared}, the claim follows.
+\end{theorem}
+
+\end{document}

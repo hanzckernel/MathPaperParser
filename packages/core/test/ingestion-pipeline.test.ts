@@ -74,13 +74,28 @@ describe('analyzeDocumentPath', () => {
     expect(unsupportedWarnings).toEqual(
       expect.arrayContaining([
         expect.objectContaining({
-          metadata: expect.objectContaining({ command: 'cref', label: 'thm:main' }),
-        }),
-        expect.objectContaining({
-          metadata: expect.objectContaining({ command: 'Cref', label: 'thm:main' }),
+          metadata: expect.objectContaining({ command: 'cref', label: 'fig:missing' }),
         }),
       ]),
     );
+    expect(
+      result.graph.edges.some(
+        (edge) =>
+          edge.kind === 'uses_in_proof' &&
+          edge.evidence === 'explicit_ref' &&
+          (edge.metadata as { latexCommand?: string; latexRef?: string }).latexCommand === 'cref' &&
+          (edge.metadata as { latexCommand?: string; latexRef?: string }).latexRef === 'thm:main',
+      ),
+    ).toBe(true);
+    expect(
+      result.graph.edges.some(
+        (edge) =>
+          edge.kind === 'uses_in_proof' &&
+          edge.evidence === 'explicit_ref' &&
+          (edge.metadata as { latexCommand?: string; latexRef?: string }).latexCommand === 'Cref' &&
+          (edge.metadata as { latexCommand?: string; latexRef?: string }).latexRef === 'rem:known',
+      ),
+    ).toBe(true);
   });
 
   it('emits explicit diagnostics for missing required TeX includes', () => {
@@ -228,6 +243,52 @@ describe('analyzeDocumentPath', () => {
           node.metadata.headingLevel === 3,
       ),
     ).toBeDefined();
+    expect(
+      result.graph.edges.some(
+        (edge) =>
+          edge.kind === 'uses_in_proof' &&
+          (edge.metadata as { latexRef?: string }).latexRef === 'lem:outer-alias',
+      ),
+    ).toBe(true);
+    expect(
+      result.graph.edges.some(
+        (edge) =>
+          edge.kind === 'uses_in_proof' &&
+          (edge.metadata as { latexRef?: string }).latexRef === 'eq:nested-align-alias',
+      ),
+    ).toBe(true);
     expect(unresolvedWarnings).toEqual([]);
+  });
+
+  it('keeps the first duplicate label target and emits an explicit warning', () => {
+    const fixturePath = resolve(
+      process.cwd(),
+      'packages/core/test/fixtures/latex/gold-paper-regressions/duplicate-labels.tex',
+    );
+    const result = analyzeDocumentPath(fixturePath);
+    const duplicateWarnings = result.diagnostics.warnings.filter((warning) => warning.code === 'duplicate_label');
+    const firstLemma = result.graph.nodes.find((node) => node.statement.includes('First definition'));
+    const secondLemma = result.graph.nodes.find((node) => node.statement.includes('Second definition'));
+    const theorem = result.graph.nodes.find((node) => node.latexLabel === 'thm:uses-shared');
+
+    expect(duplicateWarnings).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          metadata: expect.objectContaining({
+            label: 'lem:shared',
+          }),
+        }),
+      ]),
+    );
+    expect(
+      result.graph.edges.some(
+        (edge) =>
+          edge.kind === 'uses_in_proof' &&
+          edge.source === theorem?.id &&
+          edge.target === firstLemma?.id &&
+          edge.target !== secondLemma?.id &&
+          (edge.metadata as { latexRef?: string }).latexRef === 'lem:shared',
+      ),
+    ).toBe(true);
   });
 });

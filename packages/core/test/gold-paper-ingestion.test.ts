@@ -50,8 +50,8 @@ describe('gold paper latex ingestion', () => {
     );
     const shortUnresolved = shortPetri.diagnostics.warnings.filter((warning) => warning.code === 'unresolved_reference');
 
-    expect(longUnresolved.length).toBeLessThan(25);
-    expect(longUnsupported).toHaveLength(2);
+    expect(longUnresolved).toHaveLength(7);
+    expect(longUnsupported).toHaveLength(0);
     expect(mediumUnresolved).toEqual([]);
     expect(shortUnresolved).toEqual([]);
     expect(shortPetri.diagnostics.warnings.map((warning) => warning.code)).toEqual([
@@ -60,6 +60,9 @@ describe('gold paper latex ingestion', () => {
       'missing_graphics',
       'missing_graphics',
       'missing_graphics',
+      'duplicate_label',
+      'duplicate_label',
+      'duplicate_label',
     ]);
 
     expect(() => new SchemaValidator().validateBundle(longNalini)).not.toThrow();

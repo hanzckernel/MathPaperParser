@@ -2,13 +2,18 @@
 \usepackage{amsmath,amsthm}
 
 \newtheorem{theorem}{Theorem}
+\newtheorem{remark}[theorem]{Remark}
 
 \begin{document}
 
 \section{Diagnostics}
 
+\begin{remark}\label{rem:known}
+Known remark target.
+\end{remark}
+
 \begin{theorem}\label{thm:main}
-This theorem points to \ref{thm:missing}, \eqref{eq:missing}, \cref{thm:main}, and \Cref{thm:main}.
+This theorem points to \ref{thm:missing}, \eqref{eq:missing}, \cref{thm:main}, \Cref{rem:known}, and \cref{fig:missing}.
 \end{theorem}
 
 \end{document}

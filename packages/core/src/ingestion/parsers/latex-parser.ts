@@ -114,6 +114,11 @@ interface NestedEnvironmentBlock {
   endLineOffset: number;
 }
 
+interface PendingMultilineHeading {
+  lines: string[];
+  sourceLocation?: SourceLocation;
+}
+
 function asNodeId(value: string): NodeId {
   return value as NodeId;
 }
@@ -205,6 +210,23 @@ function parseReferenceMatches<TCommand extends string>(
 
     return labels.map((label) => ({ command, label }));
   });
+}
+
+function extractLatexLabels(value: string): string[] {
+  return [
+    ...new Set(
+      [...value.matchAll(LABEL_RE)]
+        .map((match) => match.groups?.label?.trim())
+        .filter((label): label is string => Boolean(label)),
+    ),
+  ];
+}
+
+function beginsIncompleteHeading(line: string): boolean {
+  return (
+    (line.includes('\\section{') || line.includes('\\subsection{') || line.includes('\\subsubsection{')) &&
+    !line.includes('}')
+  );
 }
 
 function kindFromPrintedTitle(title: string): EnvSpec | undefined {
@@ -702,6 +724,7 @@ export function parseLatexDocument(input: DocumentInput): ParsedDocument {
   const nodeIds = new Set<string>();
   const nodes: MathNode[] = [];
   const edges: MathEdge[] = [];
+  const diagnosticWarnings: IngestionWarning[] = [];
 
   const rawLines = rawText.split(/(?<=\n)/u);
   const bodyStartIndex = rawLines.findIndex((line) => line.includes('\\begin{document}'));
@@ -733,10 +756,42 @@ export function parseLatexDocument(input: DocumentInput): ParsedDocument {
   let captureProofTargetId: NodeId | undefined;
   let pendingProofTargetId: NodeId | undefined;
   let pendingSectionNodeId: NodeId | undefined;
+  let pendingHeading: PendingMultilineHeading | undefined;
   const sectionNodeIds = new Map<string, NodeId>();
   const proofTargetsByNodeId = new Map<NodeId, NodeId>();
 
-  const createSectionNode = (event: HeadingEvent, sourceLocation: SourceLocation | undefined, latexLabel: string | null): NodeId => {
+  const registerLabel = (label: string, nodeId: NodeId, sourceLocation: SourceLocation | undefined): void => {
+    const existingTarget = labelToNodeId.get(label);
+    if (!existingTarget) {
+      labelToNodeId.set(label, nodeId);
+      return;
+    }
+
+    if (existingTarget === nodeId) {
+      return;
+    }
+
+    diagnosticWarnings.push({
+      code: 'duplicate_label',
+      severity: 'warning',
+      message: `Duplicate \\label{${label}} detected; keeping the first target.`,
+      phase: 'parse',
+      sourcePath: sourceLocation?.sourcePath ?? input.path,
+      ...(sourceLocation?.sourceLine !== undefined ? { line: sourceLocation.sourceLine } : {}),
+      metadata: {
+        label,
+        keptNodeId: existingTarget,
+        ignoredNodeId: nodeId,
+      },
+    });
+  };
+
+  const createSectionNode = (
+    event: HeadingEvent,
+    sourceLocation: SourceLocation | undefined,
+    latexLabels: string[],
+  ): NodeId => {
+    const latexLabel = latexLabels[0] ?? null;
     const sectionId = uniqueNodeId(
       nodeIds,
       createNodeId(
@@ -771,8 +826,8 @@ export function parseLatexDocument(input: DocumentInput): ParsedDocument {
       sectionNodeIds.set(heading.sectionLabel, sectionId);
     }
 
-    if (latexLabel) {
-      labelToNodeId.set(latexLabel, sectionId);
+    for (const label of latexLabels) {
+      registerLabel(label, sectionId, sourceLocation);
     }
 
     return sectionId;
@@ -789,14 +844,15 @@ export function parseLatexDocument(input: DocumentInput): ParsedDocument {
     endLocation?: SourceLocation;
     proofTargetId?: NodeId;
     allowProofAttachment?: boolean;
-  }): MathNode | undefined => {
+    }): MathNode | undefined => {
     const spec = resolveEnvironmentSpec(params.envName, envSpecs);
     if (!spec) {
       return undefined;
     }
 
     const { topLevelText, blocks } = extractSupportedNestedBlocks(params.statementRaw, envSpecs);
-    const latexLabel = [...topLevelText.matchAll(LABEL_RE)].map((match) => match.groups?.label?.trim()).find(Boolean) ?? null;
+    const latexLabels = extractLatexLabels(topLevelText);
+    const latexLabel = latexLabels[0] ?? null;
     const refs = parseReferenceMatches<ParsedReference['command']>(topLevelText, REF_RE);
     const unsupportedRefs = parseReferenceMatches<UnsupportedParsedReference['command']>(
       topLevelText,
@@ -849,6 +905,7 @@ export function parseLatexDocument(input: DocumentInput): ParsedDocument {
         sourceFormat: 'latex',
         ...(spec.subkind ? { subkind: spec.subkind } : {}),
         ...(refs.length > 0 ? { refLabels: [...new Set(refs.map((ref) => ref.label))].sort() } : {}),
+        ...(latexLabels.length > 1 ? { labelAliases: latexLabels.slice(1) } : {}),
         ...(unsupportedRefs.length > 0
           ? { unsupportedRefLabels: [...new Set(unsupportedRefs.map((ref) => ref.label))].sort() }
           : {}),
@@ -858,8 +915,8 @@ export function parseLatexDocument(input: DocumentInput): ParsedDocument {
     };
 
     nodes.push(node);
-    if (latexLabel) {
-      labelToNodeId.set(latexLabel, id);
+    for (const label of latexLabels) {
+      registerLabel(label, id, params.startLocation);
     }
     refsByNode.set(id, refs);
     unsupportedRefsByNode.set(id, unsupportedRefs);
@@ -898,23 +955,44 @@ export function parseLatexDocument(input: DocumentInput): ParsedDocument {
     const trimmed = uncommented.trim();
 
     if (!inEnvironment) {
-      const headingEvent = updateHeading(heading, uncommented);
+      let headingLine = uncommented;
+      let headingSourceLocation: SourceLocation | undefined = sourceLocation;
+      if (pendingHeading) {
+        pendingHeading.lines.push(uncommented);
+        headingLine = pendingHeading.lines.join('');
+        headingSourceLocation = pendingHeading.sourceLocation;
+      }
+
+      const headingEvent = updateHeading(heading, headingLine);
 
       if (headingEvent) {
-        const latexLabel = [...uncommented.matchAll(LABEL_RE)].map((match) => match.groups?.label?.trim()).find(Boolean) ?? null;
-        const sectionId = createSectionNode(headingEvent, sourceLocation, latexLabel);
-        if (latexLabel) {
+        const latexLabels = extractLatexLabels(headingLine);
+        const sectionId = createSectionNode(headingEvent, headingSourceLocation, latexLabels);
+        pendingHeading = undefined;
+        if (latexLabels.length > 0) {
           pendingSectionNodeId = undefined;
         } else {
           pendingSectionNodeId = sectionId;
         }
+      } else if (pendingHeading) {
+        continue;
+      } else if (beginsIncompleteHeading(uncommented)) {
+        pendingHeading = {
+          lines: [uncommented],
+          ...(sourceLocation ? { sourceLocation } : {}),
+        };
+        continue;
       } else if (pendingSectionNodeId && trimmed.startsWith('\\label{')) {
-        const latexLabel = [...uncommented.matchAll(LABEL_RE)].map((match) => match.groups?.label?.trim()).find(Boolean) ?? null;
-        if (latexLabel) {
+        const latexLabels = extractLatexLabels(uncommented);
+        if (latexLabels.length > 0) {
           const sectionNode = nodes.find((node) => node.id === pendingSectionNodeId);
           if (sectionNode && !sectionNode.latexLabel) {
-            sectionNode.latexLabel = latexLabel;
-            labelToNodeId.set(latexLabel, pendingSectionNodeId);
+            sectionNode.latexLabel = latexLabels[0] ?? null;
+          }
+          if (sectionNode) {
+            for (const label of latexLabels) {
+              registerLabel(label, pendingSectionNodeId, sourceLocation);
+            }
           }
         }
       } else if (pendingSectionNodeId && trimmed) {
@@ -1095,7 +1173,6 @@ export function parseLatexDocument(input: DocumentInput): ParsedDocument {
     });
   }
 
-  const diagnosticWarnings: IngestionWarning[] = [];
   for (const node of nodes) {
     for (const ref of refsByNode.get(node.id) ?? []) {
       const target = labelToNodeId.get(ref.label);
@@ -1136,6 +1213,29 @@ export function parseLatexDocument(input: DocumentInput): ParsedDocument {
     }
 
     for (const unsupportedRef of unsupportedRefsByNode.get(node.id) ?? []) {
+      const target = labelToNodeId.get(unsupportedRef.label);
+      if (target) {
+        const edgeKey = `${node.id}->${target}->uses_in_proof->explicit_ref`;
+        if (edgeKeys.has(edgeKey)) {
+          continue;
+        }
+
+        edgeKeys.add(edgeKey);
+        edges.push({
+          source: node.id,
+          target,
+          kind: 'uses_in_proof',
+          evidence: 'explicit_ref',
+          provenance: 'explicit',
+          detail: `Explicit reference via \\${unsupportedRef.command}{${unsupportedRef.label}}.`,
+          metadata: {
+            latexRef: unsupportedRef.label,
+            latexCommand: unsupportedRef.command,
+          },
+        });
+        continue;
+      }
+
       diagnosticWarnings.push({
         code: 'unsupported_reference_command',
         severity: 'warning',
