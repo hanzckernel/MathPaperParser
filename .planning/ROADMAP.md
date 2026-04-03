@@ -19,7 +19,7 @@ This roadmap advances the approved `v1.2` scope only: export contract hardening,
 - Decimal phases (10.1, 10.2): Urgent insertions (marked with INSERTED)
 
 - [x] **Phase 10: Export Contract Hardening** - Make CLI export deterministic for latest-paper selection and complete static data payloads.
-- [ ] **Phase 11: Dashboard Math Rendering Repair** - Restore readable MathJax-based mathematical rendering in the current dashboard without changing the canonical bundle text contract.
+- [x] **Phase 11: Dashboard Math Rendering Repair** - Restore readable MathJax-based mathematical rendering in the current dashboard without changing the canonical bundle text contract.
 - [ ] **Phase 12: Dashboard Bootstrap & Runtime Guardrails** - Eliminate silent render failures by aligning the exported shell, React mount expectations, and unsupported static runtime behavior.
 - [ ] **Phase 13: Export Acceptance & Operator Guidance** - Prove the supported local export workflow and document the serving/runtime expectations clearly.
 
@@ -44,7 +44,7 @@ This roadmap advances the approved `v1.2` scope only: export contract hardening,
   2. Math-heavy theorem/equation content remains readable on the accepted local papers instead of degrading into raw LaTeX-only display when the source contains hard line breaks.
   3. Extracted fragments are normalized before rendering so package-dependent constructs do not rely on `amsmath` or `amsthm` addons in the browser.
   4. Invalid or unsupported math fragments fail gracefully without breaking the rest of the page.
-**Plans**: `11-01` pending
+**Plans**: `11-01` completed on 2026-04-03
 **UI hint**: yes
 
 ### Phase 12: Dashboard Bootstrap & Runtime Guardrails

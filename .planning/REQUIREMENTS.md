@@ -13,9 +13,9 @@
 
 ### Math Rendering
 
-- [ ] **MATH-01**: User sees theorem statements, equations, and other LaTeX-flavored mathematical text rendered readably with MathJax in the dashboard instead of raw source-style strings where rendering is expected.
-- [ ] **MATH-02**: The dashboard normalizes hard line breaks and package-dependent TeX fragments before MathJax rendering so extracted statements do not rely on `amsmath` or `amsthm` addons to display correctly.
-- [ ] **MATH-03**: Math rendering failures degrade gracefully with explicit fallback behavior instead of breaking the surrounding dashboard page.
+- [x] **MATH-01**: User sees theorem statements, equations, and other LaTeX-flavored mathematical text rendered readably with MathJax in the dashboard instead of raw source-style strings where rendering is expected.
+- [x] **MATH-02**: The dashboard normalizes hard line breaks and package-dependent TeX fragments before MathJax rendering so extracted statements do not rely on `amsmath` or `amsthm` addons to display correctly.
+- [x] **MATH-03**: Math rendering failures degrade gracefully with explicit fallback behavior instead of breaking the surrounding dashboard page.
 
 ### Dashboard Runtime
 
@@ -58,9 +58,9 @@
 |-------------|-------|--------|
 | EXPORT-01 | Phase 10 | Completed |
 | EXPORT-02 | Phase 10 | Completed |
-| MATH-01 | Phase 11 | Pending |
-| MATH-02 | Phase 11 | Pending |
-| MATH-03 | Phase 11 | Pending |
+| MATH-01 | Phase 11 | Completed |
+| MATH-02 | Phase 11 | Completed |
+| MATH-03 | Phase 11 | Completed |
 | EXPORT-03 | Phase 12 | Pending |
 | DASH-01 | Phase 12 | Pending |
 | DASH-02 | Phase 12 | Pending |

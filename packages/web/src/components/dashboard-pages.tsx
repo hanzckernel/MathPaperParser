@@ -1,6 +1,7 @@
 import type { DashboardModel } from '../lib/dashboard-model.js';
 import type { ApiPaperSummary } from '../lib/api-client.js';
 import type { CrossPaperMatch, CrossPaperLinkResult } from '@paperparser/core';
+import { MathTextBlock } from '../lib/math-render.js';
 export { GraphPage } from './proof-graph-page.js';
 
 function cardStyle(): React.CSSProperties {
@@ -140,7 +141,7 @@ export function ExplorerPage({
                 </div>
               ) : null}
             </div>
-            <div style={{ whiteSpace: 'pre-wrap', lineHeight: 1.6 }}>{selectedNode.statement}</div>
+            <MathTextBlock source={selectedNode.statement} surface="explorer-statement" />
             <div style={{ display: 'grid', gap: '0.75rem', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))' }}>
               <div>
                 <strong>Uses</strong>

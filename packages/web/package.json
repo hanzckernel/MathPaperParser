@@ -9,6 +9,7 @@
   },
   "dependencies": {
     "@paperparser/core": "file:../core",
+    "mathjax": "^4.1.1",
     "react": "^19.1.1",
     "react-dom": "^19.1.1"
   },

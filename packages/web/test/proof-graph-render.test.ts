@@ -6,7 +6,7 @@ import { describe, expect, it } from 'vitest';
 
 import { BundleSerializer, EnrichmentSerializer, analyzeDocumentPath, createHeuristicEnrichment } from '@paperparser/core';
 
-import { GraphPage } from '../src/components/dashboard-pages.js';
+import { ExplorerPage, GraphPage } from '../src/components/dashboard-pages.js';
 import { buildDashboardModel } from '../src/lib/dashboard-model.js';
 
 describe('GraphPage', () => {
@@ -36,7 +36,27 @@ describe('GraphPage', () => {
     expect(html).toContain('<svg');
     expect(html).toContain('Search graph');
     expect(html).toContain(expectedLabel);
+    expect(html).toContain('data-math-render="typeset"');
+    expect(html).toContain('data-math-surface="graph-detail-statement"');
     expect(html).not.toContain('still pending');
+  });
+
+  it('routes theorem explorer statements through the shared math rendering wrapper', () => {
+    const bundle = BundleSerializer.toJsonBundle(analyzeDocumentPath(resolve(process.cwd(), 'packages/core/test/fixtures/markdown/paper.md')));
+    const model = buildDashboardModel(bundle);
+
+    const html = renderToStaticMarkup(
+      createElement(ExplorerPage, {
+        model,
+        selectedNodeId: 'sec1::thm:thm-main',
+        onSelectNode: () => {},
+      }),
+    );
+
+    expect(html).toContain('Theorem Explorer');
+    expect(html).toContain('data-math-render="typeset"');
+    expect(html).toContain('data-math-surface="explorer-statement"');
+    expect(html).toContain('Let $T$ be compact.');
   });
 
   it('renders filter controls for expanded canonical kinds', () => {

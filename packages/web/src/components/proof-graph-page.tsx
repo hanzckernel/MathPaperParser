@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 
 import type { DashboardEdge, DashboardModel } from '../lib/dashboard-model.js';
+import { MathTextBlock } from '../lib/math-render.js';
 
 const KIND_COLORS: Record<string, string> = {
   section: '#f97316',
@@ -507,7 +508,7 @@ export function GraphPage({
                 </div>
               </div>
 
-              <div style={{ whiteSpace: 'pre-wrap', lineHeight: 1.6, color: '#e2e8f0' }}>{selectedNode.statement}</div>
+              <MathTextBlock source={selectedNode.statement} surface="graph-detail-statement" />
 
               <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.45rem' }}>
                 <span style={tokenButtonStyle(true, KIND_COLORS[selectedNode.kind])}>{selectedNode.kind}</span>

@@ -3,15 +3,15 @@ gsd_state_version: 1.0
 milestone: v1.2
 milestone_name: Dashboard, Export & Math Rendering Hardening
 status: in_progress
-stopped_at: Phase 11 context captured; planning in progress
-last_updated: "2026-04-03T18:48:00Z"
+stopped_at: Phase 11 complete; ready for Phase 12 context
+last_updated: "2026-04-03T18:50:00Z"
 last_activity: 2026-04-03
 progress:
   total_phases: 4
-  completed_phases: 1
-  total_plans: 1
-  completed_plans: 1
-  percent: 25
+  completed_phases: 2
+  total_plans: 2
+  completed_plans: 2
+  percent: 50
 ---
 
 # Project State
@@ -21,16 +21,16 @@ progress:
 See: .planning/PROJECT.md (updated 2026-04-03)
 
 **Core value:** A mathematician can feed in a TeX paper and get a trustworthy dependency artifact that makes the logical structure of the paper easier to navigate.
-**Current focus:** Phase 11 planning and implementation for `v1.2 Dashboard, Export & Math Rendering Hardening`
+**Current focus:** Phase 12 context and planning for `v1.2 Dashboard, Export & Math Rendering Hardening`
 
 ## Current Position
 
-Phase: 11. Dashboard Math Rendering Repair
+Phase: 12. Dashboard Bootstrap & Runtime Guardrails
 Plan: —
-Status: Phase 11 context captured; planning next implementation pass
-Last activity: 2026-04-03 — Captured Phase 11 MathJax rendering scope, aggressive normalization, and inline fallback decisions.
+Status: Phase 11 complete; next phase not discussed
+Last activity: 2026-04-03 — Completed Phase 11 dashboard MathJax rendering repair with normalization and inline fallback coverage.
 
-Progress: [██░░░░░░░░] 25%
+Progress: [████░░░░░░] 50%
 
 ## Performance Metrics
 
@@ -73,11 +73,12 @@ Decisions are logged in PROJECT.md. The milestone established:
 - Phase 9 tightened acceptance to prefer meaningful real-corpus evidence terms such as `hyperbolic` and `surface`.
 - Phase 10 will harden the export contract before touching more visible dashboard behavior.
 - Phase 11 will repair dashboard math rendering with MathJax plus fragment normalization, without changing the canonical bundle contract.
+- Phase 11 established a shared statement-rendering boundary with render-time normalization and explicit inline fallback for unsupported fragments.
 - Phase 12 will treat unsupported static runtime conditions as explicit product behavior rather than undefined failure.
 
 ### Pending Todos
 
-- Run `$gsd-plan-phase 11`.
+- Run `$gsd-discuss-phase 12`.
 
 ### Blockers/Concerns
 
@@ -87,5 +88,5 @@ Decisions are logged in PROJECT.md. The milestone established:
 ## Session Continuity
 
 Last session: 2026-04-03 CEST
-Stopped at: Phase 11 context captured; next step is `$gsd-plan-phase 11`
+Stopped at: Phase 11 complete; next step is `$gsd-discuss-phase 12`
 Resume file: .planning/ROADMAP.md

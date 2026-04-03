@@ -1,0 +1,59 @@
+import { createElement } from 'react';
+import { renderToStaticMarkup } from 'react-dom/server';
+import { describe, expect, it } from 'vitest';
+
+import { MathTextBlock, prepareMathStatementText } from '../src/lib/math-render.js';
+
+describe('prepareMathStatementText', () => {
+  it('normalizes line-broken theorem fragments and simple package-dependent references', () => {
+    const prepared = prepareMathStatementText(`
+\\begin{theorem}
+Assume $x \\\\
+y$. Then \\eqref{eq:key} and Proposition \\ref{prop:key} imply the claim.
+\\end{theorem}
+`);
+
+    expect(prepared.kind).toBe('typeset');
+    if (prepared.kind !== 'typeset') {
+      return;
+    }
+
+    expect(prepared.normalizedText).not.toContain('\\begin{theorem}');
+    expect(prepared.normalizedText).not.toContain('\\end{theorem}');
+    expect(prepared.normalizedText).not.toContain('\\eqref{');
+    expect(prepared.normalizedText).not.toContain('\\ref{');
+    expect(prepared.normalizedText).not.toContain('\n');
+    expect(prepared.normalizedText).toContain('(eq:key)');
+    expect(prepared.normalizedText).toContain('prop:key');
+    expect(prepared.normalizedText).toContain('$x y$');
+  });
+
+  it('falls back when unsupported LaTeX environments remain after normalization', () => {
+    const source = '\\begin{tikzcd} A \\\\arrow[r] & B \\end{tikzcd}';
+    const prepared = prepareMathStatementText(source);
+
+    expect(prepared.kind).toBe('fallback');
+    if (prepared.kind !== 'fallback') {
+      return;
+    }
+
+    expect(prepared.rawText).toBe(source);
+    expect(prepared.reason).toContain('Unsupported LaTeX environment');
+  });
+});
+
+describe('MathTextBlock', () => {
+  it('renders a marked inline fallback block when normalization cannot make the fragment safe', () => {
+    const html = renderToStaticMarkup(
+      createElement(MathTextBlock, {
+        source: '\\begin{tikzcd} A \\\\arrow[r] & B \\end{tikzcd}',
+        surface: 'test-surface',
+      }),
+    );
+
+    expect(html).toContain('data-math-render="fallback"');
+    expect(html).toContain('data-math-surface="test-surface"');
+    expect(html).toContain('Raw math source');
+    expect(html).toContain('\\begin{tikzcd}');
+  });
+});
