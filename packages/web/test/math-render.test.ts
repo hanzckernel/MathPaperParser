@@ -2,7 +2,7 @@ import { createElement } from 'react';
 import { renderToStaticMarkup } from 'react-dom/server';
 import { describe, expect, it } from 'vitest';
 
-import { MathTextBlock, prepareMathStatementText } from '../src/lib/math-render.js';
+import { MathTextBlock, prepareMathStatementText, resolveTypesettingMathJax } from '../src/lib/math-render.js';
 
 describe('prepareMathStatementText', () => {
   it('normalizes line-broken theorem fragments and simple package-dependent references', () => {
@@ -131,5 +131,36 @@ describe('MathTextBlock', () => {
     expect(html).toContain('data-math-surface="test-surface"');
     expect(html).toContain('Raw math source');
     expect(html).toContain('\\begin{tikzcd}');
+  });
+});
+
+describe('resolveTypesettingMathJax', () => {
+  it('waits for the MathJax startup promise before requiring browser typesetting hooks', async () => {
+    const mathJax: {
+      startup: {
+        promise?: Promise<void>;
+      };
+      typesetPromise?: (elements?: Element[]) => Promise<void>;
+    } = {
+      startup: {},
+    };
+
+    mathJax.startup.promise = Promise.resolve().then(() => {
+      mathJax.typesetPromise = async () => {};
+    });
+
+    await expect(resolveTypesettingMathJax(mathJax)).resolves.toMatchObject({
+      typesetPromise: expect.any(Function),
+    });
+  });
+
+  it('fails explicitly when startup settles without browser typesetting hooks', async () => {
+    await expect(
+      resolveTypesettingMathJax({
+        startup: {
+          promise: Promise.resolve(),
+        },
+      }),
+    ).rejects.toThrow('MathJax loaded without browser typesetting hooks.');
   });
 });

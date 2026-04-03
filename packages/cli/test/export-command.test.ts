@@ -54,6 +54,7 @@ describe('paperparser cli export', () => {
     expect(existsSync(join(outputPath, 'data', 'graph.json'))).toBe(true);
     expect(existsSync(join(outputPath, 'data', 'index.json'))).toBe(true);
     expect(existsSync(join(outputPath, 'data', 'enrichment.json'))).toBe(true);
+    expect(existsSync(join(outputPath, 'assets', 'sre', 'speech-worker.js'))).toBe(true);
     expect(readdirSync(join(outputPath, 'assets')).some((entry) => entry.endsWith('.js'))).toBe(true);
 
     const manifest = JSON.parse(readFileSync(join(outputPath, 'data', 'manifest.json'), 'utf8')) as {

@@ -74,6 +74,26 @@ const REMAINING_UNSUPPORTED_COMMANDS = [/\\(?:ref|eqref|cite|label)\s*\{/u, /\\(
 
 let mathJaxPromise: Promise<BrowserMathJax> | null = null;
 
+function hasTypesettingHooks(mathJax: BrowserMathJax | BrowserMathJaxConfig): mathJax is BrowserMathJax {
+  return typeof mathJax.typesetPromise === 'function';
+}
+
+export async function resolveTypesettingMathJax(
+  mathJax: BrowserMathJax | BrowserMathJaxConfig | undefined,
+): Promise<BrowserMathJax> {
+  if (!mathJax) {
+    throw new Error('MathJax loaded without browser typesetting hooks.');
+  }
+
+  await mathJax.startup?.promise;
+
+  if (!hasTypesettingHooks(mathJax)) {
+    throw new Error('MathJax loaded without browser typesetting hooks.');
+  }
+
+  return mathJax;
+}
+
 function escapeRegExp(value: string): string {
   return value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 }
@@ -188,10 +208,9 @@ async function loadMathJax(): Promise<BrowserMathJax> {
     throw new Error('MathJax can only load in the browser runtime.');
   }
 
-  const existing = window.MathJax as BrowserMathJax | undefined;
-  if (existing?.typesetPromise) {
-    await existing.startup?.promise;
-    return existing;
+  const existing = window.MathJax as BrowserMathJax | BrowserMathJaxConfig | undefined;
+  if (existing?.typesetPromise || existing?.startup?.promise) {
+    return resolveTypesettingMathJax(existing);
   }
 
   if (!mathJaxPromise) {
@@ -202,15 +221,8 @@ async function loadMathJax(): Promise<BrowserMathJax> {
       script.src = mathJaxBundleUrl;
       script.async = true;
       script.onload = async () => {
-        const loaded = window.MathJax as BrowserMathJax | undefined;
-        if (!loaded?.typesetPromise) {
-          reject(new Error('MathJax loaded without browser typesetting hooks.'));
-          return;
-        }
-
         try {
-          await loaded.startup?.promise;
-          resolve(loaded);
+          resolve(await resolveTypesettingMathJax(window.MathJax as BrowserMathJax | BrowserMathJaxConfig | undefined));
         } catch (error) {
           reject(error);
         }
