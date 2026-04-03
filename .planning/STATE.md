@@ -3,8 +3,8 @@ gsd_state_version: 1.0
 milestone: v1.2
 milestone_name: Dashboard, Export & Math Rendering Hardening
 status: in_progress
-stopped_at: Phase 11 complete; ready for Phase 12 context
-last_updated: "2026-04-03T18:50:00Z"
+stopped_at: Phase 12 context captured; planning in progress
+last_updated: "2026-04-03T19:10:00Z"
 last_activity: 2026-04-03
 progress:
   total_phases: 4
@@ -27,8 +27,8 @@ See: .planning/PROJECT.md (updated 2026-04-03)
 
 Phase: 12. Dashboard Bootstrap & Runtime Guardrails
 Plan: —
-Status: Phase 11 complete; next phase not discussed
-Last activity: 2026-04-03 — Completed Phase 11 dashboard MathJax rendering repair with normalization and inline fallback coverage.
+Status: Phase 12 context captured; reviewing existing bootstrap/runtime work
+Last activity: 2026-04-03 — Captured Phase 12 decisions for strict `#root`, explicit static `file://` blocker, and allowed API mode over `file://`.
 
 Progress: [████░░░░░░] 50%
 
@@ -78,7 +78,7 @@ Decisions are logged in PROJECT.md. The milestone established:
 
 ### Pending Todos
 
-- Run `$gsd-discuss-phase 12`.
+- Run `$gsd-plan-phase 12`.
 
 ### Blockers/Concerns
 
@@ -88,5 +88,5 @@ Decisions are logged in PROJECT.md. The milestone established:
 ## Session Continuity
 
 Last session: 2026-04-03 CEST
-Stopped at: Phase 11 complete; next step is `$gsd-discuss-phase 12`
+Stopped at: Phase 12 context captured; next step is `$gsd-plan-phase 12`
 Resume file: .planning/ROADMAP.md
