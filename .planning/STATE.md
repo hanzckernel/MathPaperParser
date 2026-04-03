@@ -2,9 +2,9 @@
 gsd_state_version: 1.0
 milestone: v1.3
 milestone_name: Parse/Render Hardening
-status: phase_complete
-stopped_at: phase 15 complete; ready for phase 16 planning
-last_updated: "2026-04-03T22:40:00Z"
+status: phase_planned
+stopped_at: phase 16 plan 16-01 created; ready for execution
+last_updated: "2026-04-03T22:48:00Z"
 last_activity: 2026-04-03
 progress:
   total_phases: 3
@@ -21,14 +21,14 @@ progress:
 See: .planning/PROJECT.md (updated 2026-04-03)
 
 **Core value:** A mathematician can feed in a TeX paper and get a trustworthy dependency artifact that makes the logical structure of the paper easier to navigate.
-**Current focus:** Phase 16 planning for `v1.3 Parse/Render Hardening`
+**Current focus:** Phase 16 execution for `v1.3 Parse/Render Hardening`
 
 ## Current Position
 
 Phase: 16. Parse/Render Acceptance Gate
-Plan: —
-Status: Phase 15 complete; acceptance gate is next
-Last activity: 2026-04-03 — Completed accepted-corpus-first render hardening for list environments, readable wrappers, and bounded `cases` salvage.
+Plan: 16-01
+Status: Planned; ready for execution
+Last activity: 2026-04-03 — Planned the named `v1.3` acceptance-proof command and docs-contract closeout for the parser/render milestone.
 
 Progress: [███████░░░] 67%
 
@@ -92,7 +92,7 @@ Decisions are logged in PROJECT.md. The milestone established:
 
 ### Pending Todos
 
-- Start Phase 16 planning.
+- Execute Plan 16-01 for the parse/render acceptance gate.
 
 ### Blockers/Concerns
 
@@ -103,5 +103,5 @@ Decisions are logged in PROJECT.md. The milestone established:
 ## Session Continuity
 
 Last session: 2026-04-03 CEST
-Stopped at: Phase 15 complete; next step is plan and execute Phase 16 acceptance gate
+Stopped at: Phase 16 planned; next step is execute `16-01`
 Resume file: .planning/ROADMAP.md
