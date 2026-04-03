@@ -1,0 +1,80 @@
+# Requirements: PaperParser
+
+**Defined:** 2026-04-03
+**Core Value:** A mathematician can feed in a TeX paper and get a trustworthy dependency artifact that makes the logical structure of the paper easier to navigate.
+
+## v1 Requirements
+
+### Corpus Search
+
+- [ ] **CORP-05**: User can search across the full local stored corpus from one entry point instead of querying one paper at a time.
+- [ ] **CORP-06**: User sees which paper each corpus-search result comes from before navigating, including paper identity and result-local math metadata.
+- [ ] **CORP-07**: User can jump directly from a corpus-search result into the existing paper-aware explorer/detail flow.
+- [ ] **CORP-08**: Corpus-wide search preserves explicit paper boundaries and explainable result attribution rather than acting like an opaque merged graph.
+
+### Parser Hardening
+
+- [ ] **HARD-06**: User sees fewer residual unresolved-reference diagnostics on the accepted corpus than the current `v1.2` baseline, while remaining unsupported cases stay explicit.
+- [ ] **HARD-07**: Parser handles the next targeted deterministic TeX pattern classes behind current residual warnings or incomplete extraction without manual graph repair.
+- [ ] **HARD-08**: Parser hardening remains rerun-stable and does not weaken the canonical bundle contract used by CLI, API, dashboard, and MCP consumers.
+
+### Render Hardening
+
+- [ ] **MATH-04**: More extracted math fragments render successfully through the dashboard MathJax boundary on the accepted corpus and targeted hard-case fixtures.
+- [ ] **MATH-05**: Render normalization improves support for the next targeted line-break, environment, or reference-command fragment classes without relying on unsupported LaTeX package behavior in the browser.
+- [ ] **MATH-06**: Unsupported or ambiguous render cases still degrade through explicit fallback or diagnostics instead of being silently mis-rendered.
+
+### Reliability & Acceptance
+
+- [ ] **ACC-04**: User can complete the local `analyze -> validate -> corpus-search -> inspect` workflow on the accepted local corpus without manual graph editing.
+- [ ] **ACC-05**: Milestone verification covers corpus-search ranking/attribution, parser hardening, and render hardening with real-corpus acceptance plus targeted regression fixtures.
+
+## v2 Requirements
+
+### Collaboration
+
+- **COLLAB-01**: User can export a collaborator-facing review artifact with comments or annotations that do not change the canonical trust model.
+
+### Deployment
+
+- **DEPLOY-01**: User gets a supported combined web/API deployment story suitable for internet-facing or shared-team hosting.
+
+### Inputs
+
+- **INPUT-01**: User can ingest PDF or OCR-derived inputs on the same bundle contract as the current TeX and Markdown flows.
+
+## Out of Scope
+
+| Feature | Reason |
+|---------|--------|
+| Collaborator-facing review workflows in `v1.3` | This milestone is focused on discovery and parse/render fidelity, not multi-user review |
+| Hosted or internet-facing deployment in `v1.3` | The product remains local-first and single-user in this milestone |
+| PDF or OCR ingestion in `v1.3` | The milestone is improving corpus search plus TeX parse/render quality, not broadening inputs |
+| Opaque merged-corpus search semantics | Corpus-wide search must preserve explicit paper boundaries and explainable attribution |
+| Broad “works on arbitrary TeX styles” claims | The hardening scope remains bounded to the accepted corpus plus targeted regression fixtures |
+
+## Traceability
+
+| Requirement | Phase | Status |
+|-------------|-------|--------|
+| CORP-05 | Phase 14 | Pending |
+| CORP-06 | Phase 14 | Pending |
+| CORP-07 | Phase 14 | Pending |
+| CORP-08 | Phase 14 | Pending |
+| HARD-06 | Phase 15 | Pending |
+| HARD-07 | Phase 15 | Pending |
+| HARD-08 | Phase 15 | Pending |
+| MATH-04 | Phase 16 | Pending |
+| MATH-05 | Phase 16 | Pending |
+| MATH-06 | Phase 16 | Pending |
+| ACC-04 | Phase 17 | Pending |
+| ACC-05 | Phase 17 | Pending |
+
+**Coverage:**
+- v1 requirements: 12 total
+- Mapped to phases: 12
+- Unmapped: 0 ✓
+
+---
+*Requirements defined: 2026-04-03*
+*Last updated: 2026-04-03 after defining milestone v1.3 requirements*
