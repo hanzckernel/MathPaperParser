@@ -9,7 +9,7 @@
 | Framework | Svelte | 5.x |
 | Bundler | Vite | 6.x |
 | Visualization | D3.js | 7.x |
-| Math rendering | KaTeX | latest |
+| Math rendering | MathJax | latest |
 | Styling | Vanilla CSS (custom properties) | -- |
 | Routing | Svelte client-side (hash-based) | -- |
 
@@ -89,23 +89,27 @@ Include in `index.html`:
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
 ```
 
-### KaTeX CSS
+### MathJax runtime
 
-Include in `index.html`:
-```html
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.21/dist/katex.min.css"
-      integrity="sha384-..."
-      crossorigin="anonymous">
-```
+Bundle MathJax with the app instead of depending on a CDN script at runtime. Static exports must remain self-contained and work on a local HTTP server without network access to a third-party asset host.
 
-KaTeX is also installed as an npm dependency (`npm install katex`) so that Svelte components can import `katex.renderToString()` for inline rendering. The CSS link above provides the font and layout rules that KaTeX's HTML output requires.
+Use MathJax as the math rendering engine, but do **not** rely on browser-side `amsmath` / `amsthm` addon compatibility to rescue extracted statement fragments. The dashboard should render normalized fragments that are already safe for MathJax consumption.
+
+### Math normalization rules
+
+Before sending extracted text to MathJax:
+- Normalize CRLF / hard line breaks into stable whitespace so browser HTML wrapping does not split TeX fragments unpredictably.
+- Collapse soft line breaks inside statement text unless they are semantically meaningful display-math boundaries.
+- Strip or rewrite theorem-style wrappers and package-dependent constructs that are not valid standalone MathJax fragments.
+- Prefer a small project-owned normalization pass over loading broad TeX addon packages in the browser.
+- If a fragment still cannot be normalized safely, render an explicit fallback block with the raw source text instead of breaking the page.
 
 ### Typography rules
 
 - Body text: `var(--font-sans)`, 14px, `var(--text-primary)`
 - Secondary / captions: 12px, `var(--text-secondary)`
 - Monospace (IDs, labels): `var(--font-mono)`, 13px
-- Math statements: rendered via KaTeX; wrap in a container with `overflow-x: auto` and `max-width: 100%`
+- Math statements: rendered via MathJax after normalization; wrap in a container with `overflow-x: auto`, `max-width: 100%`, and `white-space: normal`
 
 ---
 
@@ -452,7 +456,7 @@ Each card: `var(--bg-surface)` background, `var(--radius-md)` corners, `var(--ga
 Left column, 50% width. Data source: `index.json.problem_statement`.
 
 - **Header:** "Problem Statement" with subtle icon
-- **Question:** `problem_statement.question` in body text (KaTeX inline supported)
+- **Question:** `problem_statement.question` in body text (MathJax inline supported after normalization)
 - **Motivation:** `problem_statement.motivation` in `var(--text-secondary)`
 - **Context:** `problem_statement.context` in `var(--text-secondary)`
 
@@ -520,7 +524,7 @@ Each item:
 |                            |                   |
 |                            |  Thm 4.1 (Main)   |
 |                            |  Statement: ...   |
-|                            |  [KaTeX rendered] |
+|                            |  [MathJax rendered] |
 |                            |  Proof status:full|
 |                            |  Novelty: new     |
 |                            |                   |
@@ -626,7 +630,7 @@ Fixed width: 280px. Right side of the ProofGraph page. Scrollable if content ove
 - **Main result indicator:** if `is_main_result`, show a gold star icon + "Main Result" text
 - **Section:** "Section `node.section`"
 - **Number:** `node.number` (original paper numbering)
-- **Statement:** `node.statement` rendered via KaTeX. Wrapped in a scrollable container with `var(--bg-secondary)` background, `var(--gap-md)` padding, `var(--radius-sm)` corners
+- **Statement:** `node.statement` rendered via MathJax after normalization. Wrapped in a scrollable container with `var(--bg-secondary)` background, `var(--gap-md)` padding, `var(--radius-sm)` corners
 - **Proof status badge:** colored text
   - `full`: green "Full proof"
   - `sketch`: amber "Proof sketch"
@@ -666,7 +670,7 @@ Fixed width: 280px. Right side of the ProofGraph page. Scrollable if content ove
 |  Section Tree       |  Detail Panel            |
 |  (SectionTree)      |                          |
 |                     |  Theorem 4.1             |
-|  > 1. Intro         |  [statement in KaTeX]    |
+|  > 1. Intro         |  [statement in MathJax]  |
 |  > 2. Prelims       |                          |
 |    Def 2.1          |  Proof Strategy:         |
 |    Def 2.2          |  "Contradiction using    |
@@ -716,12 +720,12 @@ A collapsible tree built from `graph.json.nodes` grouped by `node.section`, with
 - **Summary:** resolve from `index.json.summaries` where `summaries[].section === sectionId` and display `summaries[].summary` (empty-state text if missing)
 - **Results list:** all member nodes listed as cards:
   - Kind icon (colored circle) + label + kind badge
-  - `node.statement` rendered via KaTeX (first 2 lines, expandable)
+  - `node.statement` rendered via MathJax after normalization (first 2 lines, expandable)
   - Click card: switch Detail Panel to node view for that node
 
 **Node view** (when a node row is clicked):
 - **Header:** `node.label` in 20px font-weight 600, with kind badge and novelty badge
-- **Statement:** `node.statement` rendered via KaTeX in a highlighted block (same styling as DetailSidebar)
+- **Statement:** `node.statement` rendered via MathJax after normalization in a highlighted block (same styling as DetailSidebar)
 - **Proof Strategy card** (if `index.json.proof_strategies` has an entry with matching `target_node`):
   - Card with `var(--bg-secondary)` background, `var(--radius-md)` corners
   - **Header:** "Proof Strategy"
@@ -935,7 +939,7 @@ dashboard/
       FilterBar.svelte      # ProofGraph filter controls
       DetailSidebar.svelte  # ProofGraph right panel (node/edge details)
       SectionTree.svelte    # TheoremExplorer left tree
-      KatexBlock.svelte     # Reusable KaTeX rendering wrapper
+      MathBlock.svelte      # Reusable MathJax rendering wrapper with normalization
       Badge.svelte          # Reusable colored badge/pill component
       Card.svelte           # Reusable card container
     pages/
@@ -948,7 +952,7 @@ dashboard/
       data.js               # Fetch + store manifest, graph, index
       navigation.js         # Hash-based routing + navigation helpers
     lib/
-      katex.js              # KaTeX rendering utility functions
+      mathjax.js            # MathJax rendering + normalization utility functions
       colors.js             # Node kind -> CSS var mapping
       graph-utils.js        # Adjacency list builders, filtering logic
   public/

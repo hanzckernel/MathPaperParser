@@ -1,0 +1,78 @@
+# Requirements: PaperParser
+
+**Defined:** 2026-04-03
+**Core Value:** A mathematician can feed in a TeX paper and get a trustworthy dependency artifact that makes the logical structure of the paper easier to navigate.
+
+## v1 Requirements
+
+### Export
+
+- [ ] **EXPORT-01**: User can export the latest stored paper with `--paper latest` and get the intended paper bundle.
+- [ ] **EXPORT-02**: User gets a complete static export with `manifest.json`, `graph.json`, `index.json`, and an explicit `enrichment.json` value even when no enrichment sidecar exists.
+- [ ] **EXPORT-03**: User can load the exported dashboard over HTTP without missing-shell or missing-data bootstrap failures.
+
+### Math Rendering
+
+- [ ] **MATH-01**: User sees theorem statements, equations, and other LaTeX-flavored mathematical text rendered readably with MathJax in the dashboard instead of raw source-style strings where rendering is expected.
+- [ ] **MATH-02**: The dashboard normalizes hard line breaks and package-dependent TeX fragments before MathJax rendering so extracted statements do not rely on `amsmath` or `amsthm` addons to display correctly.
+- [ ] **MATH-03**: Math rendering failures degrade gracefully with explicit fallback behavior instead of breaking the surrounding dashboard page.
+
+### Dashboard Runtime
+
+- [ ] **DASH-01**: User sees a clear actionable error instead of a blank or stuck page when a static export is opened directly from `file://`.
+- [ ] **DASH-02**: User gets a consistent React mount target across the built dashboard shell and exported artifacts.
+- [ ] **DASH-03**: API-backed dashboard usage remains available when the app is not in static-export mode, even if the page is opened from a local file context.
+
+### Reliability & Docs
+
+- [ ] **REL-01**: Milestone regression tests cover export completeness, latest-paper resolution, dashboard shell bootstrap, and runtime-environment guards.
+- [ ] **REL-02**: User can follow repo documentation to export and serve a dashboard bundle using the supported local workflow without guessing hidden prerequisites.
+
+## v2 Requirements
+
+### Collaboration
+
+- **COLLAB-01**: User can export a collaborator-facing review artifact with comments or annotations that do not change the canonical trust model.
+
+### Deployment
+
+- **DEPLOY-01**: User gets a supported combined web/API deployment story suitable for internet-facing or shared-team hosting.
+
+### Inputs
+
+- **INPUT-01**: User can ingest PDF or OCR-derived inputs on the same bundle contract as the current TeX and Markdown flows.
+
+## Out of Scope
+
+| Feature | Reason |
+|---------|--------|
+| PDF or OCR ingestion in `v1.2` | This milestone is about hardening the shipped export and dashboard path, not broadening inputs |
+| Collaborator-facing review or annotation in `v1.2` | The approved scope stays local-first for one mathematician |
+| Internet-facing deployment hardening | Deployment readiness is documented separately and would dilute the milestone focus |
+| Global corpus search | Useful, but it does not address the current export/render reliability problem |
+| Canonical bundle schema expansion beyond explicit export compatibility needs | The goal is reliability on the shipped contract, not a new artifact model |
+
+## Traceability
+
+| Requirement | Phase | Status |
+|-------------|-------|--------|
+| EXPORT-01 | Phase 10 | Pending |
+| EXPORT-02 | Phase 10 | Pending |
+| MATH-01 | Phase 11 | Pending |
+| MATH-02 | Phase 11 | Pending |
+| MATH-03 | Phase 11 | Pending |
+| EXPORT-03 | Phase 12 | Pending |
+| DASH-01 | Phase 12 | Pending |
+| DASH-02 | Phase 12 | Pending |
+| DASH-03 | Phase 12 | Pending |
+| REL-01 | Phase 13 | Pending |
+| REL-02 | Phase 13 | Pending |
+
+**Coverage:**
+- v1 requirements: 11 total
+- Mapped to phases: 11
+- Unmapped: 0 ✓
+
+---
+*Requirements defined: 2026-04-03*
+*Last updated: 2026-04-03 after milestone v1.2 initialization*

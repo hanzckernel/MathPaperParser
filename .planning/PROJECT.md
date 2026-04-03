@@ -11,13 +11,13 @@ A mathematician can feed in a TeX paper and get a trustworthy dependency artifac
 ## Current State
 
 - **Shipped milestone:** `v1.1 Search, Hardening & Corpus` on 2026-04-03
-- **Active milestone:** none
+- **Active milestone:** `v1.2 Dashboard, Export & Math Rendering Hardening`
 - **Representative acceptance paper:** `ref/papers/long_nalini/arXiv-2502.12268v2/main.tex`
 - **Accepted local corpus:** `long_nalini`, `medium_Mueller.flat.tex`, and `short_Petri.tex`
 - **Canonical output:** `manifest.json` / `graph.json` / `index.json`
 - **Additive sidecars:** `diagnostics.json` and optional `enrichment.json`
 - **Accepted workflows:** `analyze -> validate -> search -> inspect`, optional `enrich`, and explainable cross-paper `related`
-- **Current non-blocking debt:** `long_nalini` still emits `22` unresolved references plus `2` explicit unsupported reference-command diagnostics, and cross-paper navigation is intentionally limited to deterministic explainable evidence rather than a merged global graph
+- **Current non-blocking debt:** `long_nalini` still emits `22` unresolved references plus `2` explicit unsupported reference-command diagnostics, cross-paper navigation remains intentionally paper-local, and static export/dashboard startup still needs hardening against persistent render failures
 
 ## Last Shipped Milestone: v1.1 Search, Hardening & Corpus
 
@@ -29,9 +29,16 @@ A mathematician can feed in a TeX paper and get a trustworthy dependency artifac
 - Local multi-paper corpus support with explainable cross-paper navigation that preserves paper boundaries
 - Real-corpus acceptance proof for the shipped workflow on the three-paper corpus
 
-## Next Milestone Setup
+## Current Milestone: v1.2 Dashboard, Export & Math Rendering Hardening
 
-There is no active milestone yet. The next planning cycle should start from the shipped `v1.1` baseline and choose explicitly among the current open directions rather than mixing them together by default.
+**Goal:** Make static dashboard exports, dashboard startup behavior, and mathematical equation rendering reliable enough that local sharing and demo flows do not fail with a blank page, raw LaTeX-heavy text, or misleading render state.
+
+**Target features:**
+- Deterministic static export output, including `--paper latest` resolution and explicit `enrichment.json` handling when no sidecar exists
+- Reliable MathJax-based equation and inline-math rendering across the current dashboard surfaces instead of raw statement text
+- Consistent exported dashboard shell/bootstrap behavior with a clear supported mount target
+- Actionable runtime handling for unsupported static `file://` usage instead of silent render failure
+- Regression coverage and docs for the supported local export-and-serve workflow
 
 ## Requirements
 
@@ -50,7 +57,10 @@ There is no active milestone yet. The next planning cycle should start from the 
 
 ### Active
 
-- [ ] Define the next milestone from the shipped `v1.1` state before reopening feature work
+- [ ] Harden static dashboard export completeness and latest-paper selection semantics
+- [ ] Restore reliable MathJax-based mathematical rendering in the current web dashboard, including normalization of line-broken and package-dependent TeX fragments
+- [ ] Eliminate persistent exported-dashboard rendering failures by aligning shell, bootstrap, and runtime expectations
+- [ ] Document and verify the supported local export workflow so failures are reproducible and diagnosable
 
 ### Out of Scope
 
@@ -67,7 +77,7 @@ The repository is a TypeScript monorepo with active workspace packages in `packa
 
 `v1.0` established the GitNexus-inspired direction: a machine-readable graph artifact first, with human exploration layered on top. `v1.1` proved that this foundation can absorb search and corpus workflows without creating a second source of truth or collapsing paper boundaries.
 
-The next milestone should choose intentionally among the open directions already visible from the shipped product state: broader input modes such as PDF/OCR, broader corpus features such as global corpus search, or collaborator-facing export and review flows.
+`v1.2` is intentionally a hardening milestone, not a new product-surface milestone. The immediate gap is reliability around static exports, dashboard startup, and mathematical display: current work in progress already points at export payload completeness, `--paper latest` correctness, root mount consistency, explicit runtime behavior when a user opens an export in an unsupported way, and a mismatch between the documented dashboard expectation of rendered math and the current React implementation that still shows raw statement text. The rendering fix should use MathJax, but not by assuming raw extracted fragments are already valid browser-ready TeX; the milestone should include normalization for hard line breaks and package-dependent fragments rather than depending on `amsmath` or `amsthm` addons to rescue malformed HTML rendering.
 
 ## Constraints
 
@@ -75,7 +85,10 @@ The next milestone should choose intentionally among the open directions already
 - **Trust Model:** Deterministic parse output remains the baseline artifact; probabilistic enrichment must stay optional, labeled, and reviewable
 - **User Mode:** Optimize for a single mathematician working locally before adding collaboration or deployment complexity
 - **Corpus Model:** Preserve paper boundaries unless a future milestone explicitly owns a merged-graph design
-- **Milestone Discipline:** Define a fresh milestone before reopening requirements so planning artifacts do not drift between shipped versions
+- **Export Reliability:** Static exports must fail explicitly when used outside the supported local-serving path instead of rendering a blank or misleading shell
+- **Math Presentation:** Mathematical statements should render through MathJax in a readable form without changing the underlying canonical bundle text contract
+- **Math Compatibility:** The dashboard should normalize extracted TeX fragments for line breaks and package-dependent constructs instead of relying on `amsmath` / `amsthm` addon compatibility at render time
+- **Milestone Discipline:** Keep `v1.2` focused on export/dashboard/math rendering hardening rather than mixing in PDF ingestion, global corpus search, or collaborator review work
 
 ## Key Decisions
 
@@ -107,4 +120,4 @@ This document tracks the shipped product state and the starting point for the ne
 4. Keep Current State accurate enough that the next milestone starts from facts rather than memory
 
 ---
-*Last updated: 2026-04-03 after closing milestone v1.1*
+*Last updated: 2026-04-03 after starting milestone v1.2*

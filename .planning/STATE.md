@@ -1,17 +1,17 @@
 ---
 gsd_state_version: 1.0
-milestone: v1.1
-milestone_name: Search, Hardening & Corpus
-status: milestone_closed
-stopped_at: v1.1 archived; awaiting next milestone definition
-last_updated: "2026-04-03T00:22:47Z"
+milestone: v1.2
+milestone_name: Dashboard, Export & Math Rendering Hardening
+status: roadmap_approved
+stopped_at: milestone v1.2 approved; ready for Phase 10 start
+last_updated: "2026-04-03T17:08:27Z"
 last_activity: 2026-04-03
 progress:
-  total_phases: 4
-  completed_phases: 4
-  total_plans: 4
-  completed_plans: 4
-  percent: 100
+  total_phases: 3
+  completed_phases: 0
+  total_plans: 0
+  completed_plans: 0
+  percent: 0
 ---
 
 # Project State
@@ -21,16 +21,16 @@ progress:
 See: .planning/PROJECT.md (updated 2026-04-03)
 
 **Core value:** A mathematician can feed in a TeX paper and get a trustworthy dependency artifact that makes the logical structure of the paper easier to navigate.
-**Current focus:** No active milestone
+**Current focus:** Phase 10 planning for `v1.2 Dashboard, Export & Math Rendering Hardening`
 
 ## Current Position
 
-Phase: Milestone archived
+Phase: 10. Export Contract Hardening
 Plan: —
-Status: Milestone closed
-Last activity: 2026-04-03 — Archived `v1.1`, updated the live planning docs, and prepared the project for the next milestone definition.
+Status: Milestone initialized; roadmap drafted
+Last activity: 2026-04-03 — Approved `v1.2 Dashboard, Export & Math Rendering Hardening` and finalized the roadmap for Phases 10-13.
 
-Progress: [██████████] 100%
+Progress: [░░░░░░░░░░] 0%
 
 ## Performance Metrics
 
@@ -55,7 +55,7 @@ Progress: [██████████] 100%
 
 **Recent Trend:**
 - Last 5 plans: 05-01, 06-01, 07-01, 08-01, 09-01
-- Trend: Stable with milestone proof now complete
+- Trend: Stable; ready to pivot from shipped corpus work into export/dashboard hardening
 
 ## Accumulated Context
 
@@ -71,18 +71,21 @@ Decisions are logged in PROJECT.md. The milestone established:
 - Phase 8 keeps corpus behavior as a read model above paper-local canonical bundles.
 - Phase 8 limits cross-paper navigation to explainable deterministic evidence terms rather than speculative global links.
 - Phase 9 tightened acceptance to prefer meaningful real-corpus evidence terms such as `hyperbolic` and `surface`.
+- Phase 10 will harden the export contract before touching more visible dashboard behavior.
+- Phase 11 will repair dashboard math rendering with MathJax plus fragment normalization, without changing the canonical bundle contract.
+- Phase 12 will treat unsupported static runtime conditions as explicit product behavior rather than undefined failure.
 
 ### Pending Todos
 
-- Define the next milestone.
+- Start Phase 10 discussion/planning.
 
 ### Blockers/Concerns
 
-- No active milestone blockers.
 - `long_nalini` still emits a bounded residual of `22` unresolved references and `2` unsupported reference-command diagnostics, so future parser work should not assume a perfectly clean gold paper.
+- Static exports need a documented HTTP-serving path; opening them directly via `file://` is unsupported and should fail clearly.
 
 ## Session Continuity
 
 Last session: 2026-04-03 CEST
-Stopped at: `v1.1` archived; next step is `$gsd-new-milestone`
+Stopped at: `v1.2` approved; next step is `$gsd-discuss-phase 10`
 Resume file: .planning/ROADMAP.md
