@@ -3,8 +3,8 @@ gsd_state_version: 1.0
 milestone: v1.2
 milestone_name: Dashboard, Export & Math Rendering Hardening
 status: completed
-stopped_at: Milestone v1.2 complete; ready for audit/archive
-last_updated: "2026-04-03T19:32:00Z"
+stopped_at: Milestone v1.2 audit passed; ready for archive
+last_updated: "2026-04-03T19:14:39Z"
 last_activity: 2026-04-03
 progress:
   total_phases: 4
@@ -21,14 +21,14 @@ progress:
 See: .planning/PROJECT.md (updated 2026-04-03)
 
 **Core value:** A mathematician can feed in a TeX paper and get a trustworthy dependency artifact that makes the logical structure of the paper easier to navigate.
-**Current focus:** Milestone completion and archival for `v1.2 Dashboard, Export & Math Rendering Hardening`
+**Current focus:** Milestone archival for `v1.2 Dashboard, Export & Math Rendering Hardening`
 
 ## Current Position
 
 Phase: 13. Export Acceptance & Operator Guidance
 Plan: —
-Status: All milestone phases complete
-Last activity: 2026-04-03 — Completed Phase 13 acceptance proof and operator guidance, including the named `v1.2` proof command and aligned local workflow docs.
+Status: Milestone audit passed
+Last activity: 2026-04-03 — Audited `v1.2`, re-ran the acceptance bundle and workspace typecheck, and confirmed the milestone is ready for archival.
 
 Progress: [██████████] 100%
 
@@ -80,7 +80,7 @@ Decisions are logged in PROJECT.md. The milestone established:
 
 ### Pending Todos
 
-- Run `$gsd-complete-milestone`.
+- Run `$gsd-complete-milestone v1.2`.
 
 ### Blockers/Concerns
 
@@ -90,5 +90,5 @@ Decisions are logged in PROJECT.md. The milestone established:
 ## Session Continuity
 
 Last session: 2026-04-03 CEST
-Stopped at: Milestone v1.2 complete; next step is `$gsd-complete-milestone`
+Stopped at: Milestone v1.2 audit passed; next step is `$gsd-complete-milestone v1.2`
 Resume file: .planning/ROADMAP.md
