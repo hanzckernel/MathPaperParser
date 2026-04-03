@@ -2,7 +2,7 @@
 
 ## What This Is
 
-PaperParser is a local-first TeX dependency parser and exploration tool for mathematicians. It ships a deterministic canonical JSON bundle, optional reviewable enrichment, and aligned CLI/API/dashboard/MCP surfaces for inspecting a paper without treating the UI or the agent layer as the source of truth. The active milestone expands that foundation with search, parser hardening, and a local multi-paper corpus.
+PaperParser is a local-first TeX dependency parser and exploration tool for mathematicians. It ships a deterministic canonical JSON bundle, optional reviewable enrichment, paper-local search, and a local multi-paper corpus workflow across aligned CLI/API/dashboard/MCP surfaces without treating the UI or the agent layer as the source of truth.
 
 ## Core Value
 
@@ -10,23 +10,28 @@ A mathematician can feed in a TeX paper and get a trustworthy dependency artifac
 
 ## Current State
 
-- **Shipped milestone:** `v1.0 TeX MVP` on 2026-04-02
-- **Active milestone:** `v1.1 Search, Hardening & Corpus` (all phases complete; ready for closeout)
+- **Shipped milestone:** `v1.1 Search, Hardening & Corpus` on 2026-04-03
+- **Active milestone:** none
 - **Representative acceptance paper:** `ref/papers/long_nalini/arXiv-2502.12268v2/main.tex`
-- **Current milestone corpus target:** `long_nalini`, `medium_Mueller.flat.tex`, and `short_Petri.tex`
+- **Accepted local corpus:** `long_nalini`, `medium_Mueller.flat.tex`, and `short_Petri.tex`
 - **Canonical output:** `manifest.json` / `graph.json` / `index.json`
 - **Additive sidecars:** `diagnostics.json` and optional `enrichment.json`
-- **Accepted workflow:** `analyze -> enrich -> validate -> export`
-- **Current non-blocking debt:** `long_nalini` still emits `22` unresolved references plus `2` explicit unsupported reference-command diagnostics, and corpus links are intentionally limited to deterministic explainable evidence rather than a global merged graph
+- **Accepted workflows:** `analyze -> validate -> search -> inspect`, optional `enrich`, and explainable cross-paper `related`
+- **Current non-blocking debt:** `long_nalini` still emits `22` unresolved references plus `2` explicit unsupported reference-command diagnostics, and cross-paper navigation is intentionally limited to deterministic explainable evidence rather than a merged global graph
 
-## Current Milestone: v1.1 Search, Hardening & Corpus
+## Last Shipped Milestone: v1.1 Search, Hardening & Corpus
 
 **Goal:** Make the shipped `v1.0` TeX artifact substantially more usable by adding direct search, improving parser reliability on unresolved references and broader TeX patterns, and supporting a local multi-paper workflow.
 
-**Target features:**
-- Search by label, title, or object name with direct navigation into the explorer
-- Parser hardening focused on unresolved references and broader TeX coverage beyond the original gold-paper bar
-- Local multi-paper corpus support across `long_nalini`, `medium_Mueller.flat.tex`, and `short_Petri.tex`, including explainable cross-paper navigation without collapsing paper boundaries
+**Delivered:**
+- Search by label, title, or object name with direct explorer navigation
+- Parser hardening across `long_nalini`, `medium_Mueller.flat.tex`, and `short_Petri.tex`
+- Local multi-paper corpus support with explainable cross-paper navigation that preserves paper boundaries
+- Real-corpus acceptance proof for the shipped workflow on the three-paper corpus
+
+## Next Milestone Setup
+
+There is no active milestone yet. The next planning cycle should start from the shipped `v1.1` baseline and choose explicitly among the current open directions rather than mixing them together by default.
 
 ## Requirements
 
@@ -38,39 +43,39 @@ A mathematician can feed in a TeX paper and get a trustworthy dependency artifac
 - ✓ Provide a local interactive explorer for dependency inspection and structured edge explanations — `v1.0`
 - ✓ Provide an optional second-pass enrichment flow with separate storage, confidence, evidence, and provenance-gated visibility — `v1.0`
 - ✓ Prove the full local workflow on `long_nalini` without manual graph editing — `v1.0`
-- ✓ Add search by label, title, or object name across the parsed paper, with direct explorer navigation — `Phase 6`
-- ✓ Reduce unresolved-reference diagnostics on the representative paper and broaden deterministic TeX coverage across `long_nalini`, `medium_Mueller.flat.tex`, and `short_Petri.tex` — `Phase 7`
-- ✓ Support a local multi-paper corpus with safe paper isolation and explainable cross-paper navigation — `Phase 8`
-- ✓ Prove the accepted local workflow on `long_nalini`, `medium_Mueller.flat.tex`, and `short_Petri.tex` without manual graph editing — `Phase 9`
+- ✓ Add search by label, title, or object name across the parsed paper, with direct explorer navigation — `v1.1`
+- ✓ Reduce unresolved-reference diagnostics on the representative paper and broaden deterministic TeX coverage across `long_nalini`, `medium_Mueller.flat.tex`, and `short_Petri.tex` — `v1.1`
+- ✓ Support a local multi-paper corpus with safe paper isolation and explainable cross-paper navigation — `v1.1`
+- ✓ Prove the accepted local workflow on `long_nalini`, `medium_Mueller.flat.tex`, and `short_Petri.tex` without manual graph editing — `v1.1`
 
 ### Active
 
-- [ ] Close out `v1.1` cleanly and archive the shipped milestone state
+- [ ] Define the next milestone from the shipped `v1.1` state before reopening feature work
 
 ### Out of Scope
 
-- PDF or OCR-derived inputs in `v1.1` — defer broader ingestion until TeX hardening and corpus workflows are stable
-- Shareable export and collaborator-facing review flows in `v1.1` — local single-user utility remains the priority for this milestone
-- Hosted multi-user deployment — the current product remains local-first and single-user
-- Treating agent inference as ground truth — enrichment stays separate from the canonical artifact
-- Manual graph editing as a substitute for parser quality — parser and inference quality should improve at the source instead
-- Broad “works on arbitrary TeX styles” claims — the next milestone broadens coverage, but it still needs explicit verification on a bounded corpus before stronger claims are justified
+- PDF or OCR-derived inputs until a future milestone explicitly owns broader ingestion quality
+- Shareable export and collaborator-facing review until a future milestone explicitly owns collaboration workflows
+- Hosted multi-user deployment while the product remains local-first and single-user
+- Treating agent inference as ground truth; enrichment stays separate from the canonical artifact
+- Manual graph editing as a substitute for parser quality; parser and inference quality should improve at the source instead
+- Broad “works on arbitrary TeX styles” claims without explicit bounded-corpus verification
 
 ## Context
 
-The repository is a TypeScript monorepo with active workspace packages in `packages/core`, `packages/cli`, `packages/mcp`, and `packages/web`. The current architecture now has a shipped v1 bundle pipeline, local storage, schema validation, a static/dashboard explorer, and MCP exposure all aligned around the same canonical graph contract.
+The repository is a TypeScript monorepo with active workspace packages in `packages/core`, `packages/cli`, `packages/mcp`, and `packages/web`. The shipped architecture now has a stable canonical bundle pipeline, local storage, schema validation, optional enrichment, search, a corpus read model, a static/dashboard explorer, and MCP exposure all aligned around the same paper-local graph contract.
 
-`v1.0` confirmed the core product direction inspired by GitNexus: a machine-readable graph artifact first, with human exploration layered on top. For this domain, the important design outcome is that deterministic parsing remains the baseline, while agent reasoning is preserved as explicit, optional enrichment rather than blended into the canonical graph.
+`v1.0` established the GitNexus-inspired direction: a machine-readable graph artifact first, with human exploration layered on top. `v1.1` proved that this foundation can absorb search and corpus workflows without creating a second source of truth or collapsing paper boundaries.
 
-`v1.1` chooses the first three post-MVP priorities together: search, parser hardening, and multi-paper corpus support. Search should reuse the shipped canonical bundle and stored-paper surfaces instead of inventing a parallel index. Corpus work should preserve paper boundaries, make cross-paper links explainable, and prefer explicit evidence such as citations, normalized object metadata, or other deterministic anchors before leaning on enrichment.
+The next milestone should choose intentionally among the open directions already visible from the shipped product state: broader input modes such as PDF/OCR, broader corpus features such as global corpus search, or collaborator-facing export and review flows.
 
 ## Constraints
 
 - **Tech Stack:** Stay within the existing TypeScript monorepo and reuse the shipped `manifest` / `graph` / `index` contract unless a future phase explicitly evolves it
 - **Trust Model:** Deterministic parse output remains the baseline artifact; probabilistic enrichment must stay optional, labeled, and reviewable
 - **User Mode:** Optimize for a single mathematician working locally before adding collaboration or deployment complexity
-- **Milestone Scope:** `v1.1` is limited to the first three approved post-MVP priorities; PDF/OCR and collaboration stay deferred
-- **Milestone Discipline:** Archive shipped milestones cleanly before starting the next one so planning artifacts do not drift between versions
+- **Corpus Model:** Preserve paper boundaries unless a future milestone explicitly owns a merged-graph design
+- **Milestone Discipline:** Define a fresh milestone before reopening requirements so planning artifacts do not drift between shipped versions
 
 ## Key Decisions
 
@@ -83,17 +88,17 @@ The repository is a TypeScript monorepo with active workspace packages in `packa
 | Optimize the first milestone for one representative heavy TeX paper | Narrowing the acceptance bar keeps the phase realistic and measurable | ✓ Good — `long_nalini` became the executable proof point |
 | Keep structural edges stored but out of theorem-centric dependency traversal | Mathematical inspection needs context edges available without polluting dependency queries | ✓ Good — raw graph completeness and dependency semantics now coexist cleanly |
 | Persist diagnostics and enrichment as sidecars instead of mutating the canonical bundle schema | Additive files preserve trust boundaries without destabilizing shipped consumers | ✓ Good — `diagnostics.json` and `enrichment.json` both shipped cleanly |
-| Make `v1.1` about search, hardening, and corpus support instead of broader input formats | These three additions compound directly on top of the shipped v1 artifact and raise day-to-day usefulness without weakening the trust model | — Pending |
-| Reuse the existing stored-paper and canonical-bundle surfaces for search and corpus features | Search and corpus workflows should stay aligned across CLI, API, dashboard, and MCP instead of growing separate data paths | ✓ Good — Phase 6 search now reuses the shared core query path in the web shell |
+| Make `v1.1` about search, hardening, and corpus support instead of broader input formats | These three additions compound directly on top of the shipped v1 artifact and raise day-to-day usefulness without weakening the trust model | ✓ Good — `v1.1` shipped as a coherent product slice |
+| Reuse the existing stored-paper and canonical-bundle surfaces for search and corpus features | Search and corpus workflows should stay aligned across CLI, API, dashboard, and MCP instead of growing separate data paths | ✓ Good — search and corpus both ship through shared contracts |
 | Keep Phase 7 focused on deterministic parser gaps instead of adding first-class figure nodes | The measured corpus was dominated by nested/same-line equation-like misses and labeled headings; figure nodes would have introduced broader schema churn | ✓ Good — hardening landed with a bounded explicit residual class and no node-kind expansion |
-| Keep Phase 8 corpus behavior as a read model above paper-local bundles | The milestone needs local corpus navigation without destabilizing the canonical schema | ✓ Good — corpus behavior now ships consistently across CLI/API/MCP/Web with paper-local boundaries preserved |
+| Keep Phase 8 corpus behavior as a read model above paper-local bundles | The milestone needs local corpus navigation without destabilizing the canonical schema | ✓ Good — corpus behavior now ships consistently across CLI/API/MCP/web with paper-local boundaries preserved |
 | Limit cross-paper navigation to explicit or explainable links | Multi-paper workflows need to remain inspectable and trustworthy, not speculative global linkage | ✓ Good — related links now carry evidence terms and may return an explicit empty state |
-| Tighten matcher evidence using real-corpus acceptance instead of synthetic tuning | The acceptance gate should prefer meaningful terms a mathematician can inspect, not just any overlapping tokens | ✓ Good — Phase 9 now prefers the stronger `hyperbolic` / `surface` link on the accepted corpus |
+| Tighten matcher evidence using real-corpus acceptance instead of synthetic tuning | The acceptance gate should prefer meaningful terms a mathematician can inspect, not just any overlapping tokens | ✓ Good — Phase 9 prefers the stronger `hyperbolic` / `surface` link on the accepted corpus |
 | Deep-link search results into `#/explorer/<nodeId>` instead of creating a separate search page | Search should accelerate the existing explorer, not fork the navigation model | ✓ Good — Phase 6 made result-to-explorer jumps explicit and testable |
 
 ## Evolution
 
-This document now tracks the shipped product state and the currently active milestone.
+This document tracks the shipped product state and the starting point for the next milestone.
 
 **After each future milestone:**
 1. Move shipped requirements from Active to Validated
@@ -102,4 +107,4 @@ This document now tracks the shipped product state and the currently active mile
 4. Keep Current State accurate enough that the next milestone starts from facts rather than memory
 
 ---
-*Last updated: 2026-04-03 after completing Phase 9*
+*Last updated: 2026-04-03 after closing milestone v1.1*

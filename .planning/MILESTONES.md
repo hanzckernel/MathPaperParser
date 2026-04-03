@@ -17,3 +17,16 @@
 - Turn the representative-paper success bar into an executable CLI acceptance gate
 
 ---
+
+## v1.1 Search, Hardening & Corpus (Shipped: 2026-04-03)
+
+**Phases completed:** 4 phases, 4 plans, 10 tasks
+
+**Key accomplishments:**
+
+- Added paper-local search across CLI, API, MCP, and the dashboard with richer result metadata and direct explorer deep links
+- Hardened deterministic TeX parsing across `long_nalini`, `medium_Mueller.flat.tex`, and `short_Petri.tex`, reducing `long_nalini` unresolved references from `121` to `22`
+- Added a local corpus read model with per-paper metadata and explainable cross-paper navigation that preserves paper boundaries
+- Proved the shipped workflow on the real three-paper corpus and tightened related-link evidence toward meaningful terms such as `hyperbolic` and `surface`
+
+---

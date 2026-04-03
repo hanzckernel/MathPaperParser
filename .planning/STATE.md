@@ -2,8 +2,8 @@
 gsd_state_version: 1.0
 milestone: v1.1
 milestone_name: Search, Hardening & Corpus
-status: milestone_ready_for_completion
-stopped_at: phase 9 complete; milestone ready for audit and closeout
+status: milestone_closed
+stopped_at: v1.1 archived; awaiting next milestone definition
 last_updated: "2026-04-03T00:22:47Z"
 last_activity: 2026-04-03
 progress:
@@ -21,14 +21,14 @@ progress:
 See: .planning/PROJECT.md (updated 2026-04-03)
 
 **Core value:** A mathematician can feed in a TeX paper and get a trustworthy dependency artifact that makes the logical structure of the paper easier to navigate.
-**Current focus:** Milestone closeout — `v1.1`
+**Current focus:** No active milestone
 
 ## Current Position
 
-Phase: 9 complete — Multi-Paper Acceptance Gate
+Phase: Milestone archived
 Plan: —
-Status: Milestone ready for audit and completion
-Last activity: 2026-04-03 — Completed Phase 9 with a passing real-corpus acceptance gate on all three milestone papers.
+Status: Milestone closed
+Last activity: 2026-04-03 — Archived `v1.1`, updated the live planning docs, and prepared the project for the next milestone definition.
 
 Progress: [██████████] 100%
 
@@ -74,15 +74,15 @@ Decisions are logged in PROJECT.md. The milestone established:
 
 ### Pending Todos
 
-- Audit and close out `v1.1`.
+- Define the next milestone.
 
 ### Blockers/Concerns
 
-- `long_nalini` still emits a bounded residual of `22` unresolved references and `2` unsupported reference-command diagnostics, so corpus navigation work should not assume a perfectly clean gold paper.
-- No blocker concerns remain for the shipped milestone; remaining work is process closeout and archival.
+- No active milestone blockers.
+- `long_nalini` still emits a bounded residual of `22` unresolved references and `2` unsupported reference-command diagnostics, so future parser work should not assume a perfectly clean gold paper.
 
 ## Session Continuity
 
 Last session: 2026-04-03 CEST
-Stopped at: Phase 9 complete; next step is milestone audit and completion
+Stopped at: `v1.1` archived; next step is `$gsd-new-milestone`
 Resume file: .planning/ROADMAP.md
