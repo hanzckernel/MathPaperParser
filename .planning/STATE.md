@@ -2,16 +2,16 @@
 gsd_state_version: 1.0
 milestone: v1.3
 milestone_name: Parse/Render Hardening
-status: phase_planned
-stopped_at: phase 15 plan 15-01 created; ready for execution
-last_updated: "2026-04-03T20:45:00Z"
+status: phase_complete
+stopped_at: phase 15 complete; ready for phase 16 planning
+last_updated: "2026-04-03T22:40:00Z"
 last_activity: 2026-04-03
 progress:
   total_phases: 3
-  completed_phases: 1
-  total_plans: 1
-  completed_plans: 1
-  percent: 33
+  completed_phases: 2
+  total_plans: 2
+  completed_plans: 2
+  percent: 67
 ---
 
 # Project State
@@ -21,22 +21,22 @@ progress:
 See: .planning/PROJECT.md (updated 2026-04-03)
 
 **Core value:** A mathematician can feed in a TeX paper and get a trustworthy dependency artifact that makes the logical structure of the paper easier to navigate.
-**Current focus:** Phase 15 implementation prep for `v1.3 Parse/Render Hardening`
+**Current focus:** Phase 16 planning for `v1.3 Parse/Render Hardening`
 
 ## Current Position
 
-Phase: 15. Math Fragment Render Hardening
-Plan: 15-01
-Status: Planned; ready for execution
-Last activity: 2026-04-03 — Planned accepted-corpus-first render hardening around list-environment flattening, bounded display salvage, and wrapper normalization.
+Phase: 16. Parse/Render Acceptance Gate
+Plan: —
+Status: Phase 15 complete; acceptance gate is next
+Last activity: 2026-04-03 — Completed accepted-corpus-first render hardening for list environments, readable wrappers, and bounded `cases` salvage.
 
-Progress: [███░░░░░░░] 33%
+Progress: [███████░░░] 67%
 
 ## Performance Metrics
 
 **Velocity:**
 
-- Total plans completed: 15
+- Total plans completed: 16
 - Average duration: 15.3 min
 - Total execution time: 3.8 hours
 
@@ -58,11 +58,12 @@ Progress: [███░░░░░░░] 33%
 | 12. Dashboard Bootstrap & Runtime Guardrails | 1 | 18 min | 18 min |
 | 13. Export Acceptance & Operator Guidance | 1 | 16 min | 16 min |
 | 14. Residual TeX Parser Hardening | 1 | 7 min | 7 min |
+| 15. Math Fragment Render Hardening | 1 | 6 min | 6 min |
 
 **Recent Trend:**
 
-- Last 5 plans: 09-01, 10-01, 11-01, 12-01, 13-01
-- Trend: Stable; shifting from export/dashboard hardening into narrower parser/render hardening
+- Last 5 plans: 11-01, 12-01, 13-01, 14-01, 15-01
+- Trend: Stable; milestone now entering the final acceptance-gate phase after parser and render hardening
 
 ## Accumulated Context
 
@@ -87,20 +88,20 @@ Decisions are logged in PROJECT.md. The milestone established:
 - `v1.3` is scoped to parser/render hardening only; corpus-wide search is deferred to the next milestone.
 - Phase 14 reduced the accepted-corpus `long_nalini` residual budget to `7` unresolved references and `0` unsupported reference-command diagnostics without adding figure-schema work.
 - Phase 14 made duplicate labels explicit with first-definition-wins semantics instead of silent overwrite.
+- Phase 15 now salvages accepted-corpus list-heavy and wrapper-heavy statement fragments plus bounded `cases` displays through the shared MathJax boundary.
 
 ### Pending Todos
 
-- Execute Plan 15-01 for Math Fragment Render Hardening.
+- Start Phase 16 planning.
 
 ### Blockers/Concerns
 
 - `long_nalini` still emits `7` explicit unresolved references, primarily in the deferred figure-reference slice.
 - Unsupported TeX beyond the current normalization set still falls back to raw source instead of full browser-ready math rendering.
-- Phase 15 should not assume all extracted math fragments are now render-safe just because the parser residual budget dropped.
-- The main accepted-corpus render risk is still fallback overuse from list-like and wrapper-heavy statement fragments.
+- The final milestone proof still needs a reproducible acceptance command for the upgraded parse/render path.
 
 ## Session Continuity
 
 Last session: 2026-04-03 CEST
-Stopped at: Phase 15 planned; next step is execute `15-01`
+Stopped at: Phase 15 complete; next step is plan and execute Phase 16 acceptance gate
 Resume file: .planning/ROADMAP.md

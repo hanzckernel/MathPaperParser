@@ -67,6 +67,8 @@ const THEOREM_WRAPPER_ENVIRONMENTS = [
 ] as const;
 
 const DISPLAY_ENVIRONMENTS = ['equation', 'equation*', 'align', 'align*', 'aligned', 'gather', 'gather*', 'split', 'multline', 'multline*'] as const;
+const LIST_ENVIRONMENTS = ['itemize', 'enumerate'] as const;
+const READABLE_WRAPPER_COMMANDS = ['emph', 'text', 'textbf', 'textit', 'mathrm', 'mbox'] as const;
 
 const REMAINING_UNSUPPORTED_COMMANDS = [/\\(?:ref|eqref|cite|label)\s*\{/u, /\\(?:require|newtheorem|tikz|tikzcd)\b/u];
 
@@ -80,6 +82,22 @@ function normalizeWhitespace(value: string): string {
   return value.replace(/\r\n?/gu, '\n').replace(/[ \t]*\n[ \t]*/gu, ' ').replace(/\s+/gu, ' ').trim();
 }
 
+function stripReadableWrapperCommands(source: string): string {
+  let current = source;
+  let changed = true;
+
+  const commandPattern = new RegExp(`\\\\(?:${READABLE_WRAPPER_COMMANDS.map(escapeRegExp).join('|')})\\{([^{}]*)\\}`, 'gu');
+  while (changed) {
+    changed = false;
+    current = current.replace(commandPattern, (_, body: string) => {
+      changed = true;
+      return body;
+    });
+  }
+
+  return current;
+}
+
 function rewriteEnvironments(source: string, environments: readonly string[], replacer: (body: string) => string): string {
   return environments.reduce((current, environment) => {
     const pattern = new RegExp(`\\\\begin\\{${escapeRegExp(environment)}\\}([\\s\\S]*?)\\\\end\\{${escapeRegExp(environment)}\\}`, 'gu');
@@ -89,6 +107,46 @@ function rewriteEnvironments(source: string, environments: readonly string[], re
 
 function normalizeDisplayBody(body: string): string {
   return normalizeWhitespace(body.replace(/&/gu, ' ').replace(/\\\\/gu, ' \\qquad '));
+}
+
+function normalizeListBody(body: string, ordered: boolean): string {
+  const items = body
+    .split(/\\item\b/gu)
+    .map((item) => normalizeWhitespace(item))
+    .filter(Boolean);
+
+  if (items.length === 0) {
+    return normalizeWhitespace(body);
+  }
+
+  return items.map((item, index) => (ordered ? `${index + 1}. ${item}` : `- ${item}`)).join(' ');
+}
+
+function normalizeCasesBody(body: string): string {
+  const rows = body
+    .split(/\\\\/gu)
+    .map((row) => normalizeWhitespace(row))
+    .filter(Boolean);
+
+  if (rows.length === 0) {
+    return normalizeWhitespace(body);
+  }
+
+  return rows
+    .map((row) => {
+      const columns = row
+        .split(/&/gu)
+        .map((column) => normalizeWhitespace(column))
+        .filter(Boolean);
+
+      if (columns.length >= 2) {
+        const [head, ...rest] = columns;
+        return `$${head}$ ${rest.join(' ')}`;
+      }
+
+      return `$${columns[0] ?? row}$`;
+    })
+    .join('; ');
 }
 
 function hasUnsupportedEnvironment(value: string): string | null {
@@ -180,12 +238,17 @@ export function prepareMathStatementText(source: string): PreparedMathStatement 
 
   normalizedText = rewriteEnvironments(normalizedText, THEOREM_WRAPPER_ENVIRONMENTS, (body) => body);
   normalizedText = rewriteEnvironments(normalizedText, DISPLAY_ENVIRONMENTS, (body) => `$$ ${normalizeDisplayBody(body)} $$`);
+  normalizedText = rewriteEnvironments(normalizedText, ['itemize'], (body) => normalizeListBody(body, false));
+  normalizedText = rewriteEnvironments(normalizedText, ['enumerate'], (body) => normalizeListBody(body, true));
+  normalizedText = rewriteEnvironments(normalizedText, ['cases'], (body) => normalizeCasesBody(body));
+  normalizedText = stripReadableWrapperCommands(normalizedText);
   normalizedText = normalizedText
     .replace(/\\protect\b/gu, '')
     .replace(/\\label\{[^{}]*\}/gu, '')
     .replace(/\\eqref\{([^{}]+)\}/gu, '($1)')
     .replace(/\\ref\{([^{}]+)\}/gu, '$1')
     .replace(/\\cite\{([^{}]+)\}/gu, (_, citeKeys: string) => `[${citeKeys.split(',').map((key) => key.trim()).filter(Boolean).join(', ')}]`)
+    .replace(/\\(?:quad|qquad)\b/gu, ' ')
     .replace(/\\\\/gu, ' ')
     .replace(/[ \t]*\n[ \t]*/gu, ' ')
     .replace(/\s+/gu, ' ')

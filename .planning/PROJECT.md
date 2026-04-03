@@ -11,13 +11,13 @@ A mathematician can feed in a TeX paper and get a trustworthy dependency artifac
 ## Current State
 
 - **Shipped milestone:** `v1.2 Dashboard, Export & Math Rendering Hardening` on 2026-04-03
-- **Active milestone:** `v1.3 Corpus Search & Parse/Render Hardening`
+- **Active milestone:** `v1.3 Parse/Render Hardening`
 - **Representative acceptance paper:** `ref/papers/long_nalini/arXiv-2502.12268v2/main.tex`
 - **Accepted local corpus:** `long_nalini`, `medium_Mueller.flat.tex`, and `short_Petri.tex`
 - **Canonical output:** `manifest.json` / `graph.json` / `index.json`
 - **Additive sidecars:** `diagnostics.json` and optional `enrichment.json`
 - **Accepted workflows:** `analyze -> validate -> search -> inspect`, `export -> serve -> browse`, optional `enrich`, and explainable cross-paper `related`
-- **Current non-blocking debt:** `long_nalini` still emits `7` unresolved references concentrated in the deferred figure-reference slice, cross-paper navigation remains intentionally paper-local, unsupported TeX beyond the current normalization set falls back to raw source, and Nyquist validation artifacts are still missing for phases 10-14
+- **Current non-blocking debt:** `long_nalini` still emits `7` unresolved references concentrated in the deferred figure-reference slice, cross-paper navigation remains intentionally paper-local, unsupported TeX beyond the new list/wrapper/`cases` normalization set still falls back to raw source, and Nyquist validation artifacts are still missing for phases 10-15
 
 ## Last Shipped Milestone: v1.2 Dashboard, Export & Math Rendering Hardening
 
@@ -60,7 +60,7 @@ A mathematician can feed in a TeX paper and get a trustworthy dependency artifac
 ### Active
 
 - [ ] Harden the parser against the remaining recurring TeX patterns that still produce unresolved references or incomplete extraction
-- [ ] Expand render compatibility so more extracted math fragments typeset cleanly instead of falling back to raw source
+- [x] Expand render compatibility so more extracted math fragments typeset cleanly instead of falling back to raw source
 - [ ] Prove the upgraded parse/render workflow on the accepted corpus plus targeted hard cases
 
 ### Out of Scope

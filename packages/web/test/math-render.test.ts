@@ -28,6 +28,70 @@ y$. Then \\eqref{eq:key} and Proposition \\ref{prop:key} imply the claim.
     expect(prepared.normalizedText).toContain('$x y$');
   });
 
+  it('flattens accepted-corpus itemize fragments into readable prose instead of falling back', () => {
+    const prepared = prepareMathStatementText(`
+\\begin{definition}
+We say $T$ is \\emph{admissible} when:
+\\begin{itemize}
+\\item $T$ is compact.
+\\item $\\mathrm{m}$ is bounded.
+\\end{itemize}
+\\end{definition}
+`);
+
+    expect(prepared.kind).toBe('typeset');
+    if (prepared.kind !== 'typeset') {
+      return;
+    }
+
+    expect(prepared.normalizedText).not.toContain('\\begin{itemize}');
+    expect(prepared.normalizedText).not.toContain('\\item');
+    expect(prepared.normalizedText).not.toContain('\\emph{');
+    expect(prepared.normalizedText).not.toContain('\\mathrm{');
+    expect(prepared.normalizedText).toContain('admissible');
+    expect(prepared.normalizedText).toContain('$T$ is compact.');
+    expect(prepared.normalizedText).toContain('$m$ is bounded.');
+  });
+
+  it('strips bounded text wrappers and spacing commands from readable fragments', () => {
+    const prepared = prepareMathStatementText(String.raw`
+\quad Let $\textbf{A}$ and $\mbox{B}$ satisfy $\text{if } x > 0 \qquad \mathrm{m} = 1$.
+`);
+
+    expect(prepared.kind).toBe('typeset');
+    if (prepared.kind !== 'typeset') {
+      return;
+    }
+
+    expect(prepared.normalizedText).not.toContain('\\textbf{');
+    expect(prepared.normalizedText).not.toContain('\\mbox{');
+    expect(prepared.normalizedText).not.toContain('\\text{');
+    expect(prepared.normalizedText).not.toContain('\\mathrm{');
+    expect(prepared.normalizedText).not.toContain('\\quad');
+    expect(prepared.normalizedText).not.toContain('\\qquad');
+    expect(prepared.normalizedText).toContain('Let $A$ and $B$ satisfy $if x > 0 m = 1$.');
+  });
+
+  it('salvages bounded cases displays into typeset output instead of treating them as unsupported environments', () => {
+    const prepared = prepareMathStatementText(String.raw`
+For $x \in \mathbb{R}$ we set
+\begin{cases}
+1 & \text{if } x > 0 \\
+0 & \text{otherwise.}
+\end{cases}
+`);
+
+    expect(prepared.kind).toBe('typeset');
+    if (prepared.kind !== 'typeset') {
+      return;
+    }
+
+    expect(prepared.normalizedText).not.toContain('\\begin{cases}');
+    expect(prepared.normalizedText).not.toContain('\\end{cases}');
+    expect(prepared.normalizedText).toContain('if x > 0');
+    expect(prepared.normalizedText).toContain('otherwise.');
+  });
+
   it('falls back when unsupported LaTeX environments remain after normalization', () => {
     const source = '\\begin{tikzcd} A \\\\arrow[r] & B \\end{tikzcd}';
     const prepared = prepareMathStatementText(source);
@@ -39,6 +103,18 @@ y$. Then \\eqref{eq:key} and Proposition \\ref{prop:key} imply the claim.
 
     expect(prepared.rawText).toBe(source);
     expect(prepared.reason).toContain('Unsupported LaTeX environment');
+  });
+
+  it('keeps figure environments on the explicit fallback path', () => {
+    const source = String.raw`\begin{figure} \caption{Still not a math fragment.} \end{figure}`;
+    const prepared = prepareMathStatementText(source);
+
+    expect(prepared.kind).toBe('fallback');
+    if (prepared.kind !== 'fallback') {
+      return;
+    }
+
+    expect(prepared.reason).toContain('Unsupported LaTeX environment: figure');
   });
 });
 

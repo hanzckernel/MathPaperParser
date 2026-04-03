@@ -60,9 +60,9 @@
 | HARD-06 | Phase 14 | Complete |
 | HARD-07 | Phase 14 | Complete |
 | HARD-08 | Phase 14 | Complete |
-| MATH-04 | Phase 15 | Pending |
-| MATH-05 | Phase 15 | Pending |
-| MATH-06 | Phase 15 | Pending |
+| MATH-04 | Phase 15 | Complete |
+| MATH-05 | Phase 15 | Complete |
+| MATH-06 | Phase 15 | Complete |
 | ACC-04 | Phase 16 | Pending |
 | ACC-05 | Phase 16 | Pending |
 

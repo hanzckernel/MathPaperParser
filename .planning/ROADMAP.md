@@ -17,7 +17,7 @@
 - Decimal phases (14.1, 14.2): Urgent insertions (marked with INSERTED)
 
 - [x] **Phase 14: Residual TeX Parser Hardening** - Reduce the remaining deterministic parser gaps behind unresolved diagnostics and incomplete extraction.
-- [ ] **Phase 15: Math Fragment Render Hardening** - Expand render-safe normalization so more extracted mathematical fragments typeset cleanly without overstating compatibility.
+- [x] **Phase 15: Math Fragment Render Hardening** - Expand render-safe normalization so more extracted mathematical fragments typeset cleanly without overstating compatibility.
 - [ ] **Phase 16: Parse/Render Acceptance Gate** - Prove the upgraded parse/render workflow on the accepted corpus plus targeted hard-case fixtures.
 
 ## Phase Details
