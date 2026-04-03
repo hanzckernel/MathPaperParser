@@ -2,7 +2,7 @@
 
 ## What This Is
 
-PaperParser is a local-first TeX dependency parser and exploration tool for mathematicians. It ships a deterministic canonical JSON bundle, optional reviewable enrichment, paper-local search, and a local multi-paper corpus workflow across aligned CLI/API/dashboard/MCP surfaces without treating the UI or the agent layer as the source of truth.
+PaperParser is a local-first TeX dependency parser and exploration tool for mathematicians. It ships a deterministic canonical JSON bundle, optional reviewable enrichment, paper-local search, a local multi-paper corpus workflow, and a hardened local export/dashboard path across aligned CLI/API/dashboard/MCP surfaces without treating the UI or the agent layer as the source of truth.
 
 ## Core Value
 
@@ -10,35 +10,28 @@ A mathematician can feed in a TeX paper and get a trustworthy dependency artifac
 
 ## Current State
 
-- **Shipped milestone:** `v1.1 Search, Hardening & Corpus` on 2026-04-03
-- **Active milestone:** `v1.2 Dashboard, Export & Math Rendering Hardening`
+- **Shipped milestone:** `v1.2 Dashboard, Export & Math Rendering Hardening` on 2026-04-03
+- **Active milestone:** none
 - **Representative acceptance paper:** `ref/papers/long_nalini/arXiv-2502.12268v2/main.tex`
 - **Accepted local corpus:** `long_nalini`, `medium_Mueller.flat.tex`, and `short_Petri.tex`
 - **Canonical output:** `manifest.json` / `graph.json` / `index.json`
 - **Additive sidecars:** `diagnostics.json` and optional `enrichment.json`
-- **Accepted workflows:** `analyze -> validate -> search -> inspect`, optional `enrich`, and explainable cross-paper `related`
-- **Current non-blocking debt:** `long_nalini` still emits `22` unresolved references plus `2` explicit unsupported reference-command diagnostics, cross-paper navigation remains intentionally paper-local, and static export/dashboard startup still needs hardening against persistent render failures
+- **Accepted workflows:** `analyze -> validate -> search -> inspect`, `export -> serve -> browse`, optional `enrich`, and explainable cross-paper `related`
+- **Current non-blocking debt:** `long_nalini` still emits `22` unresolved references plus `2` explicit unsupported reference-command diagnostics, cross-paper navigation remains intentionally paper-local, unsupported TeX beyond the current normalization set falls back to raw source, and Nyquist validation artifacts are still missing for phases 10-13
 
-## Last Shipped Milestone: v1.1 Search, Hardening & Corpus
-
-**Goal:** Make the shipped `v1.0` TeX artifact substantially more usable by adding direct search, improving parser reliability on unresolved references and broader TeX patterns, and supporting a local multi-paper workflow.
-
-**Delivered:**
-- Search by label, title, or object name with direct explorer navigation
-- Parser hardening across `long_nalini`, `medium_Mueller.flat.tex`, and `short_Petri.tex`
-- Local multi-paper corpus support with explainable cross-paper navigation that preserves paper boundaries
-- Real-corpus acceptance proof for the shipped workflow on the three-paper corpus
-
-## Current Milestone: v1.2 Dashboard, Export & Math Rendering Hardening
+## Last Shipped Milestone: v1.2 Dashboard, Export & Math Rendering Hardening
 
 **Goal:** Make static dashboard exports, dashboard startup behavior, and mathematical equation rendering reliable enough that local sharing and demo flows do not fail with a blank page, raw LaTeX-heavy text, or misleading render state.
 
-**Target features:**
-- Deterministic static export output, including `--paper latest` resolution and explicit `enrichment.json` handling when no sidecar exists
-- Reliable MathJax-based equation and inline-math rendering across the current dashboard surfaces instead of raw statement text
-- Consistent exported dashboard shell/bootstrap behavior with a clear supported mount target
-- Actionable runtime handling for unsupported static `file://` usage instead of silent render failure
-- Regression coverage and docs for the supported local export-and-serve workflow
+**Delivered:**
+- Deterministic static export output, including strict `--paper latest` resolution and explicit `enrichment.json` handling
+- Shared MathJax-based statement rendering with line-break and package-dependent fragment normalization plus inline fallback
+- Explicit runtime guardrails for unsupported static `file://` usage and strict `#root` bootstrap enforcement
+- A named repo-level acceptance proof command and aligned local operator guidance for the supported export-and-serve workflow
+
+## Next Milestone Setup
+
+There is no active milestone yet. The next planning cycle should start from the shipped `v1.2` baseline and choose explicitly among the open directions instead of mixing them together by default.
 
 ## Requirements
 
@@ -54,13 +47,14 @@ A mathematician can feed in a TeX paper and get a trustworthy dependency artifac
 - ✓ Reduce unresolved-reference diagnostics on the representative paper and broaden deterministic TeX coverage across `long_nalini`, `medium_Mueller.flat.tex`, and `short_Petri.tex` — `v1.1`
 - ✓ Support a local multi-paper corpus with safe paper isolation and explainable cross-paper navigation — `v1.1`
 - ✓ Prove the accepted local workflow on `long_nalini`, `medium_Mueller.flat.tex`, and `short_Petri.tex` without manual graph editing — `v1.1`
+- ✓ Harden static dashboard export completeness and latest-paper selection semantics — `v1.2`
+- ✓ Restore reliable MathJax-based mathematical rendering in the current web dashboard, including normalization of line-broken and package-dependent TeX fragments — `v1.2`
+- ✓ Eliminate persistent exported-dashboard rendering failures by aligning shell, bootstrap, and runtime expectations — `v1.2`
+- ✓ Document and verify the supported local export workflow so failures are reproducible and diagnosable — `v1.2`
 
 ### Active
 
-- [ ] Harden static dashboard export completeness and latest-paper selection semantics
-- [ ] Restore reliable MathJax-based mathematical rendering in the current web dashboard, including normalization of line-broken and package-dependent TeX fragments
-- [ ] Eliminate persistent exported-dashboard rendering failures by aligning shell, bootstrap, and runtime expectations
-- [ ] Document and verify the supported local export workflow so failures are reproducible and diagnosable
+- [ ] Define the next milestone from the shipped `v1.2` state before reopening feature work
 
 ### Out of Scope
 
@@ -73,11 +67,11 @@ A mathematician can feed in a TeX paper and get a trustworthy dependency artifac
 
 ## Context
 
-The repository is a TypeScript monorepo with active workspace packages in `packages/core`, `packages/cli`, `packages/mcp`, and `packages/web`. The shipped architecture now has a stable canonical bundle pipeline, local storage, schema validation, optional enrichment, search, a corpus read model, a static/dashboard explorer, and MCP exposure all aligned around the same paper-local graph contract.
+The repository is a TypeScript monorepo with active workspace packages in `packages/core`, `packages/cli`, `packages/mcp`, and `packages/web`. The shipped architecture now has a stable canonical bundle pipeline, local storage, schema validation, optional enrichment, search, a corpus read model, a hardened static/dashboard explorer path, and MCP exposure all aligned around the same paper-local graph contract.
 
 `v1.0` established the GitNexus-inspired direction: a machine-readable graph artifact first, with human exploration layered on top. `v1.1` proved that this foundation can absorb search and corpus workflows without creating a second source of truth or collapsing paper boundaries.
 
-`v1.2` is intentionally a hardening milestone, not a new product-surface milestone. The immediate gap is reliability around static exports, dashboard startup, and mathematical display: current work in progress already points at export payload completeness, `--paper latest` correctness, root mount consistency, explicit runtime behavior when a user opens an export in an unsupported way, and a mismatch between the documented dashboard expectation of rendered math and the current React implementation that still shows raw statement text. The rendering fix should use MathJax, but not by assuming raw extracted fragments are already valid browser-ready TeX; the milestone should include normalization for hard line breaks and package-dependent fragments rather than depending on `amsmath` or `amsthm` addons to rescue malformed HTML rendering.
+`v1.2` closed the major reliability gap around local export sharing by hardening the CLI export contract, bundling MathJax with fragment normalization, and turning unsupported static runtime states into explicit product behavior instead of blank pages. The next milestone should choose intentionally among the open directions already visible from the shipped product state: collaborator-facing review/export, a supported shared deployment story, broader input modes such as PDF/OCR, or deeper parser/render compatibility beyond the current bounded fallback behavior.
 
 ## Constraints
 
@@ -85,10 +79,9 @@ The repository is a TypeScript monorepo with active workspace packages in `packa
 - **Trust Model:** Deterministic parse output remains the baseline artifact; probabilistic enrichment must stay optional, labeled, and reviewable
 - **User Mode:** Optimize for a single mathematician working locally before adding collaboration or deployment complexity
 - **Corpus Model:** Preserve paper boundaries unless a future milestone explicitly owns a merged-graph design
-- **Export Reliability:** Static exports must fail explicitly when used outside the supported local-serving path instead of rendering a blank or misleading shell
-- **Math Presentation:** Mathematical statements should render through MathJax in a readable form without changing the underlying canonical bundle text contract
-- **Math Compatibility:** The dashboard should normalize extracted TeX fragments for line breaks and package-dependent constructs instead of relying on `amsmath` / `amsthm` addon compatibility at render time
-- **Milestone Discipline:** Keep `v1.2` focused on export/dashboard/math rendering hardening rather than mixing in PDF ingestion, global corpus search, or collaborator review work
+- **Export Reliability:** Static exports are supported through a local HTTP-serving path, not direct `file://` loading
+- **Math Presentation:** Mathematical statements render through a shared MathJax normalization/fallback boundary without mutating the canonical bundle text
+- **Milestone Discipline:** Define a fresh milestone before reopening requirements so planning artifacts do not drift between shipped versions
 
 ## Key Decisions
 
@@ -108,10 +101,20 @@ The repository is a TypeScript monorepo with active workspace packages in `packa
 | Limit cross-paper navigation to explicit or explainable links | Multi-paper workflows need to remain inspectable and trustworthy, not speculative global linkage | ✓ Good — related links now carry evidence terms and may return an explicit empty state |
 | Tighten matcher evidence using real-corpus acceptance instead of synthetic tuning | The acceptance gate should prefer meaningful terms a mathematician can inspect, not just any overlapping tokens | ✓ Good — Phase 9 prefers the stronger `hyperbolic` / `surface` link on the accepted corpus |
 | Deep-link search results into `#/explorer/<nodeId>` instead of creating a separate search page | Search should accelerate the existing explorer, not fork the navigation model | ✓ Good — Phase 6 made result-to-explorer jumps explicit and testable |
+| Harden the export contract before touching visible dashboard reliability | Export completeness and latest-paper semantics needed to be deterministic before debugging browser behavior | ✓ Good — Phase 10 narrowed the problem and removed stale-output ambiguity |
+| Use a bundled MathJax boundary with render-time normalization and explicit fallback | The dashboard needed readable math without changing canonical text or depending on browser addon rescue packages | ✓ Good — Phase 11 made statement rendering reliable on the supported surfaces |
+| Treat unsupported static `file://` usage as an explicit product blocker | A deliberate blocker is safer than a blank or misleading shell when the runtime is unsupported | ✓ Good — Phase 12 now fails fast with an actionable local-server command |
+| Publish a named repo-level acceptance proof for the local export workflow | Closeout and future regressions need one reproducible command instead of scattered manual checks | ✓ Good — `npm run test:acceptance:v1.2` now anchors the shipped workflow proof |
+
+## Next Milestone Goals
+
+- Choose the next milestone explicitly instead of letting post-`v1.2` ideas accumulate without priority
+- Preserve the deterministic-bundle-first architecture and the hardened local export/runtime path
+- Decide whether the next highest-value move is collaborator-facing review, supported deployment, broader ingestion, or deeper parser/render compatibility
 
 ## Evolution
 
-This document tracks the shipped product state and the starting point for the next milestone.
+This document tracks the shipped product state plus the next-milestone starting point.
 
 **After each future milestone:**
 1. Move shipped requirements from Active to Validated
@@ -120,4 +123,4 @@ This document tracks the shipped product state and the starting point for the ne
 4. Keep Current State accurate enough that the next milestone starts from facts rather than memory
 
 ---
-*Last updated: 2026-04-03 after starting milestone v1.2*
+*Last updated: 2026-04-03 after closing milestone v1.2*

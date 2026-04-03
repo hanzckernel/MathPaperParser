@@ -1,5 +1,18 @@
 # Milestones
 
+## v1.2 Dashboard, Export & Math Rendering Hardening (Shipped: 2026-04-03)
+
+**Phases completed:** 4 phases, 4 plans, 12 tasks
+
+**Key accomplishments:**
+
+- Harden the CLI export contract before dashboard runtime work begins
+- Repair dashboard statement rendering with local MathJax plus fragment normalization
+- Turn bootstrap/runtime edge cases into explicit product behavior
+- Publish the acceptance proof and operator guidance for the hardened local workflow
+
+---
+
 ## v1.0 TeX MVP (Shipped: 2026-04-02)
 
 **Phases completed:** 5 phases, 9 plans, 16 tasks

@@ -2,9 +2,9 @@
 gsd_state_version: 1.0
 milestone: v1.2
 milestone_name: Dashboard, Export & Math Rendering Hardening
-status: completed
-stopped_at: Milestone v1.2 audit passed; ready for archive
-last_updated: "2026-04-03T19:14:39Z"
+status: milestone_closed
+stopped_at: v1.2 archived; awaiting next milestone definition
+last_updated: "2026-04-03T19:24:26Z"
 last_activity: 2026-04-03
 progress:
   total_phases: 4
@@ -21,23 +21,24 @@ progress:
 See: .planning/PROJECT.md (updated 2026-04-03)
 
 **Core value:** A mathematician can feed in a TeX paper and get a trustworthy dependency artifact that makes the logical structure of the paper easier to navigate.
-**Current focus:** Milestone archival for `v1.2 Dashboard, Export & Math Rendering Hardening`
+**Current focus:** No active milestone
 
 ## Current Position
 
-Phase: 13. Export Acceptance & Operator Guidance
+Phase: Milestone archived
 Plan: —
-Status: Milestone audit passed
-Last activity: 2026-04-03 — Audited `v1.2`, re-ran the acceptance bundle and workspace typecheck, and confirmed the milestone is ready for archival.
+Status: Milestone closed
+Last activity: 2026-04-03 — Archived `v1.2`, updated the live planning docs, and prepared the project for the next milestone definition.
 
 Progress: [██████████] 100%
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 11
-- Average duration: 9.3 min
-- Total execution time: 1.7 hours
+
+- Total plans completed: 15
+- Average duration: 15.3 min
+- Total execution time: 3.8 hours
 
 **By Phase:**
 
@@ -52,10 +53,15 @@ Progress: [██████████] 100%
 | 7. TeX Hardening & Diagnostic Reduction | 1 | 18 min | 18 min |
 | 8. Local Corpus Library & Cross-Paper Navigation | 1 | 24 min | 24 min |
 | 9. Multi-Paper Acceptance Gate | 1 | 16 min | 16 min |
+| 10. Export Contract Hardening | 1 | 20 min | 20 min |
+| 11. Dashboard Math Rendering Repair | 1 | 28 min | 28 min |
+| 12. Dashboard Bootstrap & Runtime Guardrails | 1 | 18 min | 18 min |
+| 13. Export Acceptance & Operator Guidance | 1 | 16 min | 16 min |
 
 **Recent Trend:**
-- Last 5 plans: 05-01, 06-01, 07-01, 08-01, 09-01
-- Trend: Stable; ready to pivot from shipped corpus work into export/dashboard hardening
+
+- Last 5 plans: 09-01, 10-01, 11-01, 12-01, 13-01
+- Trend: Stable with milestone proof and archival now complete
 
 ## Accumulated Context
 
@@ -80,15 +86,16 @@ Decisions are logged in PROJECT.md. The milestone established:
 
 ### Pending Todos
 
-- Run `$gsd-complete-milestone v1.2`.
+- Define the next milestone.
 
 ### Blockers/Concerns
 
 - `long_nalini` still emits a bounded residual of `22` unresolved references and `2` unsupported reference-command diagnostics, so future parser work should not assume a perfectly clean gold paper.
-- Static exports need a documented HTTP-serving path; opening them directly via `file://` is unsupported and should fail clearly.
+- Unsupported TeX beyond the current normalization set still falls back to raw source instead of full browser-ready math rendering.
+- No active milestone blockers.
 
 ## Session Continuity
 
 Last session: 2026-04-03 CEST
-Stopped at: Milestone v1.2 audit passed; next step is `$gsd-complete-milestone v1.2`
+Stopped at: `v1.2` archived; next step is `$gsd-new-milestone`
 Resume file: .planning/ROADMAP.md
