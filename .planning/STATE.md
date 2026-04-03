@@ -1,36 +1,36 @@
 ---
 gsd_state_version: 1.0
-milestone: v1.3
-milestone_name: Parse/Render Hardening
-status: milestone_closed
-stopped_at: v1.3 archived and tagged; ready for next milestone setup
-last_updated: "2026-04-03T21:50:00Z"
-last_activity: 2026-04-03
+milestone: v1.4
+milestone_name: GCP Cloud Run Deployment Hardening
+status: defining_requirements
+stopped_at: v1.4 initialized; deciding whether to research before requirements
+last_updated: "2026-04-03T22:00:42Z"
+last_activity: 2026-04-04
 progress:
-  total_phases: 3
-  completed_phases: 3
-  total_plans: 3
-  completed_plans: 3
-  percent: 100
+  total_phases: 0
+  completed_phases: 0
+  total_plans: 0
+  completed_plans: 0
+  percent: 0
 ---
 
 # Project State
 
 ## Project Reference
 
-See: .planning/PROJECT.md (updated 2026-04-03)
+See: .planning/PROJECT.md (updated 2026-04-04)
 
 **Core value:** A mathematician can feed in a TeX paper and get a trustworthy dependency artifact that makes the logical structure of the paper easier to navigate.
-**Current focus:** Awaiting next milestone definition after `v1.3 Parse/Render Hardening`
+**Current focus:** Defining `v1.4 GCP Cloud Run Deployment Hardening`
 
 ## Current Position
 
-Phase: 16. Parse/Render Acceptance Gate
-Plan: 16-01
-Status: Milestone closed and archived
-Last activity: 2026-04-03 — Archived `v1.3`, tagged the shipped milestone, and left the workspace ready for the next milestone setup.
+Phase: Not started (defining requirements)
+Plan: -
+Status: Defining requirements
+Last activity: 2026-04-04 — Initialized `v1.4` around Cloud Run deployment hardening and updated the project context for the next requirements cycle.
 
-Progress: [██████████] 100%
+Progress: [----------] 0%
 
 ## Performance Metrics
 
@@ -64,7 +64,7 @@ Progress: [██████████] 100%
 **Recent Trend:**
 
 - Last 5 plans: 12-01, 13-01, 14-01, 15-01, 16-01
-- Trend: Stable; all `v1.3` implementation phases are complete and the milestone is fully archived
+- Trend: Reset for the next milestone; planning is starting from a shipped `v1.3` baseline
 
 ## Accumulated Context
 
@@ -92,6 +92,7 @@ Decisions are logged in PROJECT.md. The milestone established:
 - Phase 15 now salvages accepted-corpus list-heavy and wrapper-heavy statement fragments plus bounded `cases` displays through the shared MathJax boundary.
 - Phase 16 established `npm run test:acceptance:v1.3` as the reproducible milestone proof for parser and render hardening.
 - Exported dashboard MathJax readiness now waits for `startup.promise`, and static exports must carry `assets/sre/` as part of the supported browser contract.
+- `v1.4` targets Google Cloud Run specifically as the first supported shared deployment path.
 
 ### Pending Todos
 
@@ -105,6 +106,6 @@ Decisions are logged in PROJECT.md. The milestone established:
 
 ## Session Continuity
 
-Last session: 2026-04-03 CEST
-Stopped at: `v1.3` closed; next step is `$gsd-new-milestone`
+Last session: 2026-04-04 CEST
+Stopped at: `v1.4` initialized; next step is the research decision before requirements
 Resume file: .planning/ROADMAP.md
