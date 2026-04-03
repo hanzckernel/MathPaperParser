@@ -84,6 +84,48 @@
 
 ---
 
+## Milestone: v1.2 — Dashboard, Export & Math Rendering Hardening
+
+**Shipped:** 2026-04-03
+**Phases:** 4 | **Plans:** 4 | **Sessions:** 1
+
+### What Was Built
+
+- A hardened static export contract with strict `--paper latest` resolution, deterministic output replacement, and explicit `data/enrichment.json`
+- Shared MathJax statement rendering with normalization for hard line breaks and package-dependent fragments plus inline raw-source fallback
+- Explicit dashboard runtime guardrails for unsupported static `file://` usage and strict `#root` bootstrap enforcement
+- A named repo-level acceptance proof command and aligned operator docs for the supported local export-and-serve workflow
+
+### What Worked
+
+- Sequencing the work as export contract -> math rendering -> runtime guardrails -> operator proof kept each phase narrow and verifiable.
+- The named acceptance bundle made closeout evidence much easier to rerun than the earlier scattered test-command pattern.
+
+### What Was Inefficient
+
+- The archive helper still required a manual pass to collapse the live roadmap and evolve `PROJECT.md` after moving the archive files.
+- Nyquist validation artifacts were still absent for phases 10-13, so audit confidence relied on verification reports plus a fresh acceptance rerun.
+
+### Patterns Established
+
+- Export-contract hardening should happen before UI/runtime debugging when static data completeness is part of the symptom surface.
+- Browser math rendering needs a shared normalization/fallback boundary instead of scattered component-level TeX handling.
+- Unsupported local runtimes should fail explicitly at the app boundary, not degrade into generic loading or blank-shell states.
+- Milestone proof commands should be named at the repo root and regression-tested through docs contracts.
+
+### Key Lessons
+
+1. Hard line breaks and package-dependent TeX are a boundary problem; normalize fragments before browser typesetting instead of expecting rescue packages to make malformed input safe.
+2. If a runtime mode is unsupported, block it explicitly with the recovery command at the top level rather than letting the failure masquerade as a data or rendering bug.
+
+### Cost Observations
+
+- Model mix: Balanced profile throughout execution
+- Sessions: 1
+- Notable: Most of the milestone cost came from end-to-end proof and contract alignment, not from the individual code changes.
+
+---
+
 ## Cross-Milestone Trends
 
 ### Process Evolution
@@ -92,16 +134,19 @@
 |-----------|----------|--------|------------|
 | v1.0 | 1 | 5 | Established deterministic-bundle-first delivery with optional enrichment sidecars |
 | v1.1 | 1 | 4 | Added search, corpus navigation, and real-corpus acceptance on top of the shipped bundle/store contract |
+| v1.2 | 1 | 4 | Hardened export, browser math rendering, runtime guardrails, and the local operator proof workflow |
 
 ### Cumulative Quality
 
-| Milestone | Tests | Coverage | Zero-Dep Additions |
-|-----------|-------|----------|-------------------|
+| Milestone | Tests | Coverage | New Runtime Deps |
+|-----------|-------|----------|------------------|
 | v1.0 | 66 | N/A | 0 |
 | v1.1 | 77 | N/A | 0 |
+| v1.2 | 26 | N/A | 1 (`mathjax`) |
 
 ### Top Lessons (Verified Across Milestones)
 
 1. Create verification artifacts during execution, not at archival time.
 2. Keep deterministic and probabilistic outputs separate whenever trust matters.
 3. Real-corpus evidence quality deserves explicit assertions whenever search or matching affects the user-facing workflow.
+4. Explicit product guardrails are cheaper to debug than ambiguous runtime failures.
