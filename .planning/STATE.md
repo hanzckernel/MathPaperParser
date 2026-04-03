@@ -7,7 +7,7 @@ stopped_at: milestone v1.2 approved; ready for Phase 10 start
 last_updated: "2026-04-03T17:08:27Z"
 last_activity: 2026-04-03
 progress:
-  total_phases: 3
+  total_phases: 4
   completed_phases: 0
   total_plans: 0
   completed_plans: 0
@@ -27,8 +27,8 @@ See: .planning/PROJECT.md (updated 2026-04-03)
 
 Phase: 10. Export Contract Hardening
 Plan: —
-Status: Milestone initialized; roadmap drafted
-Last activity: 2026-04-03 — Approved `v1.2 Dashboard, Export & Math Rendering Hardening` and finalized the roadmap for Phases 10-13.
+Status: Phase 10 context gathered; ready for planning
+Last activity: 2026-04-03 — Captured Phase 10 export-contract decisions and wrote the planning context for `10-export-contract-hardening`.
 
 Progress: [░░░░░░░░░░] 0%
 
@@ -77,7 +77,7 @@ Decisions are logged in PROJECT.md. The milestone established:
 
 ### Pending Todos
 
-- Start Phase 10 discussion/planning.
+- Run `$gsd-plan-phase 10`.
 
 ### Blockers/Concerns
 
@@ -87,5 +87,5 @@ Decisions are logged in PROJECT.md. The milestone established:
 ## Session Continuity
 
 Last session: 2026-04-03 CEST
-Stopped at: `v1.2` approved; next step is `$gsd-discuss-phase 10`
-Resume file: .planning/ROADMAP.md
+Stopped at: Phase 10 context gathered; next step is `$gsd-plan-phase 10`
+Resume file: .planning/phases/10-export-contract-hardening/10-CONTEXT.md
