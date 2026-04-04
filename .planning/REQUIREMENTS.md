@@ -62,21 +62,22 @@
 
 | Requirement | Planned Phase | Status |
 |-------------|---------------|--------|
-| DEPLOY-01 | TBD | Pending |
-| DEPLOY-02 | TBD | Pending |
-| ACCESS-01 | TBD | Pending |
-| SEC-01 | TBD | Pending |
-| SEC-02 | TBD | Pending |
-| OPS-01 | TBD | Pending |
-| STORE-01 | TBD | Pending |
-| OPS-02 | TBD | Pending |
-| REL-03 | TBD | Pending |
-| REL-04 | TBD | Pending |
+| DEPLOY-01 | Phase 18 | Planned |
+| DEPLOY-02 | Phase 18 | Planned |
+| ACCESS-01 | Phase 18 | Planned |
+| SEC-01 | Phase 17 | Planned |
+| SEC-02 | Phase 17 | Planned |
+| OPS-01 | Phase 17 | Planned |
+| STORE-01 | Phase 19 | Planned |
+| OPS-02 | Phase 19 | Planned |
+| REL-03 | Phase 20 | Planned |
+| REL-04 | Phase 20 | Planned |
 
 **Coverage:**
 - v1 requirements: 10 total
-- Mapped to phases: 0
-- Unmapped: 10 (roadmap next)
+- Mapped to phases: 10
+- Unmapped: 0 ✓
 
 ---
 *Requirements defined: 2026-04-04*
+*Last updated: 2026-04-04 after creating milestone v1.4 roadmap*

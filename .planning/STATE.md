@@ -2,14 +2,14 @@
 gsd_state_version: 1.0
 milestone: v1.4
 milestone_name: GCP Cloud Run Deployment Hardening
-status: defining_requirements
-stopped_at: v1.4 initialized; deciding whether to research before requirements
-last_updated: "2026-04-03T22:00:42Z"
+status: roadmap_created
+stopped_at: v1.4 roadmap approved; ready to plan phase 17
+last_updated: "2026-04-04T00:00:00Z"
 last_activity: 2026-04-04
 progress:
-  total_phases: 0
+  total_phases: 4
   completed_phases: 0
-  total_plans: 0
+  total_plans: 4
   completed_plans: 0
   percent: 0
 ---
@@ -21,14 +21,14 @@ progress:
 See: .planning/PROJECT.md (updated 2026-04-04)
 
 **Core value:** A mathematician can feed in a TeX paper and get a trustworthy dependency artifact that makes the logical structure of the paper easier to navigate.
-**Current focus:** Defining `v1.4 GCP Cloud Run Deployment Hardening`
+**Current focus:** Planning `v1.4 GCP Cloud Run Deployment Hardening`
 
 ## Current Position
 
-Phase: Not started (defining requirements)
+Phase: 17. Server Deployment Boundary Hardening
 Plan: -
-Status: Defining requirements
-Last activity: 2026-04-04 — Initialized `v1.4` around Cloud Run deployment hardening and updated the project context for the next requirements cycle.
+Status: Roadmap approved; planning is next
+Last activity: 2026-04-04 — Approved the four-phase `v1.4` roadmap covering deployment boundary hardening, Cloud Run packaging/topology, persistence/runbook, and acceptance proof.
 
 Progress: [----------] 0%
 
@@ -107,5 +107,5 @@ Decisions are logged in PROJECT.md. The milestone established:
 ## Session Continuity
 
 Last session: 2026-04-04 CEST
-Stopped at: `v1.4` initialized; next step is the research decision before requirements
+Stopped at: `v1.4` roadmap created; next step is `$gsd-plan-phase 17`
 Resume file: .planning/ROADMAP.md
