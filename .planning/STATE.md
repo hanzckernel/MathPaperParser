@@ -2,16 +2,16 @@
 gsd_state_version: 1.0
 milestone: v1.4
 milestone_name: GCP Cloud Run Deployment Hardening
-status: milestone_audit_passed
-stopped_at: milestone audit passed; ready for closeout
-last_updated: "2026-04-04T11:10:30Z"
+status: phase_22_added
+stopped_at: phase 22 added; ready to plan phase 22
+last_updated: "2026-04-04T11:15:00Z"
 last_activity: 2026-04-04
 progress:
-  total_phases: 5
+  total_phases: 6
   completed_phases: 5
-  total_plans: 5
+  total_plans: 6
   completed_plans: 5
-  percent: 100
+  percent: 83
 ---
 
 # Project State
@@ -25,12 +25,12 @@ See: .planning/PROJECT.md (updated 2026-04-04)
 
 ## Current Position
 
-Phase: 21. Cloud Run Acceptance Gate
+Phase: 22. Create an exemplar README page to wiki through the project
 Plan: -
-Status: Milestone audit passed; closeout is next
-Last activity: 2026-04-04 — Audited `v1.4` at 12/12 requirements satisfied with the named Cloud Run proof bundle passing.
+Status: New phase added; planning is next
+Last activity: 2026-04-04 — Added Phase 22 for an exemplar README/wiki walkthrough page.
 
-Progress: [██████████] 100%
+Progress: [████████--] 83%
 
 ## Performance Metrics
 
@@ -105,6 +105,10 @@ Decisions are logged in PROJECT.md. The milestone established:
 - Phase 20 established a dedicated Cloud Storage bucket mount as the supported persistence bridge and published the Cloud Run operator runbook plus rollback helper.
 - Phase 21 established `npm run test:acceptance:v1.4` as the named local proof for the full Cloud Run deployment-hardening slice.
 
+### Roadmap Evolution
+
+- Phase 22 added: Create an exemplar README page to wiki through the project
+
 ### Pending Todos
 
 - Fix stale sample artifact problem.
@@ -118,5 +122,5 @@ Decisions are logged in PROJECT.md. The milestone established:
 ## Session Continuity
 
 Last session: 2026-04-04 CEST
-Stopped at: `v1.4` audit passed; next step is milestone closeout
+Stopped at: Phase 22 added; next step is Phase 22 planning
 Resume file: .planning/ROADMAP.md

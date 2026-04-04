@@ -94,3 +94,13 @@
 | v1.2 Dashboard, Export & Math Rendering Hardening | Phases 10-13 | Complete | 2026-04-03 |
 | v1.3 Parse/Render Hardening | Phases 14-16 | Complete | 2026-04-03 |
 | v1.4 GCP Cloud Run Deployment Hardening | Phases 17-21 | Planned | - |
+
+### Phase 22: Create an exemplar README page to wiki through the project
+
+**Goal:** [To be planned]
+**Requirements**: TBD
+**Depends on:** Phase 21
+**Plans:** 0 plans
+
+Plans:
+- [ ] TBD (run /gsd:plan-phase 22 to break down)
