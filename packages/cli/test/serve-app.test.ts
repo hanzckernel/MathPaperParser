@@ -1,5 +1,4 @@
-import { readFileSync } from 'node:fs';
-import { mkdtempSync } from 'node:fs';
+import { mkdirSync, mkdtempSync, readFileSync, writeFileSync } from 'node:fs';
 import { createServer } from 'node:http';
 import { join } from 'node:path';
 import { tmpdir } from 'node:os';
@@ -10,6 +9,36 @@ import { runCli } from '../src/index.js';
 import { createPaperParserRequestHandler, handlePaperParserRequest } from '../src/server.js';
 
 describe('paperparser serve app', () => {
+  it('serves a configured dashboard shell and injects deployed runtime config', async () => {
+    const storePath = mkdtempSync(join(tmpdir(), 'paperparser-serve-'));
+    const webDistPath = mkdtempSync(join(tmpdir(), 'paperparser-web-'));
+    mkdirSync(join(webDistPath, 'assets'), { recursive: true });
+    writeFileSync(
+      join(webDistPath, 'index.html'),
+      '<!doctype html><html><head><meta charset="utf-8"></head><body><div id="root"></div><script type="module" src="./assets/app.js"></script></body></html>',
+      'utf8',
+    );
+    writeFileSync(join(webDistPath, 'assets', 'app.js'), 'console.log("paperparser");\n', 'utf8');
+
+    const htmlResponse = await handlePaperParserRequest(new Request('http://paperparser.local/'), {
+      storePath,
+      runtimeMode: 'deployed',
+      webDistPath,
+    } as any);
+    expect(htmlResponse.status).toBe(200);
+    expect(htmlResponse.headers.get('content-type')).toContain('text/html');
+    await expect(htmlResponse.text()).resolves.toContain('window.__PAPERPARSER_RUNTIME__');
+
+    const assetResponse = await handlePaperParserRequest(new Request('http://paperparser.local/assets/app.js'), {
+      storePath,
+      runtimeMode: 'deployed',
+      webDistPath,
+    } as any);
+    expect(assetResponse.status).toBe(200);
+    expect(assetResponse.headers.get('content-type')).toContain('text/javascript');
+    await expect(assetResponse.text()).resolves.toContain('paperparser');
+  });
+
   it('rejects JSON inputPath analysis in deployed mode', async () => {
     const storePath = mkdtempSync(join(tmpdir(), 'paperparser-serve-'));
 

@@ -13,6 +13,18 @@ export interface ApiBundleSource {
 
 export type BundleSource = StaticBundleSource | ApiBundleSource;
 
+export interface BrowserRuntimeApiConfig {
+  kind: 'api';
+  baseUrl: string;
+  paperId?: string;
+}
+
+declare global {
+  interface Window {
+    __PAPERPARSER_RUNTIME__?: BrowserRuntimeApiConfig;
+  }
+}
+
 export interface LoadedSerializedPaperData {
   bundle: SerializedPaperParserBundle;
   enrichment?: SerializedEnrichmentArtifact;
@@ -56,7 +68,20 @@ async function resolveLatestPaperId(fetchImpl: typeof fetch, baseUrl: string): P
   return listing.latestPaperId;
 }
 
-export function resolveBundleSource(search: string): BundleSource {
+export function readBrowserRuntimeApiConfig(windowObject: Window): BrowserRuntimeApiConfig | null {
+  const runtimeConfig = windowObject.__PAPERPARSER_RUNTIME__;
+  if (!runtimeConfig || runtimeConfig.kind !== 'api' || typeof runtimeConfig.baseUrl !== 'string') {
+    return null;
+  }
+
+  return {
+    kind: 'api',
+    baseUrl: trimTrailingSlash(runtimeConfig.baseUrl),
+    paperId: runtimeConfig.paperId ?? 'latest',
+  };
+}
+
+export function resolveBundleSource(search: string, runtimeConfig: BrowserRuntimeApiConfig | null = null): BundleSource {
   const params = asSearchParams(search);
   const api = params.get('api');
   if (api) {
@@ -64,6 +89,14 @@ export function resolveBundleSource(search: string): BundleSource {
       kind: 'api',
       baseUrl: trimTrailingSlash(api),
       paperId: params.get('paper') ?? 'latest',
+    };
+  }
+
+  if (runtimeConfig) {
+    return {
+      kind: 'api',
+      baseUrl: trimTrailingSlash(runtimeConfig.baseUrl),
+      paperId: runtimeConfig.paperId ?? 'latest',
     };
   }
 

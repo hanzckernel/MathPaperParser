@@ -1,0 +1,11 @@
+.git
+.planning
+.npm-cache
+.paperparser-data
+.playwright-cli
+node_modules
+output
+ref/runs
+packages/web/public
+coverage
+dist

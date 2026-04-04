@@ -1,6 +1,6 @@
-import { mkdirSync, writeFileSync } from 'node:fs';
+import { existsSync, mkdirSync, readFileSync, statSync, writeFileSync } from 'node:fs';
 import type { IncomingMessage, ServerResponse } from 'node:http';
-import { basename, isAbsolute, join, resolve } from 'node:path';
+import { basename, extname, isAbsolute, join, relative, resolve } from 'node:path';
 
 import {
   BundleQueryService,
@@ -37,6 +37,7 @@ export interface PaperParserServerLogEvent {
 export interface PaperParserServeOptions {
   storePath?: string;
   cwd?: string;
+  webDistPath?: string;
   runtimeMode?: PaperParserRuntimeMode;
   maxRequestBytes?: number;
   maxUploadBytes?: number;
@@ -62,6 +63,10 @@ function withOptionalStorePath(storePath: string | undefined): { storePath?: str
   return typeof storePath === 'string' ? { storePath } : {};
 }
 
+function withOptionalWebDistPath(webDistPath: string | undefined): { webDistPath?: string } {
+  return typeof webDistPath === 'string' && webDistPath.length > 0 ? { webDistPath } : {};
+}
+
 function jsonResponse(status: number, value: unknown): Response {
   return new Response(JSON.stringify(value, null, 2), {
     status,
@@ -77,6 +82,15 @@ function errorResponse(status: number, message: string): Response {
 
 function requestTooLargeResponse(message: string): Response {
   return errorResponse(413, message);
+}
+
+function textResponse(status: number, body: string, contentType: string): Response {
+  return new Response(body, {
+    status,
+    headers: {
+      'content-type': contentType,
+    },
+  });
 }
 
 function decodePathSegment(value: string | undefined): string {
@@ -115,6 +129,108 @@ function parseContentLength(value: string | null): number | undefined {
 
   const parsed = Number.parseInt(value, 10);
   return Number.isInteger(parsed) && parsed >= 0 ? parsed : undefined;
+}
+
+function escapeHtmlScriptJson(value: unknown): string {
+  return JSON.stringify(value).replace(/</gu, '\\u003c');
+}
+
+function resolveOptionalPath(value: string | undefined, cwd: string): string {
+  if (!value) {
+    return '';
+  }
+
+  return isAbsolute(value) ? value : resolve(cwd, value);
+}
+
+function resolveContainedPath(rootPath: string, requestedPath: string): string | null {
+  const resolvedRoot = resolve(rootPath);
+  const candidate = resolve(resolvedRoot, requestedPath);
+  const relativeCandidate = relative(resolvedRoot, candidate);
+  if (relativeCandidate.startsWith('..') || isAbsolute(relativeCandidate)) {
+    return null;
+  }
+
+  return candidate;
+}
+
+function mimeTypeForPath(filePath: string): string {
+  switch (extname(filePath).toLowerCase()) {
+    case '.html':
+      return 'text/html; charset=utf-8';
+    case '.js':
+      return 'text/javascript; charset=utf-8';
+    case '.css':
+      return 'text/css; charset=utf-8';
+    case '.json':
+    case '.map':
+      return 'application/json; charset=utf-8';
+    case '.svg':
+      return 'image/svg+xml';
+    case '.png':
+      return 'image/png';
+    case '.jpg':
+    case '.jpeg':
+      return 'image/jpeg';
+    case '.webp':
+      return 'image/webp';
+    case '.ico':
+      return 'image/x-icon';
+    case '.woff2':
+      return 'font/woff2';
+    default:
+      return 'application/octet-stream';
+  }
+}
+
+function injectRuntimeConfig(indexHtml: string): string {
+  const runtimeConfig = {
+    kind: 'api',
+    baseUrl: '/',
+    paperId: 'latest',
+  };
+  const snippet = `<script>window.__PAPERPARSER_RUNTIME__=${escapeHtmlScriptJson(runtimeConfig)};</script>`;
+  return indexHtml.includes('</head>') ? indexHtml.replace('</head>', `${snippet}</head>`) : `${snippet}${indexHtml}`;
+}
+
+function handleDashboardRequest(url: URL, options: ResolvedPaperParserServeOptions): Response | null {
+  if (!options.webDistPath || (url.pathname !== '/' && url.pathname.startsWith('/api/'))) {
+    return null;
+  }
+
+  const requestedPath = url.pathname === '/' ? 'index.html' : decodePathSegment(url.pathname.slice(1));
+  const resolvedPath = resolveContainedPath(options.webDistPath, requestedPath);
+  if (resolvedPath && existsSync(resolvedPath) && statSync(resolvedPath).isFile()) {
+    if (extname(resolvedPath).toLowerCase() === '.html') {
+      return textResponse(200, injectRuntimeConfig(readFileSync(resolvedPath, 'utf8')), mimeTypeForPath(resolvedPath));
+    }
+
+    return new Response(readFileSync(resolvedPath), {
+      status: 200,
+      headers: {
+        'content-type': mimeTypeForPath(resolvedPath),
+      },
+    });
+  }
+
+  if (!extname(requestedPath)) {
+    const indexPath = resolveContainedPath(options.webDistPath, 'index.html');
+    if (indexPath && existsSync(indexPath) && statSync(indexPath).isFile()) {
+      return textResponse(200, injectRuntimeConfig(readFileSync(indexPath, 'utf8')), mimeTypeForPath(indexPath));
+    }
+  }
+
+  return null;
+}
+
+interface ResolvedPaperParserServeOptions {
+  storePath: string;
+  cwd: string;
+  webDistPath: string;
+  runtimeMode: PaperParserRuntimeMode;
+  maxRequestBytes: number;
+  maxUploadBytes: number;
+  logger: (event: PaperParserServerLogEvent) => void;
 }
 
 async function readBody(request: IncomingMessage, maxRequestBytes: number): Promise<Buffer | undefined> {
@@ -219,7 +335,7 @@ async function validateRequestSize(request: Request, maxRequestBytes: number): P
   return null;
 }
 
-async function handleAnalyzeRequest(request: Request, options: Required<PaperParserServeOptions>): Promise<Response> {
+async function handleAnalyzeRequest(request: Request, options: ResolvedPaperParserServeOptions): Promise<Response> {
   const contentType = request.headers.get('content-type') ?? '';
 
   if (contentType.startsWith('application/json')) {
@@ -277,7 +393,7 @@ function handleHealthRequest(): Response {
   return jsonResponse(200, { ok: true });
 }
 
-function handleReadyRequest(options: Required<PaperParserServeOptions>): Response {
+function handleReadyRequest(options: ResolvedPaperParserServeOptions): Response {
   try {
     mkdirSync(options.storePath, { recursive: true });
     return jsonResponse(200, {
@@ -290,7 +406,7 @@ function handleReadyRequest(options: Required<PaperParserServeOptions>): Respons
   }
 }
 
-function handleListRequest(options: Required<PaperParserServeOptions>): Response {
+function handleListRequest(options: ResolvedPaperParserServeOptions): Response {
   const papers = listStoredPapers(options.storePath);
   return jsonResponse(200, {
     storePath: options.storePath,
@@ -311,7 +427,7 @@ function handleListRequest(options: Required<PaperParserServeOptions>): Response
 function handleBundlePartRequest(
   paperId: string,
   part: 'manifest' | 'graph' | 'index' | 'enrichment',
-  options: Required<PaperParserServeOptions>,
+  options: ResolvedPaperParserServeOptions,
 ): Response {
   const { serializedBundle, serializedEnrichment } = readSerializedBundleFromStore(options.storePath, paperId);
   if (part === 'enrichment') {
@@ -323,7 +439,7 @@ function handleBundlePartRequest(
   return jsonResponse(200, serializedBundle[part]);
 }
 
-function handleQueryRequest(paperId: string, requestUrl: URL, options: Required<PaperParserServeOptions>): Response {
+function handleQueryRequest(paperId: string, requestUrl: URL, options: ResolvedPaperParserServeOptions): Response {
   const queryText = requestUrl.searchParams.get('q') ?? requestUrl.searchParams.get('text') ?? '';
   if (!queryText.trim()) {
     return errorResponse(400, 'GET /api/papers/:id/query requires a non-empty "q" query parameter.');
@@ -338,7 +454,7 @@ function handleQueryRequest(paperId: string, requestUrl: URL, options: Required<
   });
 }
 
-function handleContextRequest(paperId: string, nodeId: string, options: Required<PaperParserServeOptions>): Response {
+function handleContextRequest(paperId: string, nodeId: string, options: ResolvedPaperParserServeOptions): Response {
   const { bundle } = readBundleFromStore(options.storePath, paperId);
   const service = new BundleQueryService(bundle);
   return jsonResponse(200, {
@@ -347,7 +463,7 @@ function handleContextRequest(paperId: string, nodeId: string, options: Required
   });
 }
 
-function handleImpactRequest(paperId: string, nodeId: string, options: Required<PaperParserServeOptions>): Response {
+function handleImpactRequest(paperId: string, nodeId: string, options: ResolvedPaperParserServeOptions): Response {
   const { bundle } = readBundleFromStore(options.storePath, paperId);
   const service = new BundleQueryService(bundle);
   return jsonResponse(200, {
@@ -360,7 +476,7 @@ function handleRelatedRequest(
   paperId: string,
   nodeId: string,
   requestUrl: URL,
-  options: Required<PaperParserServeOptions>,
+  options: ResolvedPaperParserServeOptions,
 ): Response {
   const limitValue = requestUrl.searchParams.get('limit');
   const parsedLimit = limitValue ? Number.parseInt(limitValue, 10) : undefined;
@@ -375,7 +491,7 @@ function handleRelatedRequest(
   return jsonResponse(200, service.getRelatedNodes(paperId, nodeId, queryOptions));
 }
 
-function handleValidateRequest(paperId: string, options: Required<PaperParserServeOptions>): Response {
+function handleValidateRequest(paperId: string, options: ResolvedPaperParserServeOptions): Response {
   const { serializedBundle, serializedEnrichment } = readSerializedBundleFromStore(options.storePath, paperId);
   new SchemaValidator().validateSerializedBundle(serializedBundle);
   ConsistencyChecker.checkSerializedBundle(serializedBundle);
@@ -397,9 +513,11 @@ export async function handlePaperParserRequest(
   request: Request,
   options: PaperParserServeOptions = {},
 ): Promise<Response> {
-  const resolvedOptions: Required<PaperParserServeOptions> = {
-    storePath: resolveStorePath(options.storePath, options.cwd ?? process.cwd()),
-    cwd: options.cwd ?? process.cwd(),
+  const cwd = options.cwd ?? process.cwd();
+  const resolvedOptions: ResolvedPaperParserServeOptions = {
+    storePath: resolveStorePath(options.storePath, cwd),
+    cwd,
+    webDistPath: resolveOptionalPath(options.webDistPath, cwd),
     runtimeMode: options.runtimeMode ?? 'local',
     maxRequestBytes: options.maxRequestBytes ?? DEFAULT_MAX_REQUEST_BYTES,
     maxUploadBytes: options.maxUploadBytes ?? DEFAULT_MAX_UPLOAD_BYTES,
@@ -419,6 +537,13 @@ export async function handlePaperParserRequest(
 
   if (request.method === 'GET' && url.pathname === '/readyz') {
     return handleReadyRequest(resolvedOptions);
+  }
+
+  if (request.method === 'GET' || request.method === 'HEAD') {
+    const dashboardResponse = handleDashboardRequest(url, resolvedOptions);
+    if (dashboardResponse) {
+      return dashboardResponse;
+    }
   }
 
   if (request.method === 'POST' && url.pathname === '/api/papers') {
@@ -482,6 +607,7 @@ export function createPaperParserRequestHandler(options: PaperParserServeOptions
         status: webResponse.status,
         runtimeMode,
         ...withOptionalStorePath(options.storePath),
+        ...withOptionalWebDistPath(options.webDistPath),
       });
       await writeWebResponse(webResponse, response);
     } catch (error) {
@@ -497,6 +623,7 @@ export function createPaperParserRequestHandler(options: PaperParserServeOptions
         runtimeMode,
         message,
         ...withOptionalStorePath(options.storePath),
+        ...withOptionalWebDistPath(options.webDistPath),
       });
       await writeWebResponse(failureResponse, response);
     }

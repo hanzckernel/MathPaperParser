@@ -16,7 +16,13 @@ import {
 import { RuntimeBlockerPage } from './components/runtime-blocker.js';
 import { getCrossPaperLinks, listApiPapers, type ApiPaperListing, uploadSourceDocument } from './lib/api-client.js';
 import { buildDashboardModel, type DashboardModel } from './lib/dashboard-model.js';
-import { loadSerializedPaperData, resolveBundleSource, type BundleSource } from './lib/data-source.js';
+import {
+  loadSerializedPaperData,
+  readBrowserRuntimeApiConfig,
+  resolveBundleSource,
+  type BrowserRuntimeApiConfig,
+  type BundleSource,
+} from './lib/data-source.js';
 import { buildHashRoute, parseHashRoute, ROUTES, type RouteKey } from './lib/hash-route.js';
 import { getStaticBundleLoadBlocker } from './lib/runtime-environment.js';
 
@@ -53,8 +59,17 @@ function navButtonStyle(active: boolean): React.CSSProperties {
   };
 }
 
-function sourceToSearch(source: BundleSource): string {
+function sourceToSearch(source: BundleSource, runtimeConfig: BrowserRuntimeApiConfig | null): string {
   if (source.kind === 'static') {
+    return '';
+  }
+
+  if (
+    runtimeConfig &&
+    runtimeConfig.kind === 'api' &&
+    source.baseUrl === runtimeConfig.baseUrl &&
+    source.paperId === (runtimeConfig.paperId ?? 'latest')
+  ) {
     return '';
   }
 
@@ -90,9 +105,12 @@ function buildSearchResults(
 
 export function App() {
   const initialHashRoute = typeof window === 'undefined' ? { route: 'overview' as RouteKey, nodeId: null } : parseHashRoute(window.location.hash);
+  const runtimeConfig = typeof window === 'undefined' ? null : readBrowserRuntimeApiConfig(window);
   const [route, setRoute] = useState<RouteKey>(() => initialHashRoute.route);
   const [source, setSource] = useState<BundleSource>(() =>
-    typeof window === 'undefined' ? { kind: 'static', basePath: './data' } : resolveBundleSource(window.location.search),
+    typeof window === 'undefined'
+      ? { kind: 'static', basePath: './data' }
+      : resolveBundleSource(window.location.search, runtimeConfig),
   );
   const [model, setModel] = useState<DashboardModel | null>(null);
   const [serializedBundle, setSerializedBundle] = useState<SerializedPaperParserBundle | null>(null);
@@ -133,10 +151,10 @@ export function App() {
       return;
     }
 
-    const nextSearch = sourceToSearch(source);
+    const nextSearch = sourceToSearch(source, runtimeConfig);
     const nextUrl = `${window.location.pathname}${nextSearch}${window.location.hash || '#/overview'}`;
     window.history.replaceState(null, '', nextUrl);
-  }, [source]);
+  }, [runtimeConfig, source]);
 
   useEffect(() => {
     if (source.kind !== 'api') {

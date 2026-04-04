@@ -33,7 +33,7 @@
 - Decimal phases (17.1, 17.2): Urgent insertions (marked with INSERTED)
 
 - [x] **Phase 17: Server Deployment Boundary Hardening** - Make the current API safe and operable enough to run in a shared Cloud Run environment.
-- [ ] **Phase 18: Cloud Run Packaging & Topology** - Package PaperParser as a supported Cloud Run service with a deliberate same-origin web/API deployment shape and explicit access model.
+- [x] **Phase 18: Cloud Run Packaging & Topology** - Package PaperParser as a supported Cloud Run service with a deliberate same-origin web/API deployment shape and explicit access model.
 - [ ] **Phase 19: Shared Deployment Security Hardening** - Add the explicit authentication and ingress protections required so the Cloud Run path is actually safe for internet-facing or shared use.
 - [ ] **Phase 20: GCP Persistence & Operator Runbook** - Define the supported GCP store strategy and document how operators deploy, configure, upgrade, and roll back it.
 - [ ] **Phase 21: Cloud Run Acceptance Gate** - Prove the Cloud Run path end to end from container artifact through runtime behavior and deployment smoke checks.

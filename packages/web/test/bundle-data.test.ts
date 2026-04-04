@@ -21,6 +21,32 @@ describe('web bundle data source', () => {
     });
   });
 
+  it('prefers deployed runtime config for same-origin api mode when no query override is present', () => {
+    expect(
+      resolveBundleSource('', {
+        kind: 'api',
+        baseUrl: '/',
+        paperId: 'latest',
+      } as any),
+    ).toEqual({
+      kind: 'api',
+      baseUrl: '',
+      paperId: 'latest',
+    });
+
+    expect(
+      resolveBundleSource('?api=http://localhost:3000&paper=fixture-markdown', {
+        kind: 'api',
+        baseUrl: '/',
+        paperId: 'latest',
+      } as any),
+    ).toEqual({
+      kind: 'api',
+      baseUrl: 'http://localhost:3000',
+      paperId: 'fixture-markdown',
+    });
+  });
+
   it('loads a static bundle from manifest/graph/index files', async () => {
     const fetchMock = vi.fn<Parameters<typeof fetch>, ReturnType<typeof fetch>>();
     fetchMock.mockResolvedValueOnce(
