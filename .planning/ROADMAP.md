@@ -96,11 +96,10 @@
 | v1.4 GCP Cloud Run Deployment Hardening | Phases 17-21 | Planned | - |
 
 ### Phase 22: Create an exemplar README page to wiki through the project
-
-**Goal:** [To be planned]
-**Requirements**: TBD
-**Depends on:** Phase 21
-**Plans:** 0 plans
-
-Plans:
-- [ ] TBD (run /gsd:plan-phase 22 to break down)
+**Goal**: Publish a wiki-style entry page that routes readers through the repo, docs, workflows, and deployment materials without duplicating the whole manual.
+**Depends on**: Phase 21
+**Requirements**: DOCS-01
+**Success Criteria** (what must be TRUE):
+  1. The repo has a dedicated “start here” wiki page for navigating the project.
+  2. The root README points to that page explicitly.
+  3. The wiki page routes readers to the main product, developer, and deployment docs plus the package map.

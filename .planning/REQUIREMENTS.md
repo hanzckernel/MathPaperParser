@@ -35,6 +35,10 @@
 - [x] **REL-03**: Milestone verification covers container packaging, Cloud Run runtime configuration, same-origin web/API behavior, and the bounded deployed ingestion path.
 - [x] **REL-04**: Repo acceptance includes a named proof or smoke workflow for the supported Cloud Run deployment path.
 
+### Documentation
+
+- [ ] **DOCS-01**: User gets a wiki-style project entry page that explains the main repo surfaces and routes them to the right product, developer, and operator documentation.
+
 ## Future Requirements
 
 ### Corpus
@@ -79,10 +83,11 @@
 | OPS-02 | Phase 20 | Complete |
 | REL-03 | Phase 21 | Complete |
 | REL-04 | Phase 21 | Complete |
+| DOCS-01 | Phase 22 | Planned |
 
 **Coverage:**
-- v1 requirements: 12 total
-- Mapped to phases: 12
+- v1 requirements: 13 total
+- Mapped to phases: 13
 - Unmapped: 0 ✓
 
 ---
