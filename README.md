@@ -10,7 +10,7 @@ As of March 11, 2026, the repo passes:
 - `npm test`
 - `npm run typecheck`
 
-That makes the project usable for local development, static exports, internal alpha evaluation, and the repo-defined Cloud Run packaging path under active hardening. It is **not ready for internet-facing production deployment yet** because shared-deployment auth/access and persistence hardening are still in progress. See [docs/deployment_readiness.md](docs/deployment_readiness.md) for the current blockers and the minimum release checklist.
+That makes the project usable for local development, static exports, internal alpha evaluation, and the repo-defined Cloud Run packaging path under active hardening. It is **not ready for internet-facing production deployment yet** because persistence, rollout/runbook, and deeper upload-throttling work are still in progress. The supported shared-deployment path now keeps Cloud Run IAM authentication enabled by default. See [docs/deployment_readiness.md](docs/deployment_readiness.md) for the current blockers and the minimum release checklist.
 
 ## Supported Inputs
 
@@ -92,6 +92,12 @@ Build the supported Cloud Run container artifact:
 docker build -t paperparser:cloud-run .
 ```
 
+Deploy the supported shared Cloud Run service with IAM auth still enabled:
+
+```bash
+deploy/cloudrun/deploy.sh
+```
+
 Run the MCP server on stdio:
 
 ```bash
@@ -115,6 +121,7 @@ The React app lives in `packages/web`.
 - Static mode reads `./data/manifest.json`, `./data/graph.json`, `./data/index.json`, and `./data/enrichment.json`
 - API mode reads from `?api=http://host:port&paper=<paper-id>`
 - The supported Cloud Run deployment shape is a combined same-origin service: the CLI server serves the built dashboard shell and the browser binds to the same-origin API automatically
+- The supported shared deployment access model is authenticated Cloud Run service access with explicit `roles/run.invoker` grants
 - Upload and analyze flows require the `serve` API
 
 Static exports are supported when served over HTTP. Opening the exported dashboard directly from `file://` is intentionally blocked; from the export directory, run `python3 -m http.server 8000` and open the printed local URL instead.
@@ -144,5 +151,6 @@ Legacy reference material kept during beta preparation:
 
 - [Comprehensive user guide](docs/user_guide.md)
 - [Deployment readiness](docs/deployment_readiness.md)
+- [Cloud Run shared-access notes](deploy/cloudrun/README.md)
 - [Architecture](docs/architecture.md)
 - [Schema spec](docs/schema_spec.md)

@@ -45,25 +45,24 @@ The repo now documents and enforces maximum request and upload sizes, but it sti
 
 That is a denial-of-service risk in production.
 
-### 2. No authentication or authorization layer
+### 2. The shared deployment path is now authenticated, but only for explicitly granted Cloud Run invokers
 
-All current API routes are open once the process is reachable:
+The repo now ships a shared-deployment access path that keeps Cloud Run IAM authentication enabled and requires explicit `roles/run.invoker` grants. That closes the previous "anonymous open by default" gap for the supported Cloud Run path.
 
-- `GET /api/papers`
-- `POST /api/papers`
-- `GET /api/papers/:paperId/{manifest,graph,index,validate,query,context,impact}`
+Repo-owned artifacts:
 
-This is fine for localhost-only use. It is not enough for a shared or public deployment.
+- `deploy/cloudrun/deploy.sh`
+- `deploy/cloudrun/grant-invoker.sh`
+- `deploy/cloudrun/README.md`
 
-### 3. Shared-deployment access model is not locked down yet
+This phase intentionally supports one bounded access model only:
 
-The repo now ships a combined same-origin Cloud Run topology and a root `Dockerfile`, but the actual shared-deployment access path is still incomplete:
+- direct authenticated Cloud Run service access
+- named users or service accounts with `roles/run.invoker`
 
-- there is no supported authentication layer yet
-- ingress and raw-service exposure rules are not yet codified in repo-backed deployment config
-- the current artifact should not be treated as anonymous-public safe by default
+It still does **not** provide broader app-level multi-tenant auth, public anonymous access, or load-balancer/IAP fronting.
 
-### 4. Persistence and operator runbook are still incomplete
+### 3. Persistence and operator runbook are still incomplete
 
 The repo now ships:
 
@@ -79,7 +78,7 @@ What is still missing for a supported internet-facing deployment:
 - operator docs for deploy, upgrade, rollback, backups, and log collection
 - CI for the v2 monorepo deployment path
 
-### 5. PDF is still a beta target, not a shipped alpha feature
+### 4. PDF is still a beta target, not a shipped alpha feature
 
 The v2 pipeline recognizes `.pdf` inputs but throws an explicit "not implemented in alpha yet" error. The UI keeps PDF visible to signal planned beta work, not production availability.
 
@@ -89,11 +88,9 @@ Before calling the API stack production-ready, the repo should have all of the f
 
 1. Keep deployed mode free of arbitrary remote `inputPath` reads and retain explicit request/upload limits.
 2. Add rate limiting, concurrent-upload controls, and safer streaming upload handling.
-3. Add authentication and authorization for mutating and data-reading endpoints.
-4. Lock down the shared-deployment ingress and raw-service exposure model in repo-defined config.
-5. Publish the supported GCP persistence and store-path strategy.
-6. Add CI that runs `build`, `test`, and `typecheck` on every change.
-7. Publish an operator runbook covering deploy, upgrades, rollback, persistence, backups, and log collection.
+3. Publish the supported GCP persistence and store-path strategy.
+4. Add CI that runs `build`, `test`, and `typecheck` on every change.
+5. Publish an operator runbook covering deploy, upgrades, rollback, persistence, backups, and log collection.
 
 ## Practical Recommendation
 
