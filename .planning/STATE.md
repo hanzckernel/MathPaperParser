@@ -2,16 +2,16 @@
 gsd_state_version: 1.0
 milestone: v1.4
 milestone_name: GCP Cloud Run Deployment Hardening
-status: phase_19_complete
-stopped_at: phase 19 complete; ready to plan phase 20
-last_updated: "2026-04-04T11:01:30Z"
+status: phase_20_complete
+stopped_at: phase 20 complete; ready to plan phase 21
+last_updated: "2026-04-04T11:06:15Z"
 last_activity: 2026-04-04
 progress:
   total_phases: 5
-  completed_phases: 3
+  completed_phases: 4
   total_plans: 5
-  completed_plans: 3
-  percent: 60
+  completed_plans: 4
+  percent: 80
 ---
 
 # Project State
@@ -25,20 +25,20 @@ See: .planning/PROJECT.md (updated 2026-04-04)
 
 ## Current Position
 
-Phase: 20. GCP Persistence & Operator Runbook
+Phase: 21. Cloud Run Acceptance Gate
 Plan: -
-Status: Phase 19 complete; planning is next
-Last activity: 2026-04-04 — Completed Phase 19 with authenticated Cloud Run deploy/access helpers and explicit rejection of public invoker grants.
+Status: Phase 20 complete; planning is next
+Last activity: 2026-04-04 — Completed Phase 20 with a mounted-bucket persistence bridge, rollback helper, and repo-backed Cloud Run operator runbook.
 
-Progress: [██████----] 60%
+Progress: [████████--] 80%
 
 ## Performance Metrics
 
 **Velocity:**
 
-- Total plans completed: 20
-- Average duration: 16.3 min
-- Total execution time: 5.5 hours
+- Total plans completed: 21
+- Average duration: 16.6 min
+- Total execution time: 5.9 hours
 
 **By Phase:**
 
@@ -63,11 +63,12 @@ Progress: [██████----] 60%
 | 17. Server Deployment Boundary Hardening | 1 | 24 min | 24 min |
 | 18. Cloud Run Packaging & Topology | 1 | 32 min | 32 min |
 | 19. Shared Deployment Security Hardening | 1 | 22 min | 22 min |
+| 20. GCP Persistence & Operator Runbook | 1 | 23 min | 23 min |
 
 **Recent Trend:**
 
-- Last 5 plans: 14-01, 15-01, 16-01, 18-01, 19-01
-- Trend: Positive; `v1.4` now has a deploy-safe server boundary, a Cloud Run artifact/topology contract, and an authenticated shared-deployment access model
+- Last 5 plans: 15-01, 16-01, 18-01, 19-01, 20-01
+- Trend: Positive; `v1.4` now has packaging, shared access control, persistence bridging, and an operator workflow for the Cloud Run path
 
 ## Accumulated Context
 
@@ -100,6 +101,7 @@ Decisions are logged in PROJECT.md. The milestone established:
 - Phase 17 established an explicit `local` versus `deployed` runtime boundary, bounded request/upload limits, and app-level `/healthz` and `/readyz` routes.
 - Phase 18 established a root Cloud Run container artifact plus a combined same-origin dashboard/API deployment contract with injected browser runtime config.
 - Phase 19 established direct authenticated Cloud Run service access as the supported shared model and rejected public invoker grants in repo-owned helpers.
+- Phase 20 established a dedicated Cloud Storage bucket mount as the supported persistence bridge and published the Cloud Run operator runbook plus rollback helper.
 
 ### Pending Todos
 
@@ -114,5 +116,5 @@ Decisions are logged in PROJECT.md. The milestone established:
 ## Session Continuity
 
 Last session: 2026-04-04 CEST
-Stopped at: Phase 19 complete; next step is Phase 20 persistence/runbook planning
+Stopped at: Phase 20 complete; next step is Phase 21 acceptance planning
 Resume file: .planning/ROADMAP.md

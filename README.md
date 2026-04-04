@@ -98,6 +98,8 @@ Deploy the supported shared Cloud Run service with IAM auth still enabled:
 deploy/cloudrun/deploy.sh
 ```
 
+The supported `v1.4` deployment path mounts a dedicated Cloud Storage bucket into `/var/paperparser/store`; see [deploy/cloudrun/RUNBOOK.md](deploy/cloudrun/RUNBOOK.md) for the full operator flow.
+
 Run the MCP server on stdio:
 
 ```bash
@@ -152,5 +154,6 @@ Legacy reference material kept during beta preparation:
 - [Comprehensive user guide](docs/user_guide.md)
 - [Deployment readiness](docs/deployment_readiness.md)
 - [Cloud Run shared-access notes](deploy/cloudrun/README.md)
+- [Cloud Run operator runbook](deploy/cloudrun/RUNBOOK.md)
 - [Architecture](docs/architecture.md)
 - [Schema spec](docs/schema_spec.md)

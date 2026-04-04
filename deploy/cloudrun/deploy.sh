@@ -5,6 +5,7 @@ set -euo pipefail
 : "${PAPERPARSER_IMAGE:?Set PAPERPARSER_IMAGE to the container image URI.}"
 : "${PAPERPARSER_REGION:?Set PAPERPARSER_REGION to the Cloud Run region.}"
 : "${PAPERPARSER_RUNTIME_SERVICE_ACCOUNT:?Set PAPERPARSER_RUNTIME_SERVICE_ACCOUNT to the runtime service account email.}"
+: "${PAPERPARSER_STORE_BUCKET:?Set PAPERPARSER_STORE_BUCKET to the dedicated Cloud Storage bucket name.}"
 
 STORE_PATH="${PAPERPARSER_STORE_PATH:-/var/paperparser/store}"
 MEMORY="${PAPERPARSER_MEMORY:-1Gi}"
@@ -24,4 +25,6 @@ gcloud run deploy "$PAPERPARSER_SERVICE" \
   --memory "$MEMORY" \
   --min-instances "$MIN_INSTANCES" \
   --max-instances "$MAX_INSTANCES" \
+  --add-volume "name=paperparser-store,type=cloud-storage,bucket=$PAPERPARSER_STORE_BUCKET" \
+  --add-volume-mount "volume=paperparser-store,mount-path=/var/paperparser/store" \
   --set-env-vars "PAPERPARSER_RUNTIME_MODE=deployed,PAPERPARSER_WEB_DIST=/app/packages/web/dist,PAPERPARSER_STORE_PATH=$STORE_PATH"

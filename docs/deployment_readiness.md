@@ -62,7 +62,7 @@ This phase intentionally supports one bounded access model only:
 
 It still does **not** provide broader app-level multi-tenant auth, public anonymous access, or load-balancer/IAP fronting.
 
-### 3. Persistence and operator runbook are still incomplete
+### 3. The first persistence bridge is now defined, but it is intentionally limited
 
 The repo now ships:
 
@@ -71,12 +71,20 @@ The repo now ships:
 - structured request logging
 - a root `Dockerfile`
 - a combined same-origin web/API deployment path
+- a Cloud Storage bucket mount contract for `/var/paperparser/store`
+- a repo-backed Cloud Run runbook covering deploy, access grants, upgrade, and rollback
 
-What is still missing for a supported internet-facing deployment:
+The supported persistence bridge is intentionally narrow:
 
-- the supported GCP persistence story for the store path
-- operator docs for deploy, upgrade, rollback, backups, and log collection
+- it uses Cloud Storage FUSE semantics rather than a local POSIX disk
+- it should be treated as a low-concurrency bridge for the current filesystem-backed store
+- it is not a high-write multi-instance storage design
+
+What is still missing for a stronger internet-facing deployment:
+
 - CI for the v2 monorepo deployment path
+- deeper upload throttling and streaming safety
+- backup/logging automation beyond the initial runbook
 
 ### 4. PDF is still a beta target, not a shipped alpha feature
 

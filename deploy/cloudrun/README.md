@@ -25,6 +25,7 @@ Required environment variables:
 
 Optional environment variables:
 
+- `PAPERPARSER_STORE_BUCKET` required dedicated Cloud Storage bucket for the mounted store
 - `PAPERPARSER_STORE_PATH` default `/var/paperparser/store`
 - `PAPERPARSER_MEMORY` default `1Gi`
 - `PAPERPARSER_CPU` default `1`
@@ -37,6 +38,9 @@ Deploy with authenticated access still enabled:
 deploy/cloudrun/deploy.sh
 ```
 
+The deploy helper mounts `PAPERPARSER_STORE_BUCKET` into `/var/paperparser/store`.
+The runtime service account should have `roles/storage.objectUser` on that bucket.
+
 ## Grant Access
 
 Grant `roles/run.invoker` to a named principal:
@@ -46,3 +50,11 @@ PAPERPARSER_MEMBER='user:alice@example.com' deploy/cloudrun/grant-invoker.sh
 ```
 
 The helper rejects `allUsers` and `allAuthenticatedUsers`.
+
+## Roll Back
+
+Restore traffic to one revision:
+
+```bash
+PAPERPARSER_REVISION='paperparser-00012-abc' deploy/cloudrun/rollback.sh
+```

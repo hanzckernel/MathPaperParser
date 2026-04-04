@@ -1,4 +1,4 @@
-import { chmodSync, existsSync, mkdtempSync, readFileSync, writeFileSync } from 'node:fs';
+import { chmodSync, mkdtempSync, readFileSync, writeFileSync } from 'node:fs';
 import { spawnSync } from 'node:child_process';
 import { tmpdir } from 'node:os';
 import { join, resolve } from 'node:path';
@@ -19,8 +19,8 @@ printf '%s\n' "$@" > "$FAKE_GCLOUD_LOG"
   return binDir;
 }
 
-describe('cloud run shared deployment security contract', () => {
-  it('deploy helper keeps Cloud Run IAM authentication enabled', () => {
+describe('cloud run persistence and runbook contract', () => {
+  it('deploy helper mounts the configured Cloud Storage bucket at the store path', () => {
     const logPath = join(mkdtempSync(join(tmpdir(), 'paperparser-gcloud-log-')), 'deploy.log');
     const fakeBinDir = writeFakeGcloud(logPath);
     const result = spawnSync('bash', [resolve(process.cwd(), 'deploy/cloudrun/deploy.sh')], {
@@ -39,14 +39,14 @@ describe('cloud run shared deployment security contract', () => {
 
     expect(result.status).toBe(0);
     const invocation = readFileSync(logPath, 'utf8');
-    expect(invocation).toContain('--invoker-iam-check');
-    expect(invocation).not.toContain('--no-invoker-iam-check');
+    expect(invocation).toContain('type=cloud-storage,bucket=paperparser-store');
+    expect(invocation).toContain('mount-path=/var/paperparser/store');
   });
 
-  it('invoker helper grants roles/run.invoker to named principals only', () => {
-    const logPath = join(mkdtempSync(join(tmpdir(), 'paperparser-gcloud-log-')), 'grant.log');
+  it('rollback helper uses deterministic revision traffic routing', () => {
+    const logPath = join(mkdtempSync(join(tmpdir(), 'paperparser-gcloud-log-')), 'rollback.log');
     const fakeBinDir = writeFakeGcloud(logPath);
-    const result = spawnSync('bash', [resolve(process.cwd(), 'deploy/cloudrun/grant-invoker.sh')], {
+    const result = spawnSync('bash', [resolve(process.cwd(), 'deploy/cloudrun/rollback.sh')], {
       encoding: 'utf8',
       env: {
         ...process.env,
@@ -54,34 +54,13 @@ describe('cloud run shared deployment security contract', () => {
         FAKE_GCLOUD_LOG: logPath,
         PAPERPARSER_SERVICE: 'paperparser',
         PAPERPARSER_REGION: 'europe-west1',
-        PAPERPARSER_MEMBER: 'user:alice@example.com',
+        PAPERPARSER_REVISION: 'paperparser-00012-abc',
       },
     });
 
     expect(result.status).toBe(0);
     const invocation = readFileSync(logPath, 'utf8');
-    expect(invocation).toContain('add-iam-policy-binding');
-    expect(invocation).toContain('roles/run.invoker');
-    expect(invocation).toContain('user:alice@example.com');
-  });
-
-  it('invoker helper rejects unsupported public principals', () => {
-    const logPath = join(mkdtempSync(join(tmpdir(), 'paperparser-gcloud-log-')), 'grant.log');
-    const fakeBinDir = writeFakeGcloud(logPath);
-    const result = spawnSync('bash', [resolve(process.cwd(), 'deploy/cloudrun/grant-invoker.sh')], {
-      encoding: 'utf8',
-      env: {
-        ...process.env,
-        PATH: `${fakeBinDir}:${process.env.PATH ?? ''}`,
-        FAKE_GCLOUD_LOG: logPath,
-        PAPERPARSER_SERVICE: 'paperparser',
-        PAPERPARSER_REGION: 'europe-west1',
-        PAPERPARSER_MEMBER: 'allUsers',
-      },
-    });
-
-    expect(result.status).not.toBe(0);
-    expect(result.stderr).toContain('allUsers');
-    expect(existsSync(logPath)).toBe(false);
+    expect(invocation).toContain('update-traffic');
+    expect(invocation).toContain('--to-revisions=paperparser-00012-abc=100');
   });
 });
