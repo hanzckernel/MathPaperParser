@@ -10,12 +10,12 @@
   Archives: `.planning/milestones/v1.2-ROADMAP.md`, `.planning/milestones/v1.2-REQUIREMENTS.md`, `.planning/milestones/v1.2-MILESTONE-AUDIT.md`
 - ✅ **v1.3 Parse/Render Hardening** — shipped 2026-04-03
   Archives: `.planning/milestones/v1.3-ROADMAP.md`, `.planning/milestones/v1.3-REQUIREMENTS.md`, `.planning/milestones/v1.3-MILESTONE-AUDIT.md`
-- 🚧 **v1.4 GCP Cloud Run Deployment Hardening** — Phases 17-21 planned on 2026-04-04
+- 🚧 **v1.4 GCP Cloud Run Deployment Hardening** — Phases 17-22 planned on 2026-04-04
 
 ## Current State
 
 - Active milestone: `v1.4 GCP Cloud Run Deployment Hardening`
-- Next execution step: `$gsd-plan-phase 17`
+- Next execution step: `$gsd-audit-milestone`
 - Phase numbering continues from 17 for this milestone.
 
 ## Milestone Summary
@@ -29,7 +29,7 @@
 ## Phases
 
 **Phase Numbering:**
-- Integer phases (17, 18, 19, 20, 21): Planned milestone work
+- Integer phases (17, 18, 19, 20, 21, 22): Planned milestone work
 - Decimal phases (17.1, 17.2): Urgent insertions (marked with INSERTED)
 
 - [x] **Phase 17: Server Deployment Boundary Hardening** - Make the current API safe and operable enough to run in a shared Cloud Run environment.
@@ -37,6 +37,7 @@
 - [x] **Phase 19: Shared Deployment Security Hardening** - Add the explicit authentication and ingress protections required so the Cloud Run path is actually safe for internet-facing or shared use.
 - [x] **Phase 20: GCP Persistence & Operator Runbook** - Define the supported GCP store strategy and document how operators deploy, configure, upgrade, and roll back it.
 - [x] **Phase 21: Cloud Run Acceptance Gate** - Prove the Cloud Run path end to end from container artifact through runtime behavior and deployment smoke checks.
+- [x] **Phase 22: Create an exemplar README page to wiki through the project** - Publish a wiki-style entry page that routes readers through the repo, docs, workflows, and deployment materials without duplicating the whole manual.
 
 ## Phase Details
 
@@ -93,7 +94,7 @@
 | v1.1 Search, Hardening & Corpus | Phases 6-9 | Complete | 2026-04-03 |
 | v1.2 Dashboard, Export & Math Rendering Hardening | Phases 10-13 | Complete | 2026-04-03 |
 | v1.3 Parse/Render Hardening | Phases 14-16 | Complete | 2026-04-03 |
-| v1.4 GCP Cloud Run Deployment Hardening | Phases 17-21 | Planned | - |
+| v1.4 GCP Cloud Run Deployment Hardening | Phases 17-22 | Planned | - |
 
 ### Phase 22: Create an exemplar README page to wiki through the project
 **Goal**: Publish a wiki-style entry page that routes readers through the repo, docs, workflows, and deployment materials without duplicating the whole manual.

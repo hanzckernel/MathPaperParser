@@ -37,7 +37,7 @@
 
 ### Documentation
 
-- [ ] **DOCS-01**: User gets a wiki-style project entry page that explains the main repo surfaces and routes them to the right product, developer, and operator documentation.
+- [x] **DOCS-01**: User gets a wiki-style project entry page that explains the main repo surfaces and routes them to the right product, developer, and operator documentation.
 
 ## Future Requirements
 
@@ -83,7 +83,7 @@
 | OPS-02 | Phase 20 | Complete |
 | REL-03 | Phase 21 | Complete |
 | REL-04 | Phase 21 | Complete |
-| DOCS-01 | Phase 22 | Planned |
+| DOCS-01 | Phase 22 | Complete |
 
 **Coverage:**
 - v1 requirements: 13 total
@@ -92,4 +92,4 @@
 
 ---
 *Requirements defined: 2026-04-04*
-*Last updated: 2026-04-04 after auditing milestone v1.4*
+*Last updated: 2026-04-04 after completing phase 22*

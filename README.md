@@ -2,6 +2,10 @@
 
 PaperParser is a TypeScript monorepo for extracting a math-paper bundle from source documents and exploring it through a CLI, HTTP API, React dashboard, and MCP server.
 
+Start here for a wiki-style walkthrough of the repo and docs:
+
+- [Project wiki](docs/project_wiki.md)
+
 ## Status
 
 As of March 11, 2026, the repo passes:

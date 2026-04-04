@@ -2,16 +2,16 @@
 gsd_state_version: 1.0
 milestone: v1.4
 milestone_name: GCP Cloud Run Deployment Hardening
-status: phase_22_added
-stopped_at: phase 22 added; ready to plan phase 22
-last_updated: "2026-04-04T11:15:00Z"
+status: milestone_ready_for_audit
+stopped_at: all v1.4 phases complete again; ready for milestone audit
+last_updated: "2026-04-04T21:26:00Z"
 last_activity: 2026-04-04
 progress:
   total_phases: 6
-  completed_phases: 5
+  completed_phases: 6
   total_plans: 6
-  completed_plans: 5
-  percent: 83
+  completed_plans: 6
+  percent: 100
 ---
 
 # Project State
@@ -27,18 +27,18 @@ See: .planning/PROJECT.md (updated 2026-04-04)
 
 Phase: 22. Create an exemplar README page to wiki through the project
 Plan: -
-Status: New phase added; planning is next
-Last activity: 2026-04-04 — Added Phase 22 for an exemplar README/wiki walkthrough page.
+Status: All planned phases complete again; milestone audit is next
+Last activity: 2026-04-04 — Completed Phase 22 with a wiki-style project entry page and a README route into it.
 
-Progress: [████████--] 83%
+Progress: [██████████] 100%
 
 ## Performance Metrics
 
 **Velocity:**
 
-- Total plans completed: 22
-- Average duration: 16.4 min
-- Total execution time: 6.1 hours
+- Total plans completed: 23
+- Average duration: 16.2 min
+- Total execution time: 6.3 hours
 
 **By Phase:**
 
@@ -65,11 +65,12 @@ Progress: [████████--] 83%
 | 19. Shared Deployment Security Hardening | 1 | 22 min | 22 min |
 | 20. GCP Persistence & Operator Runbook | 1 | 23 min | 23 min |
 | 21. Cloud Run Acceptance Gate | 1 | 12 min | 12 min |
+| 22. Create an exemplar README page to wiki through the project | 1 | 12 min | 12 min |
 
 **Recent Trend:**
 
-- Last 5 plans: 16-01, 18-01, 19-01, 20-01, 21-01
-- Trend: Positive; `v1.4` now has a full named Cloud Run proof bundle across packaging, access, persistence, and operator workflow
+- Last 5 plans: 18-01, 19-01, 20-01, 21-01, 22-01
+- Trend: Positive; `v1.4` now has a full Cloud Run proof bundle plus a wiki-style onboarding route through the project docs
 
 ## Accumulated Context
 
@@ -104,6 +105,7 @@ Decisions are logged in PROJECT.md. The milestone established:
 - Phase 19 established direct authenticated Cloud Run service access as the supported shared model and rejected public invoker grants in repo-owned helpers.
 - Phase 20 established a dedicated Cloud Storage bucket mount as the supported persistence bridge and published the Cloud Run operator runbook plus rollback helper.
 - Phase 21 established `npm run test:acceptance:v1.4` as the named local proof for the full Cloud Run deployment-hardening slice.
+- Phase 22 established `docs/project_wiki.md` as a start-here entry page for navigating the repo and docs.
 
 ### Roadmap Evolution
 
@@ -122,5 +124,5 @@ Decisions are logged in PROJECT.md. The milestone established:
 ## Session Continuity
 
 Last session: 2026-04-04 CEST
-Stopped at: Phase 22 added; next step is Phase 22 planning
+Stopped at: All `v1.4` phases complete again; next step is milestone audit
 Resume file: .planning/ROADMAP.md
