@@ -70,9 +70,29 @@ function usage(): string {
     `       ${PAPERPARSER_CLI_NAME} context <node-id> [--store <path>] [--paper <id>]`,
     `       ${PAPERPARSER_CLI_NAME} impact <node-id> [--store <path>] [--paper <id>]`,
     `       ${PAPERPARSER_CLI_NAME} mcp [--store <path>]`,
-    `       ${PAPERPARSER_CLI_NAME} serve [--store <path>] [--host <host>] [--port <port>]`,
+    `       ${PAPERPARSER_CLI_NAME} serve [--store <path>] [--host <host>] [--port <port>] [--deployed] [--max-request-bytes <n>] [--max-upload-bytes <n>]`,
     `       ${PAPERPARSER_CLI_NAME} status [--store <path>]`,
   ].join('\n');
+}
+
+function readIntegerFlag(argv: string[], flag: string): number | undefined {
+  const value = readFlag(argv, flag);
+  if (!value) {
+    return undefined;
+  }
+
+  const parsed = Number.parseInt(value, 10);
+  return Number.isInteger(parsed) && parsed >= 0 ? parsed : undefined;
+}
+
+function readIntegerEnv(name: string): number | undefined {
+  const value = process.env[name];
+  if (!value) {
+    return undefined;
+  }
+
+  const parsed = Number.parseInt(value, 10);
+  return Number.isInteger(parsed) && parsed >= 0 ? parsed : undefined;
 }
 
 function runAnalyze(argv: string[], io: CliIo): number {
@@ -391,6 +411,9 @@ function runServe(argv: string[], io: CliIo): number {
   const host = readFlag(argv, '--host') ?? '127.0.0.1';
   const portValue = readFlag(argv, '--port') ?? '3000';
   const port = Number.parseInt(portValue, 10);
+  const runtimeMode = hasFlag(argv, '--deployed') || process.env.PAPERPARSER_RUNTIME_MODE === 'deployed' ? 'deployed' : 'local';
+  const maxRequestBytes = readIntegerFlag(argv, '--max-request-bytes') ?? readIntegerEnv('PAPERPARSER_MAX_REQUEST_BYTES');
+  const maxUploadBytes = readIntegerFlag(argv, '--max-upload-bytes') ?? readIntegerEnv('PAPERPARSER_MAX_UPLOAD_BYTES');
   const cwd = io.cwd ?? process.cwd();
 
   if (!Number.isInteger(port) || port < 0) {
@@ -398,12 +421,31 @@ function runServe(argv: string[], io: CliIo): number {
     return 1;
   }
 
+  if (readFlag(argv, '--max-request-bytes') && maxRequestBytes === undefined) {
+    io.stderr(`Invalid --max-request-bytes value: ${readFlag(argv, '--max-request-bytes')}`);
+    return 1;
+  }
+
+  if (readFlag(argv, '--max-upload-bytes') && maxUploadBytes === undefined) {
+    io.stderr(`Invalid --max-upload-bytes value: ${readFlag(argv, '--max-upload-bytes')}`);
+    return 1;
+  }
+
   try {
     const storePath = resolveStorePath(storeFlag, cwd);
-    const server = createServer(createPaperParserRequestHandler({ storePath, cwd }));
+    const server = createServer(
+      createPaperParserRequestHandler({
+        storePath,
+        cwd,
+        runtimeMode,
+        ...(typeof maxRequestBytes === 'number' ? { maxRequestBytes } : {}),
+        ...(typeof maxUploadBytes === 'number' ? { maxUploadBytes } : {}),
+      }),
+    );
     server.listen(port, host, () => {
       io.stdout(`serve=http://${host}:${port}`);
       io.stdout(`store=${storePath}`);
+      io.stdout(`runtime_mode=${runtimeMode}`);
     });
     server.on('error', (error) => {
       io.stderr(error instanceof Error ? error.message : String(error));

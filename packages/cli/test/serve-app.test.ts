@@ -1,14 +1,133 @@
 import { readFileSync } from 'node:fs';
 import { mkdtempSync } from 'node:fs';
+import { createServer } from 'node:http';
 import { join } from 'node:path';
 import { tmpdir } from 'node:os';
 
 import { describe, expect, it } from 'vitest';
 
 import { runCli } from '../src/index.js';
-import { handlePaperParserRequest } from '../src/server.js';
+import { createPaperParserRequestHandler, handlePaperParserRequest } from '../src/server.js';
 
 describe('paperparser serve app', () => {
+  it('rejects JSON inputPath analysis in deployed mode', async () => {
+    const storePath = mkdtempSync(join(tmpdir(), 'paperparser-serve-'));
+
+    const response = await handlePaperParserRequest(
+      new Request('http://paperparser.local/api/papers', {
+        method: 'POST',
+        headers: {
+          'content-type': 'application/json',
+        },
+        body: JSON.stringify({
+          inputPath: 'packages/core/test/fixtures/markdown/paper.md',
+          paperId: 'fixture-markdown',
+        }),
+      }),
+      { storePath, runtimeMode: 'deployed' } as any,
+    );
+
+    expect(response.status).toBe(400);
+    await expect(response.json()).resolves.toMatchObject({
+      error: expect.stringContaining('inputPath'),
+    });
+  });
+
+  it('serves healthz and readyz routes in deployed mode', async () => {
+    const storePath = mkdtempSync(join(tmpdir(), 'paperparser-serve-'));
+
+    const healthResponse = await handlePaperParserRequest(new Request('http://paperparser.local/healthz'), {
+      storePath,
+      runtimeMode: 'deployed',
+    } as any);
+    expect(healthResponse.status).toBe(200);
+    await expect(healthResponse.json()).resolves.toMatchObject({ ok: true });
+
+    const readyResponse = await handlePaperParserRequest(new Request('http://paperparser.local/readyz'), {
+      storePath,
+      runtimeMode: 'deployed',
+    } as any);
+    expect(readyResponse.status).toBe(200);
+    await expect(readyResponse.json()).resolves.toMatchObject({
+      ok: true,
+      storePath,
+    });
+  });
+
+  it('rejects oversized multipart uploads explicitly', async () => {
+    const storePath = mkdtempSync(join(tmpdir(), 'paperparser-serve-'));
+    const body = new FormData();
+    body.set('file', new File(['x'.repeat(64)], 'too-large.md', { type: 'text/markdown' }));
+
+    const response = await handlePaperParserRequest(
+      new Request('http://paperparser.local/api/papers', {
+        method: 'POST',
+        body,
+      }),
+      { storePath, maxUploadBytes: 16, maxRequestBytes: 1024 } as any,
+    );
+
+    expect(response.status).toBe(413);
+    await expect(response.json()).resolves.toMatchObject({
+      error: expect.stringContaining('upload'),
+    });
+  });
+
+  it('rejects oversized request bodies at the HTTP boundary', async () => {
+    const storePath = mkdtempSync(join(tmpdir(), 'paperparser-serve-'));
+    const server = createServer(
+      createPaperParserRequestHandler({
+        storePath,
+        runtimeMode: 'deployed',
+        maxRequestBytes: 32,
+      } as any),
+    );
+
+    await new Promise<void>((resolve, reject) => {
+      server.listen(0, '127.0.0.1', (error?: Error) => {
+        if (error) {
+          reject(error);
+          return;
+        }
+        resolve();
+      });
+    });
+
+    const address = server.address();
+    if (!address || typeof address === 'string') {
+      throw new Error('Expected an ephemeral HTTP server address.');
+    }
+
+    try {
+      const response = await fetch(`http://127.0.0.1:${address.port}/api/papers`, {
+        method: 'POST',
+        headers: {
+          'content-type': 'application/json',
+        },
+        body: JSON.stringify({
+          inputPath: 'packages/core/test/fixtures/markdown/paper.md',
+          paperId: 'fixture-markdown',
+          padding: 'x'.repeat(256),
+        }),
+      });
+
+      expect(response.status).toBe(413);
+      await expect(response.json()).resolves.toMatchObject({
+        error: expect.stringContaining('too large'),
+      });
+    } finally {
+      await new Promise<void>((resolve, reject) => {
+        server.close((error) => {
+          if (error) {
+            reject(error);
+            return;
+          }
+          resolve();
+        });
+      });
+    }
+  });
+
   it('uploads and analyzes a markdown file, then serves stored bundle parts', async () => {
     const storePath = mkdtempSync(join(tmpdir(), 'paperparser-serve-'));
 

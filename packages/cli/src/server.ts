@@ -21,9 +21,45 @@ import {
   writeBundleToStore,
 } from './store.js';
 
+export type PaperParserRuntimeMode = 'local' | 'deployed';
+
+export interface PaperParserServerLogEvent {
+  level: 'info' | 'error';
+  event: string;
+  method?: string;
+  path?: string;
+  status?: number;
+  runtimeMode?: PaperParserRuntimeMode;
+  storePath?: string;
+  message?: string;
+}
+
 export interface PaperParserServeOptions {
   storePath?: string;
   cwd?: string;
+  runtimeMode?: PaperParserRuntimeMode;
+  maxRequestBytes?: number;
+  maxUploadBytes?: number;
+  logger?: (event: PaperParserServerLogEvent) => void;
+}
+
+const DEFAULT_MAX_REQUEST_BYTES = 10 * 1024 * 1024;
+const DEFAULT_MAX_UPLOAD_BYTES = 10 * 1024 * 1024;
+
+class RequestTooLargeError extends Error {}
+
+function defaultLogger(event: PaperParserServerLogEvent): void {
+  const line = JSON.stringify(event);
+  if (event.level === 'error') {
+    console.error(line);
+    return;
+  }
+
+  console.log(line);
+}
+
+function withOptionalStorePath(storePath: string | undefined): { storePath?: string } {
+  return typeof storePath === 'string' ? { storePath } : {};
 }
 
 function jsonResponse(status: number, value: unknown): Response {
@@ -37,6 +73,10 @@ function jsonResponse(status: number, value: unknown): Response {
 
 function errorResponse(status: number, message: string): Response {
   return jsonResponse(status, { error: message });
+}
+
+function requestTooLargeResponse(message: string): Response {
+  return errorResponse(413, message);
 }
 
 function decodePathSegment(value: string | undefined): string {
@@ -68,21 +108,41 @@ function toHeaders(headers: IncomingMessage['headers']): Headers {
   return result;
 }
 
-async function readBody(request: IncomingMessage): Promise<Buffer | undefined> {
+function parseContentLength(value: string | null): number | undefined {
+  if (!value) {
+    return undefined;
+  }
+
+  const parsed = Number.parseInt(value, 10);
+  return Number.isInteger(parsed) && parsed >= 0 ? parsed : undefined;
+}
+
+async function readBody(request: IncomingMessage, maxRequestBytes: number): Promise<Buffer | undefined> {
   if (request.method === 'GET' || request.method === 'HEAD') {
     return undefined;
   }
 
+  const contentLength = parseContentLength(request.headers['content-length']?.toString() ?? null);
+  if (typeof contentLength === 'number' && contentLength > maxRequestBytes) {
+    throw new RequestTooLargeError(`Request body is too large. Maximum size is ${maxRequestBytes} bytes.`);
+  }
+
   const chunks: Buffer[] = [];
+  let totalBytes = 0;
   for await (const chunk of request) {
-    chunks.push(typeof chunk === 'string' ? Buffer.from(chunk) : chunk);
+    const buffer = typeof chunk === 'string' ? Buffer.from(chunk) : chunk;
+    totalBytes += buffer.byteLength;
+    if (totalBytes > maxRequestBytes) {
+      throw new RequestTooLargeError(`Request body is too large. Maximum size is ${maxRequestBytes} bytes.`);
+    }
+    chunks.push(buffer);
   }
 
   return Buffer.concat(chunks);
 }
 
-async function toWebRequest(request: IncomingMessage): Promise<Request> {
-  const body = await readBody(request);
+async function toWebRequest(request: IncomingMessage, maxRequestBytes: number): Promise<Request> {
+  const body = await readBody(request, maxRequestBytes);
   const url = buildRequestUrl(request);
   const init: RequestInit = {
     method: request.method ?? 'GET',
@@ -110,7 +170,11 @@ function resolveInputPath(inputPath: string, cwd: string): string {
   return isAbsolute(inputPath) ? inputPath : resolve(cwd, inputPath);
 }
 
-async function persistUploadedFile(file: File, storePath: string, paperId: string): Promise<string> {
+async function persistUploadedFile(file: File, storePath: string, paperId: string, maxUploadBytes: number): Promise<string> {
+  if (file.size > maxUploadBytes) {
+    throw new RequestTooLargeError(`Uploaded file is too large. Maximum upload size is ${maxUploadBytes} bytes.`);
+  }
+
   const uploadDir = join(resolveStorePath(storePath), '_uploads', paperId);
   mkdirSync(uploadDir, { recursive: true });
   const uploadPath = join(uploadDir, basename(file.name));
@@ -136,10 +200,36 @@ async function analyzeAndStore(params: {
   });
 }
 
+async function validateRequestSize(request: Request, maxRequestBytes: number): Promise<Response | null> {
+  if (request.method === 'GET' || request.method === 'HEAD') {
+    return null;
+  }
+
+  const contentLength = parseContentLength(request.headers.get('content-length'));
+  if (typeof contentLength === 'number' && contentLength > maxRequestBytes) {
+    return requestTooLargeResponse(`Request body is too large. Maximum size is ${maxRequestBytes} bytes.`);
+  }
+
+  const clone = request.clone();
+  const body = await clone.arrayBuffer();
+  if (body.byteLength > maxRequestBytes) {
+    return requestTooLargeResponse(`Request body is too large. Maximum size is ${maxRequestBytes} bytes.`);
+  }
+
+  return null;
+}
+
 async function handleAnalyzeRequest(request: Request, options: Required<PaperParserServeOptions>): Promise<Response> {
   const contentType = request.headers.get('content-type') ?? '';
 
   if (contentType.startsWith('application/json')) {
+    if (options.runtimeMode === 'deployed') {
+      return errorResponse(
+        400,
+        'POST /api/papers JSON "inputPath" analysis is disabled in deployed mode. Use multipart upload instead.',
+      );
+    }
+
     const payload = (await request.json()) as { inputPath?: string; paperId?: string };
     if (!payload.inputPath) {
       return errorResponse(400, 'POST /api/papers requires "inputPath" in the JSON body.');
@@ -163,17 +253,41 @@ async function handleAnalyzeRequest(request: Request, options: Required<PaperPar
     }
 
     const paperId = derivePaperId(file.name, typeof explicitPaperId === 'string' ? explicitPaperId : undefined);
-    const uploadPath = await persistUploadedFile(file, options.storePath, paperId);
+    try {
+      const uploadPath = await persistUploadedFile(file, options.storePath, paperId, options.maxUploadBytes);
 
-    return analyzeAndStore({
-      inputPath: uploadPath,
-      paperId,
-      storePath: options.storePath,
-      cwd: options.cwd,
-    });
+      return analyzeAndStore({
+        inputPath: uploadPath,
+        paperId,
+        storePath: options.storePath,
+        cwd: options.cwd,
+      });
+    } catch (error) {
+      if (error instanceof RequestTooLargeError) {
+        return requestTooLargeResponse(error.message);
+      }
+      throw error;
+    }
   }
 
   return errorResponse(415, 'Unsupported content type for POST /api/papers.');
+}
+
+function handleHealthRequest(): Response {
+  return jsonResponse(200, { ok: true });
+}
+
+function handleReadyRequest(options: Required<PaperParserServeOptions>): Response {
+  try {
+    mkdirSync(options.storePath, { recursive: true });
+    return jsonResponse(200, {
+      ok: true,
+      storePath: options.storePath,
+      runtimeMode: options.runtimeMode,
+    });
+  } catch (error) {
+    return errorResponse(503, error instanceof Error ? error.message : String(error));
+  }
 }
 
 function handleListRequest(options: Required<PaperParserServeOptions>): Response {
@@ -286,9 +400,26 @@ export async function handlePaperParserRequest(
   const resolvedOptions: Required<PaperParserServeOptions> = {
     storePath: resolveStorePath(options.storePath, options.cwd ?? process.cwd()),
     cwd: options.cwd ?? process.cwd(),
+    runtimeMode: options.runtimeMode ?? 'local',
+    maxRequestBytes: options.maxRequestBytes ?? DEFAULT_MAX_REQUEST_BYTES,
+    maxUploadBytes: options.maxUploadBytes ?? DEFAULT_MAX_UPLOAD_BYTES,
+    logger: options.logger ?? defaultLogger,
   };
   const url = new URL(request.url);
   const parts = url.pathname.split('/').filter(Boolean);
+
+  const oversizedResponse = await validateRequestSize(request, resolvedOptions.maxRequestBytes);
+  if (oversizedResponse) {
+    return oversizedResponse;
+  }
+
+  if (request.method === 'GET' && url.pathname === '/healthz') {
+    return handleHealthRequest();
+  }
+
+  if (request.method === 'GET' && url.pathname === '/readyz') {
+    return handleReadyRequest(resolvedOptions);
+  }
 
   if (request.method === 'POST' && url.pathname === '/api/papers') {
     return handleAnalyzeRequest(request, resolvedOptions);
@@ -338,13 +469,36 @@ export async function handlePaperParserRequest(
 
 export function createPaperParserRequestHandler(options: PaperParserServeOptions = {}) {
   return async (request: IncomingMessage, response: ServerResponse): Promise<void> => {
+    const logger = options.logger ?? defaultLogger;
+    const runtimeMode = options.runtimeMode ?? 'local';
     try {
-      const webRequest = await toWebRequest(request);
+      const webRequest = await toWebRequest(request, options.maxRequestBytes ?? DEFAULT_MAX_REQUEST_BYTES);
       const webResponse = await handlePaperParserRequest(webRequest, options);
+      logger({
+        level: 'info',
+        event: 'request.completed',
+        method: request.method ?? 'GET',
+        path: buildRequestUrl(request).pathname,
+        status: webResponse.status,
+        runtimeMode,
+        ...withOptionalStorePath(options.storePath),
+      });
       await writeWebResponse(webResponse, response);
     } catch (error) {
       const message = error instanceof Error ? error.message : String(error);
-      await writeWebResponse(errorResponse(500, message), response);
+      const failureResponse =
+        error instanceof RequestTooLargeError ? requestTooLargeResponse(message) : errorResponse(500, message);
+      logger({
+        level: 'error',
+        event: 'request.failed',
+        method: request.method ?? 'GET',
+        path: buildRequestUrl(request).pathname,
+        status: failureResponse.status,
+        runtimeMode,
+        message,
+        ...withOptionalStorePath(options.storePath),
+      });
+      await writeWebResponse(failureResponse, response);
     }
   };
 }

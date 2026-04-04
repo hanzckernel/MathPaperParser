@@ -2,16 +2,16 @@
 gsd_state_version: 1.0
 milestone: v1.4
 milestone_name: GCP Cloud Run Deployment Hardening
-status: roadmap_created
-stopped_at: v1.4 roadmap approved; ready to plan phase 17
-last_updated: "2026-04-04T00:00:00Z"
+status: phase_17_complete
+stopped_at: phase 17 complete; ready to plan phase 18
+last_updated: "2026-04-04T09:41:28Z"
 last_activity: 2026-04-04
 progress:
   total_phases: 5
-  completed_phases: 0
+  completed_phases: 1
   total_plans: 5
-  completed_plans: 0
-  percent: 0
+  completed_plans: 1
+  percent: 20
 ---
 
 # Project State
@@ -21,16 +21,16 @@ progress:
 See: .planning/PROJECT.md (updated 2026-04-04)
 
 **Core value:** A mathematician can feed in a TeX paper and get a trustworthy dependency artifact that makes the logical structure of the paper easier to navigate.
-**Current focus:** Planning `v1.4 GCP Cloud Run Deployment Hardening`
+**Current focus:** Executing `v1.4 GCP Cloud Run Deployment Hardening`
 
 ## Current Position
 
-Phase: 17. Server Deployment Boundary Hardening
+Phase: 18. Cloud Run Packaging & Topology
 Plan: -
-Status: Roadmap approved; planning is next
-Last activity: 2026-04-04 — Expanded `v1.4` to include a dedicated shared-deployment security-hardening phase so the milestone directly addresses the repo’s internet-facing blockers.
+Status: Phase 17 complete; planning is next
+Last activity: 2026-04-04 — Completed Phase 17 with deploy-safe runtime mode, explicit request/upload limits, health/readiness routes, and structured server logging.
 
-Progress: [----------] 0%
+Progress: [██--------] 20%
 
 ## Performance Metrics
 
@@ -64,7 +64,7 @@ Progress: [----------] 0%
 **Recent Trend:**
 
 - Last 5 plans: 12-01, 13-01, 14-01, 15-01, 16-01
-- Trend: Reset for the next milestone; planning is starting from a shipped `v1.3` baseline
+- Trend: Positive; `v1.4` execution is underway with the first server-hardening phase complete
 
 ## Accumulated Context
 
@@ -94,6 +94,7 @@ Decisions are logged in PROJECT.md. The milestone established:
 - Exported dashboard MathJax readiness now waits for `startup.promise`, and static exports must carry `assets/sre/` as part of the supported browser contract.
 - `v1.4` targets Google Cloud Run specifically as the first supported shared deployment path.
 - `v1.4` now includes a dedicated security phase because Cloud Run packaging alone would not resolve the repo’s missing auth/authz and ingress-hardening gaps.
+- Phase 17 established an explicit `local` versus `deployed` runtime boundary, bounded request/upload limits, and app-level `/healthz` and `/readyz` routes.
 
 ### Pending Todos
 
@@ -108,5 +109,5 @@ Decisions are logged in PROJECT.md. The milestone established:
 ## Session Continuity
 
 Last session: 2026-04-04 CEST
-Stopped at: `v1.4` roadmap created; next step is `$gsd-plan-phase 17`
+Stopped at: Phase 17 complete; next step is Phase 18 packaging/topology planning
 Resume file: .planning/ROADMAP.md
