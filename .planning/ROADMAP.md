@@ -36,7 +36,7 @@
 - [x] **Phase 18: Cloud Run Packaging & Topology** - Package PaperParser as a supported Cloud Run service with a deliberate same-origin web/API deployment shape and explicit access model.
 - [x] **Phase 19: Shared Deployment Security Hardening** - Add the explicit authentication and ingress protections required so the Cloud Run path is actually safe for internet-facing or shared use.
 - [x] **Phase 20: GCP Persistence & Operator Runbook** - Define the supported GCP store strategy and document how operators deploy, configure, upgrade, and roll back it.
-- [ ] **Phase 21: Cloud Run Acceptance Gate** - Prove the Cloud Run path end to end from container artifact through runtime behavior and deployment smoke checks.
+- [x] **Phase 21: Cloud Run Acceptance Gate** - Prove the Cloud Run path end to end from container artifact through runtime behavior and deployment smoke checks.
 
 ## Phase Details
 

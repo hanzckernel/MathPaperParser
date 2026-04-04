@@ -2,16 +2,16 @@
 gsd_state_version: 1.0
 milestone: v1.4
 milestone_name: GCP Cloud Run Deployment Hardening
-status: phase_20_complete
-stopped_at: phase 20 complete; ready to plan phase 21
-last_updated: "2026-04-04T11:06:15Z"
+status: milestone_ready_for_audit
+stopped_at: all v1.4 phases complete; ready for milestone audit
+last_updated: "2026-04-04T11:08:45Z"
 last_activity: 2026-04-04
 progress:
   total_phases: 5
-  completed_phases: 4
+  completed_phases: 5
   total_plans: 5
-  completed_plans: 4
-  percent: 80
+  completed_plans: 5
+  percent: 100
 ---
 
 # Project State
@@ -27,18 +27,18 @@ See: .planning/PROJECT.md (updated 2026-04-04)
 
 Phase: 21. Cloud Run Acceptance Gate
 Plan: -
-Status: Phase 20 complete; planning is next
-Last activity: 2026-04-04 — Completed Phase 20 with a mounted-bucket persistence bridge, rollback helper, and repo-backed Cloud Run operator runbook.
+Status: All planned phases complete; milestone audit is next
+Last activity: 2026-04-04 — Completed Phase 21 with a named `npm run test:acceptance:v1.4` proof bundle and matching Cloud Run smoke note.
 
-Progress: [████████--] 80%
+Progress: [██████████] 100%
 
 ## Performance Metrics
 
 **Velocity:**
 
-- Total plans completed: 21
-- Average duration: 16.6 min
-- Total execution time: 5.9 hours
+- Total plans completed: 22
+- Average duration: 16.4 min
+- Total execution time: 6.1 hours
 
 **By Phase:**
 
@@ -64,11 +64,12 @@ Progress: [████████--] 80%
 | 18. Cloud Run Packaging & Topology | 1 | 32 min | 32 min |
 | 19. Shared Deployment Security Hardening | 1 | 22 min | 22 min |
 | 20. GCP Persistence & Operator Runbook | 1 | 23 min | 23 min |
+| 21. Cloud Run Acceptance Gate | 1 | 12 min | 12 min |
 
 **Recent Trend:**
 
-- Last 5 plans: 15-01, 16-01, 18-01, 19-01, 20-01
-- Trend: Positive; `v1.4` now has packaging, shared access control, persistence bridging, and an operator workflow for the Cloud Run path
+- Last 5 plans: 16-01, 18-01, 19-01, 20-01, 21-01
+- Trend: Positive; `v1.4` now has a full named Cloud Run proof bundle across packaging, access, persistence, and operator workflow
 
 ## Accumulated Context
 
@@ -102,6 +103,7 @@ Decisions are logged in PROJECT.md. The milestone established:
 - Phase 18 established a root Cloud Run container artifact plus a combined same-origin dashboard/API deployment contract with injected browser runtime config.
 - Phase 19 established direct authenticated Cloud Run service access as the supported shared model and rejected public invoker grants in repo-owned helpers.
 - Phase 20 established a dedicated Cloud Storage bucket mount as the supported persistence bridge and published the Cloud Run operator runbook plus rollback helper.
+- Phase 21 established `npm run test:acceptance:v1.4` as the named local proof for the full Cloud Run deployment-hardening slice.
 
 ### Pending Todos
 
@@ -116,5 +118,5 @@ Decisions are logged in PROJECT.md. The milestone established:
 ## Session Continuity
 
 Last session: 2026-04-04 CEST
-Stopped at: Phase 20 complete; next step is Phase 21 acceptance planning
+Stopped at: All `v1.4` phases complete; next step is milestone audit
 Resume file: .planning/ROADMAP.md

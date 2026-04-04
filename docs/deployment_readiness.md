@@ -86,6 +86,17 @@ What is still missing for a stronger internet-facing deployment:
 - deeper upload throttling and streaming safety
 - backup/logging automation beyond the initial runbook
 
+## Named Proof
+
+The named local acceptance proof for the current Cloud Run path is:
+
+```bash
+npm run test:acceptance:v1.4
+npm run typecheck
+```
+
+See `deploy/cloudrun/SMOKE.md` and `deploy/cloudrun/RUNBOOK.md` for the matching operator-facing smoke and live verification workflow.
+
 ### 4. PDF is still a beta target, not a shipped alpha feature
 
 The v2 pipeline recognizes `.pdf` inputs but throws an explicit "not implemented in alpha yet" error. The UI keeps PDF visible to signal planned beta work, not production availability.

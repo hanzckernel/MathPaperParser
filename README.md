@@ -56,6 +56,13 @@ npm run test:acceptance:v1.2
 npm run typecheck
 ```
 
+The `v1.4` Cloud Run deployment proof bundle is:
+
+```bash
+npm run test:acceptance:v1.4
+npm run typecheck
+```
+
 Analyze a Markdown or LaTeX fixture into the default store `.paperparser-data/`:
 
 ```bash
@@ -155,5 +162,6 @@ Legacy reference material kept during beta preparation:
 - [Deployment readiness](docs/deployment_readiness.md)
 - [Cloud Run shared-access notes](deploy/cloudrun/README.md)
 - [Cloud Run operator runbook](deploy/cloudrun/RUNBOOK.md)
+- [Cloud Run smoke proof](deploy/cloudrun/SMOKE.md)
 - [Architecture](docs/architecture.md)
 - [Schema spec](docs/schema_spec.md)
