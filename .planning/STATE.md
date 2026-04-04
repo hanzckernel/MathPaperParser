@@ -2,9 +2,9 @@
 gsd_state_version: 1.0
 milestone: v1.4
 milestone_name: GCP Cloud Run Deployment Hardening
-status: milestone_ready_for_audit
-stopped_at: all v1.4 phases complete again; ready for milestone audit
-last_updated: "2026-04-04T21:26:00Z"
+status: milestone_audit_passed
+stopped_at: refreshed v1.4 audit passed; ready for closeout
+last_updated: "2026-04-04T21:27:30Z"
 last_activity: 2026-04-04
 progress:
   total_phases: 6
@@ -27,8 +27,8 @@ See: .planning/PROJECT.md (updated 2026-04-04)
 
 Phase: 22. Create an exemplar README page to wiki through the project
 Plan: -
-Status: All planned phases complete again; milestone audit is next
-Last activity: 2026-04-04 — Completed Phase 22 with a wiki-style project entry page and a README route into it.
+Status: Milestone audit passed again; closeout is next
+Last activity: 2026-04-04 — Re-audited `v1.4` at 13/13 requirements satisfied after adding the project wiki page.
 
 Progress: [██████████] 100%
 
@@ -124,5 +124,5 @@ Decisions are logged in PROJECT.md. The milestone established:
 ## Session Continuity
 
 Last session: 2026-04-04 CEST
-Stopped at: All `v1.4` phases complete again; next step is milestone audit
+Stopped at: Refreshed `v1.4` audit passed; next step is milestone closeout
 Resume file: .planning/ROADMAP.md
