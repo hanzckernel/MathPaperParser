@@ -2,9 +2,9 @@
 gsd_state_version: 1.0
 milestone: v1.4
 milestone_name: GCP Cloud Run Deployment Hardening
-status: milestone_audit_passed
-stopped_at: refreshed v1.4 audit passed; ready for closeout
-last_updated: "2026-04-04T21:27:30Z"
+status: milestone_closed
+stopped_at: closed v1.4; next step is opening the next milestone
+last_updated: "2026-04-04T21:50:00Z"
 last_activity: 2026-04-04
 progress:
   total_phases: 6
@@ -21,14 +21,14 @@ progress:
 See: .planning/PROJECT.md (updated 2026-04-04)
 
 **Core value:** A mathematician can feed in a TeX paper and get a trustworthy dependency artifact that makes the logical structure of the paper easier to navigate.
-**Current focus:** Executing `v1.4 GCP Cloud Run Deployment Hardening`
+**Current focus:** No active milestone; `v1.4` is shipped and archived.
 
 ## Current Position
 
-Phase: 22. Create an exemplar README page to wiki through the project
+Phase: -
 Plan: -
-Status: Milestone audit passed again; closeout is next
-Last activity: 2026-04-04 — Re-audited `v1.4` at 13/13 requirements satisfied after adding the project wiki page.
+Status: Milestone closed
+Last activity: 2026-04-04 — Archived `v1.4`, moved its phase artifacts under `.planning/milestones/v1.4-phases/`, and prepared the closeout commit/tag path.
 
 Progress: [██████████] 100%
 
@@ -70,7 +70,7 @@ Progress: [██████████] 100%
 **Recent Trend:**
 
 - Last 5 plans: 18-01, 19-01, 20-01, 21-01, 22-01
-- Trend: Positive; `v1.4` now has a full Cloud Run proof bundle plus a wiki-style onboarding route through the project docs
+- Trend: Positive; `v1.4` closed with a full Cloud Run proof bundle plus a wiki-style onboarding route through the project docs
 
 ## Accumulated Context
 
@@ -106,10 +106,11 @@ Decisions are logged in PROJECT.md. The milestone established:
 - Phase 20 established a dedicated Cloud Storage bucket mount as the supported persistence bridge and published the Cloud Run operator runbook plus rollback helper.
 - Phase 21 established `npm run test:acceptance:v1.4` as the named local proof for the full Cloud Run deployment-hardening slice.
 - Phase 22 established `docs/project_wiki.md` as a start-here entry page for navigating the repo and docs.
+- `v1.4` is archived; the next workflow step is to define the next milestone rather than continue deployment work in the live roadmap.
 
 ### Roadmap Evolution
 
-- Phase 22 added: Create an exemplar README page to wiki through the project
+- Phase 22 added and archived with the rest of `v1.4`
 
 ### Pending Todos
 
@@ -119,10 +120,11 @@ Decisions are logged in PROJECT.md. The milestone established:
 
 - `long_nalini` still emits `7` explicit unresolved references, primarily in the deferred figure-reference slice.
 - Unsupported TeX beyond the current normalization set still falls back to raw source instead of full browser-ready math rendering.
+- The supported Cloud Run store path is still a low-concurrency mounted bucket bridge rather than a high-write persistence architecture.
 - Nyquist validation artifacts are still missing for phases 10-16.
 
 ## Session Continuity
 
 Last session: 2026-04-04 CEST
-Stopped at: Refreshed `v1.4` audit passed; next step is milestone closeout
+Stopped at: `v1.4` closed; next step is `$gsd-new-milestone`
 Resume file: .planning/ROADMAP.md

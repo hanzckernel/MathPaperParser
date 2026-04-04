@@ -2,7 +2,7 @@
 
 ## What This Is
 
-PaperParser is a local-first TeX dependency parser and exploration tool for mathematicians. It ships a deterministic canonical JSON bundle, optional reviewable enrichment, paper-local search, a local multi-paper corpus workflow, and a hardened local export/dashboard path across aligned CLI/API/dashboard/MCP surfaces without treating the UI or the agent layer as the source of truth.
+PaperParser is a local-first TeX dependency parser and exploration tool for mathematicians. It ships a deterministic canonical JSON bundle, optional reviewable enrichment, paper-local search, a local multi-paper corpus workflow, a hardened local export/dashboard path, and a supported Cloud Run deployment slice across aligned CLI/API/dashboard/MCP surfaces without treating the UI or the agent layer as the source of truth.
 
 ## Core Value
 
@@ -10,37 +10,26 @@ A mathematician can feed in a TeX paper and get a trustworthy dependency artifac
 
 ## Current State
 
-- **Shipped milestone:** `v1.3 Parse/Render Hardening` on 2026-04-03
-- **Active milestone:** `v1.4 GCP Cloud Run Deployment Hardening`
+- **Shipped milestone:** `v1.4 GCP Cloud Run Deployment Hardening` on 2026-04-04
+- **Active milestone:** none
 - **Representative acceptance paper:** `ref/papers/long_nalini/arXiv-2502.12268v2/main.tex`
 - **Accepted local corpus:** `long_nalini`, `medium_Mueller.flat.tex`, and `short_Petri.tex`
 - **Canonical output:** `manifest.json` / `graph.json` / `index.json`
 - **Additive sidecars:** `diagnostics.json` and optional `enrichment.json`
-- **Accepted workflows:** `analyze -> validate -> search -> inspect`, `export -> serve -> browse`, optional `enrich`, and explainable cross-paper `related`
-- **Current non-blocking debt:** `long_nalini` still emits `7` unresolved references concentrated in the deferred figure-reference slice, cross-paper navigation remains intentionally paper-local, unsupported TeX beyond the current normalization set still falls back to raw source, and Nyquist validation artifacts are still missing for phases 10-16
-- **Current deployment blockers:** remote `inputPath` analysis is unsafe for untrusted clients, upload handling is still unbounded, the API has no auth layer, health/readiness endpoints are missing, and the repo does not yet ship a supported containerized Cloud Run packaging story
+- **Accepted workflows:** `analyze -> validate -> search -> inspect`, `export -> serve -> browse`, optional `enrich`, explainable cross-paper `related`, and `deploy -> smoke -> rollback` for the supported Cloud Run path
+- **Supported shared deployment:** Google Cloud Run with a combined same-origin dashboard/API service, authenticated direct access, a documented mounted Cloud Storage persistence bridge, and repo-owned deploy/rollback helpers
+- **Current non-blocking debt:** `long_nalini` still emits `7` unresolved references concentrated in the deferred figure-reference slice, cross-paper navigation remains intentionally paper-local, unsupported TeX beyond the current normalization set still falls back to raw source, the mounted bucket is still a low-concurrency persistence bridge rather than a high-write architecture, rate limiting and streaming upload handling remain future hardening work, CI automation for the Cloud Run path is still absent, and Nyquist validation artifacts are still missing for phases 10-16
 
-## Last Shipped Milestone: v1.3 Parse/Render Hardening
+## Last Shipped Milestone: v1.4 GCP Cloud Run Deployment Hardening
 
-**Goal:** Reduce the remaining parser and math-render failure modes that still surface as unresolved diagnostics, weak extraction, or raw-source fallback on the accepted corpus.
+**Goal:** Make PaperParser safe and supportable to deploy on Google Cloud Run as the first supported shared deployment target.
 
 **Delivered:**
-- Alias-aware label resolution, bounded `\cref` / `\Cref` support, and explicit duplicate-label warnings that reduced the accepted-corpus residual parser budget to `7` unresolved references
-- Broader shared MathJax normalization for list-heavy, wrapper-heavy, and bounded `cases` fragments plus preserved explicit fallback for unsupported structures
-- Exported-dashboard MathJax runtime hardening so browser rendering waits for `startup.promise` and static exports ship the required `assets/sre/` worker payloads
-- A named repo-level `npm run test:acceptance:v1.3` proof command with aligned docs and fresh acceptance/browser verification
-
-## Current Milestone: v1.4 GCP Cloud Run Deployment Hardening
-
-**Goal:** make PaperParser safe and supportable to deploy on Google Cloud Run as the first supported shared deployment target.
-
-**Target features:**
-- A versioned deployment artifact for Cloud Run, likely containerized, for the combined web/API runtime
-- An explicit supported deployment topology so the dashboard and API work correctly on GCP with same-origin or otherwise deliberate routing
-- Internet-facing hardening for the current API surface, including removing or restricting remote `inputPath` ingestion
-- Shared-deployment security hardening so access is authenticated or otherwise explicitly bounded rather than implicitly public
-- Deployment guardrails such as request/upload limits, health/readiness endpoints, and production logging basics
-- Operator-facing GCP deployment documentation covering config, persistence, rollout, and rollback
+- A repo-defined multi-stage Cloud Run container artifact with same-origin dashboard/API serving and browser runtime configuration
+- Explicit deployed-mode request boundaries, bounded upload/request handling, and `/healthz` plus `/readyz` endpoints with structured logs
+- Authenticated shared deployment helpers that reject public invoker grants and document the supported access model
+- A documented Cloud Storage bucket-mount persistence bridge, rollback helper, named smoke workflow, and repo-level `npm run test:acceptance:v1.4` proof
+- A wiki-style `docs/project_wiki.md` entry page linked from the root README for faster onboarding through the repo surfaces
 
 ## Requirements
 
@@ -63,21 +52,25 @@ A mathematician can feed in a TeX paper and get a trustworthy dependency artifac
 - ✓ Harden the parser against the remaining recurring TeX patterns that still produce unresolved references or incomplete extraction — `v1.3`
 - ✓ Expand render compatibility so more extracted math fragments typeset cleanly instead of falling back to raw source — `v1.3`
 - ✓ Prove the upgraded parse/render workflow on the accepted corpus plus targeted hard cases — `v1.3`
+- ✓ Package the current app into a supported Cloud Run deployment artifact with explicit runtime configuration — `v1.4`
+- ✓ Define the supported GCP web/API topology and same-origin serving strategy for the dashboard — `v1.4`
+- ✓ Remove or lock down unsafe internet-facing server behavior such as remote filesystem path analysis — `v1.4`
+- ✓ Add explicit shared-deployment security controls for authenticated or otherwise bounded access — `v1.4`
+- ✓ Add request-size, upload-size, and readiness/health guardrails suitable for a shared deployment — `v1.4`
+- ✓ Publish a GCP operator runbook for deploy, config, persistence, upgrades, and rollback — `v1.4`
+- ✓ Publish a named Cloud Run proof workflow covering packaging, runtime config, and bounded deployed behavior — `v1.4`
+- ✓ Add a wiki-style project entry page that routes readers to the right product, developer, and operator docs — `v1.4`
 
 ### Active
 
-- [ ] Package the current app into a supported Cloud Run deployment artifact with explicit runtime configuration
-- [ ] Define the supported GCP web/API topology and same-origin serving strategy for the dashboard
-- [ ] Remove or lock down unsafe internet-facing server behavior such as remote filesystem path analysis
-- [ ] Add explicit shared-deployment security controls for authenticated or otherwise bounded access
-- [ ] Add request-size, upload-size, and readiness/health guardrails suitable for a shared deployment
-- [ ] Publish a GCP operator runbook for deploy, config, persistence, upgrades, and rollback
+- [ ] Add corpus-wide search across stored papers while preserving paper boundaries and explainable attribution
+- [ ] Add collaborator-facing review and export workflows without weakening the canonical trust model
+- [ ] Add PDF or OCR-derived inputs on the same trusted bundle contract as current TeX flows
+- [ ] Deepen deployment maturity with CI-managed smoke checks, rate limiting, and streaming upload handling
 
 ### Out of Scope
 
-- PDF or OCR-derived inputs until a future milestone explicitly owns broader ingestion quality
-- Shareable export and collaborator-facing review until a future milestone explicitly owns collaboration workflows
-- Broad multi-cloud deployment support beyond the first supported Cloud Run path
+- Broad multi-cloud deployment support beyond the supported Cloud Run path
 - Treating agent inference as ground truth; enrichment stays separate from the canonical artifact
 - Manual graph editing as a substitute for parser quality; parser and inference quality should improve at the source instead
 - Broad “works on arbitrary TeX styles” claims without explicit bounded-corpus verification
@@ -88,7 +81,7 @@ The repository is a TypeScript monorepo with active workspace packages in `packa
 
 `v1.0` established the GitNexus-inspired direction: a machine-readable graph artifact first, with human exploration layered on top. `v1.1` proved that this foundation can absorb search and corpus workflows without creating a second source of truth or collapsing paper boundaries.
 
-`v1.2` closed the major reliability gap around local export sharing by hardening the CLI export contract, bundling MathJax with fragment normalization, and turning unsupported static runtime states into explicit product behavior instead of blank pages. `v1.3` then reduced residual parser gaps, broadened accepted-corpus render salvage, and fixed the remaining exported MathJax runtime/export-asset failures discovered during browser verification. `v1.4` shifts from local-only hardening to deployment hardening on Google Cloud Run, which means the repo now needs a supported packaging, topology, and internet-facing safety story rather than only local operator guidance.
+`v1.2` closed the major reliability gap around local export sharing by hardening the CLI export contract, bundling MathJax with fragment normalization, and turning unsupported static runtime states into explicit product behavior instead of blank pages. `v1.3` then reduced residual parser gaps, broadened accepted-corpus render salvage, and fixed the remaining exported MathJax runtime/export-asset failures discovered during browser verification. `v1.4` completed the first supported shared deployment slice on Google Cloud Run with explicit server boundaries, authenticated access, a bounded persistence bridge, a named proof workflow, and a wiki-style entry page for project navigation.
 
 ## Constraints
 
@@ -99,9 +92,9 @@ The repository is a TypeScript monorepo with active workspace packages in `packa
 - **Export Reliability:** Static exports are supported through a local HTTP-serving path, not direct `file://` loading
 - **Math Presentation:** Mathematical statements render through a shared MathJax normalization/fallback boundary without mutating the canonical bundle text
 - **Parser/Render Trust:** Parser hardening and render compatibility should improve source fidelity without masking unsupported content as if it were fully understood
-- **Deployment Target:** The first supported shared deployment target is Google Cloud Run, not a generic multi-cloud abstraction
-- **Service Safety:** Internet-facing deployment must not preserve the current local-only trust assumptions around filesystem access, unbounded uploads, or open APIs
-- **Milestone Discipline:** Keep `v1.4` focused on deployment hardening rather than mixing in corpus-wide search, collaboration, or broader ingestion
+- **Deployment Target:** The supported shared deployment target today is Google Cloud Run, not a generic multi-cloud abstraction
+- **Service Safety:** Shared deployment must not preserve local-only trust assumptions around filesystem access, unbounded uploads, or open anonymous access
+- **Milestone Discipline:** Future milestones should stay narrow instead of mixing corpus search, collaboration, broader ingestion, and deeper deployment maturity into one slice
 
 ## Key Decisions
 
@@ -129,12 +122,15 @@ The repository is a TypeScript monorepo with active workspace packages in `packa
 | Treat MathJax `startup.promise` and `assets/sre/` as part of the supported export runtime contract | Script `onload` and partial asset copies were not enough to guarantee real browser rendering on exported dashboards | ✓ Good — the browser path now matches the acceptance claim for exported theorem rendering |
 | Standardize the first supported shared deployment target on Google Cloud Run | A concrete target is more valuable than vague “production readiness” work because topology, packaging, and safety constraints depend on the platform | ✓ Good — `v1.4` can harden toward one deployable shape instead of a generic cloud story |
 | Treat shared deployment security as a first-class milestone slice rather than an implied side effect of Cloud Run | The repo explicitly calls out missing auth/authz and open internet-facing assumptions; packaging alone would not fix that | ✓ Good — `v1.4` now includes a dedicated security-hardening phase |
+| Keep direct Cloud Run service access authenticated and reject public invoker grants in repo-owned helpers | The supported shared path needed one explicit access model instead of a public-by-default endpoint | ✓ Good — the deploy/access scripts now preserve IAM auth and reject `allUsers` / `allAuthenticatedUsers` grants |
+| Use a mounted Cloud Storage bucket as the first persistence bridge instead of redesigning the store in the deployment milestone | The deployment slice needed a bounded supported path that stays compatible with the shipped store contract | ✓ Good — `v1.4` shipped a documented bucket-mount bridge and deferred higher-write storage redesign |
+| Add a wiki-style start page after the deployment proof rather than bloating the root README | Operators and developers needed a route through the repo that reflects shipped workflows without turning the README into a wall of text | ✓ Good — `docs/project_wiki.md` now acts as the start-here entry point |
 
 ## Next Milestone Goals
 
-- Make the current web/API stack deployable on Cloud Run with a supported packaging and routing model
-- Replace local-only trust assumptions with explicit server-side deployment and security guardrails
-- Leave corpus-wide search, collaboration, and broader ingestion for a later milestone after the Cloud Run path is real
+- Decide whether the next most valuable slice is corpus-wide search, collaborator-facing review/export, broader input support, or deeper deployment maturity
+- Keep the deterministic canonical bundle and the paper-local trust model intact while expanding product capability
+- Prefer milestones that publish one named acceptance or smoke proof instead of scattering operational confidence across ad hoc commands
 
 ## Evolution
 
@@ -147,4 +143,4 @@ This document tracks the shipped product state plus the next-milestone starting 
 4. Keep Current State accurate enough that the next milestone starts from facts rather than memory
 
 ---
-*Last updated: 2026-04-04 after starting milestone v1.4*
+*Last updated: 2026-04-04 after closing milestone v1.4*

@@ -1,5 +1,20 @@
 # Milestones
 
+## v1.4 GCP Cloud Run Deployment Hardening (Shipped: 2026-04-04)
+
+**Phases completed:** 6 phases, 6 plans, 18 tasks
+
+**Key accomplishments:**
+
+- Hardened the deployed server boundary with explicit `local` versus `deployed` behavior, bounded request/upload limits, and app-level health/readiness plus structured logs
+- Shipped the first repo-defined Cloud Run artifact and same-origin dashboard/API topology for the combined service
+- Locked the shared deployment model to authenticated Cloud Run access and rejected public invoker drift in repo-owned helpers
+- Documented and tested the supported Cloud Storage bucket-mount persistence bridge, plus deploy, rollback, and smoke workflows
+- Published `npm run test:acceptance:v1.4` as the named Cloud Run proof bundle
+- Added a wiki-style `docs/project_wiki.md` start page linked from the root README
+
+---
+
 ## v1.3 Parse/Render Hardening (Shipped: 2026-04-03)
 
 **Phases completed:** 3 phases, 3 plans, 9 tasks
@@ -26,6 +41,19 @@
 
 ---
 
+## v1.1 Search, Hardening & Corpus (Shipped: 2026-04-03)
+
+**Phases completed:** 4 phases, 4 plans, 10 tasks
+
+**Key accomplishments:**
+
+- Added paper-local search across CLI, API, MCP, and the dashboard with richer result metadata and direct explorer deep links
+- Hardened deterministic TeX parsing across `long_nalini`, `medium_Mueller.flat.tex`, and `short_Petri.tex`, reducing `long_nalini` unresolved references from `121` to `22`
+- Added a local corpus read model with per-paper metadata and explainable cross-paper navigation that preserves paper boundaries
+- Proved the shipped workflow on the real three-paper corpus and tightened related-link evidence toward meaningful terms such as `hyperbolic` and `surface`
+
+---
+
 ## v1.0 TeX MVP (Shipped: 2026-04-02)
 
 **Phases completed:** 5 phases, 9 plans, 16 tasks
@@ -41,18 +69,5 @@
 - Create a real enrichment sidecar and expose it across CLI, export, serve, and MCP without touching the canonical bundle
 - Load optional enrichment into the explorer and gate it behind provenance-level opt-in
 - Turn the representative-paper success bar into an executable CLI acceptance gate
-
----
-
-## v1.1 Search, Hardening & Corpus (Shipped: 2026-04-03)
-
-**Phases completed:** 4 phases, 4 plans, 10 tasks
-
-**Key accomplishments:**
-
-- Added paper-local search across CLI, API, MCP, and the dashboard with richer result metadata and direct explorer deep links
-- Hardened deterministic TeX parsing across `long_nalini`, `medium_Mueller.flat.tex`, and `short_Petri.tex`, reducing `long_nalini` unresolved references from `121` to `22`
-- Added a local corpus read model with per-paper metadata and explainable cross-paper navigation that preserves paper boundaries
-- Proved the shipped workflow on the real three-paper corpus and tightened related-link evidence toward meaningful terms such as `hyperbolic` and `surface`
 
 ---
