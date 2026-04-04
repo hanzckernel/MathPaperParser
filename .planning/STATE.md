@@ -2,9 +2,9 @@
 gsd_state_version: 1.0
 milestone: v1.4
 milestone_name: GCP Cloud Run Deployment Hardening
-status: milestone_ready_for_audit
-stopped_at: all v1.4 phases complete; ready for milestone audit
-last_updated: "2026-04-04T11:08:45Z"
+status: milestone_audit_passed
+stopped_at: milestone audit passed; ready for closeout
+last_updated: "2026-04-04T11:10:30Z"
 last_activity: 2026-04-04
 progress:
   total_phases: 5
@@ -27,8 +27,8 @@ See: .planning/PROJECT.md (updated 2026-04-04)
 
 Phase: 21. Cloud Run Acceptance Gate
 Plan: -
-Status: All planned phases complete; milestone audit is next
-Last activity: 2026-04-04 — Completed Phase 21 with a named `npm run test:acceptance:v1.4` proof bundle and matching Cloud Run smoke note.
+Status: Milestone audit passed; closeout is next
+Last activity: 2026-04-04 — Audited `v1.4` at 12/12 requirements satisfied with the named Cloud Run proof bundle passing.
 
 Progress: [██████████] 100%
 
@@ -118,5 +118,5 @@ Decisions are logged in PROJECT.md. The milestone established:
 ## Session Continuity
 
 Last session: 2026-04-04 CEST
-Stopped at: All `v1.4` phases complete; next step is milestone audit
+Stopped at: `v1.4` audit passed; next step is milestone closeout
 Resume file: .planning/ROADMAP.md

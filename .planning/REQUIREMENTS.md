@@ -7,33 +7,33 @@
 
 ### Deployment Packaging
 
-- [ ] **DEPLOY-01**: User can deploy PaperParser to Google Cloud Run from a supported repo-defined artifact with explicit runtime configuration rather than ad hoc local steps.
-- [ ] **DEPLOY-02**: User gets a supported combined web/API deployment shape on GCP so the dashboard and API work together without undocumented split-origin behavior.
+- [x] **DEPLOY-01**: User can deploy PaperParser to Google Cloud Run from a supported repo-defined artifact with explicit runtime configuration rather than ad hoc local steps.
+- [x] **DEPLOY-02**: User gets a supported combined web/API deployment shape on GCP so the dashboard and API work together without undocumented split-origin behavior.
 
 ### Topology and Access
 
-- [ ] **ACCESS-01**: User gets an explicit and enforced Cloud Run access model whose ingress and endpoint behavior match the documented operator path for shared deployment.
+- [x] **ACCESS-01**: User gets an explicit and enforced Cloud Run access model whose ingress and endpoint behavior match the documented operator path for shared deployment.
 
 ### Security Hardening
 
-- [ ] **AUTH-01**: Shared deployed PaperParser requires authenticated or otherwise explicitly bounded access to data-reading and mutating endpoints instead of anonymous open access by default.
-- [ ] **AUTH-02**: Shared deployed PaperParser prevents accidental exposure of the raw service path outside the documented ingress and access model.
+- [x] **AUTH-01**: Shared deployed PaperParser requires authenticated or otherwise explicitly bounded access to data-reading and mutating endpoints instead of anonymous open access by default.
+- [x] **AUTH-02**: Shared deployed PaperParser prevents accidental exposure of the raw service path outside the documented ingress and access model.
 
 ### API Safety
 
-- [ ] **SEC-01**: Deployed PaperParser no longer accepts arbitrary remote filesystem `inputPath` analysis from untrusted clients.
-- [ ] **SEC-02**: Deployed PaperParser enforces explicit request and upload limits with bounded failure behavior instead of unbounded in-memory buffering.
+- [x] **SEC-01**: Deployed PaperParser no longer accepts arbitrary remote filesystem `inputPath` analysis from untrusted clients.
+- [x] **SEC-02**: Deployed PaperParser enforces explicit request and upload limits with bounded failure behavior instead of unbounded in-memory buffering.
 
 ### Persistence and Operability
 
-- [ ] **OPS-01**: User gets `/healthz` and `/readyz` endpoints plus structured logs sufficient to distinguish deployment, readiness, and request failures on Cloud Run.
-- [ ] **STORE-01**: User gets a supported GCP persistence strategy for the current paper store that is compatible with the shipped bundle contract and documented for operators.
-- [ ] **OPS-02**: User can deploy, configure, upgrade, and roll back the Cloud Run service from repo docs without hidden local-machine knowledge.
+- [x] **OPS-01**: User gets `/healthz` and `/readyz` endpoints plus structured logs sufficient to distinguish deployment, readiness, and request failures on Cloud Run.
+- [x] **STORE-01**: User gets a supported GCP persistence strategy for the current paper store that is compatible with the shipped bundle contract and documented for operators.
+- [x] **OPS-02**: User can deploy, configure, upgrade, and roll back the Cloud Run service from repo docs without hidden local-machine knowledge.
 
 ### Reliability & Acceptance
 
-- [ ] **REL-03**: Milestone verification covers container packaging, Cloud Run runtime configuration, same-origin web/API behavior, and the bounded deployed ingestion path.
-- [ ] **REL-04**: Repo acceptance includes a named proof or smoke workflow for the supported Cloud Run deployment path.
+- [x] **REL-03**: Milestone verification covers container packaging, Cloud Run runtime configuration, same-origin web/API behavior, and the bounded deployed ingestion path.
+- [x] **REL-04**: Repo acceptance includes a named proof or smoke workflow for the supported Cloud Run deployment path.
 
 ## Future Requirements
 
@@ -67,18 +67,18 @@
 
 | Requirement | Planned Phase | Status |
 |-------------|---------------|--------|
-| DEPLOY-01 | Phase 18 | Planned |
-| DEPLOY-02 | Phase 18 | Planned |
-| ACCESS-01 | Phase 19 | Planned |
-| AUTH-01 | Phase 19 | Planned |
-| AUTH-02 | Phase 19 | Planned |
-| SEC-01 | Phase 17 | Planned |
-| SEC-02 | Phase 17 | Planned |
-| OPS-01 | Phase 17 | Planned |
-| STORE-01 | Phase 20 | Planned |
-| OPS-02 | Phase 20 | Planned |
-| REL-03 | Phase 21 | Planned |
-| REL-04 | Phase 21 | Planned |
+| DEPLOY-01 | Phase 18 | Complete |
+| DEPLOY-02 | Phase 18 | Complete |
+| ACCESS-01 | Phase 19 | Complete |
+| AUTH-01 | Phase 19 | Complete |
+| AUTH-02 | Phase 19 | Complete |
+| SEC-01 | Phase 17 | Complete |
+| SEC-02 | Phase 17 | Complete |
+| OPS-01 | Phase 17 | Complete |
+| STORE-01 | Phase 20 | Complete |
+| OPS-02 | Phase 20 | Complete |
+| REL-03 | Phase 21 | Complete |
+| REL-04 | Phase 21 | Complete |
 
 **Coverage:**
 - v1 requirements: 12 total
@@ -87,4 +87,4 @@
 
 ---
 *Requirements defined: 2026-04-04*
-*Last updated: 2026-04-04 after creating milestone v1.4 roadmap*
+*Last updated: 2026-04-04 after auditing milestone v1.4*
