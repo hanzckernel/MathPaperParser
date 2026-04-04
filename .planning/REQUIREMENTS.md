@@ -14,6 +14,11 @@
 
 - [ ] **ACCESS-01**: User gets an explicit and enforced Cloud Run access model whose ingress and endpoint behavior match the documented operator path for shared deployment.
 
+### Security Hardening
+
+- [ ] **AUTH-01**: Shared deployed PaperParser requires authenticated or otherwise explicitly bounded access to data-reading and mutating endpoints instead of anonymous open access by default.
+- [ ] **AUTH-02**: Shared deployed PaperParser prevents accidental exposure of the raw service path outside the documented ingress and access model.
+
 ### API Safety
 
 - [ ] **SEC-01**: Deployed PaperParser no longer accepts arbitrary remote filesystem `inputPath` analysis from untrusted clients.
@@ -64,18 +69,20 @@
 |-------------|---------------|--------|
 | DEPLOY-01 | Phase 18 | Planned |
 | DEPLOY-02 | Phase 18 | Planned |
-| ACCESS-01 | Phase 18 | Planned |
+| ACCESS-01 | Phase 19 | Planned |
+| AUTH-01 | Phase 19 | Planned |
+| AUTH-02 | Phase 19 | Planned |
 | SEC-01 | Phase 17 | Planned |
 | SEC-02 | Phase 17 | Planned |
 | OPS-01 | Phase 17 | Planned |
-| STORE-01 | Phase 19 | Planned |
-| OPS-02 | Phase 19 | Planned |
-| REL-03 | Phase 20 | Planned |
-| REL-04 | Phase 20 | Planned |
+| STORE-01 | Phase 20 | Planned |
+| OPS-02 | Phase 20 | Planned |
+| REL-03 | Phase 21 | Planned |
+| REL-04 | Phase 21 | Planned |
 
 **Coverage:**
-- v1 requirements: 10 total
-- Mapped to phases: 10
+- v1 requirements: 12 total
+- Mapped to phases: 12
 - Unmapped: 0 ✓
 
 ---

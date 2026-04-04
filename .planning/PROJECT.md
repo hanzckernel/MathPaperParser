@@ -38,6 +38,7 @@ A mathematician can feed in a TeX paper and get a trustworthy dependency artifac
 - A versioned deployment artifact for Cloud Run, likely containerized, for the combined web/API runtime
 - An explicit supported deployment topology so the dashboard and API work correctly on GCP with same-origin or otherwise deliberate routing
 - Internet-facing hardening for the current API surface, including removing or restricting remote `inputPath` ingestion
+- Shared-deployment security hardening so access is authenticated or otherwise explicitly bounded rather than implicitly public
 - Deployment guardrails such as request/upload limits, health/readiness endpoints, and production logging basics
 - Operator-facing GCP deployment documentation covering config, persistence, rollout, and rollback
 
@@ -68,6 +69,7 @@ A mathematician can feed in a TeX paper and get a trustworthy dependency artifac
 - [ ] Package the current app into a supported Cloud Run deployment artifact with explicit runtime configuration
 - [ ] Define the supported GCP web/API topology and same-origin serving strategy for the dashboard
 - [ ] Remove or lock down unsafe internet-facing server behavior such as remote filesystem path analysis
+- [ ] Add explicit shared-deployment security controls for authenticated or otherwise bounded access
 - [ ] Add request-size, upload-size, and readiness/health guardrails suitable for a shared deployment
 - [ ] Publish a GCP operator runbook for deploy, config, persistence, upgrades, and rollback
 
@@ -126,11 +128,12 @@ The repository is a TypeScript monorepo with active workspace packages in `packa
 | Defer corpus-wide search until parser/render hardening stabilizes again | Better global discovery is valuable, but residual extraction and rendering gaps still distort the user-facing reading path | ✓ Good — `v1.3` shipped the bounded hardening first, so search can start from a cleaner baseline |
 | Treat MathJax `startup.promise` and `assets/sre/` as part of the supported export runtime contract | Script `onload` and partial asset copies were not enough to guarantee real browser rendering on exported dashboards | ✓ Good — the browser path now matches the acceptance claim for exported theorem rendering |
 | Standardize the first supported shared deployment target on Google Cloud Run | A concrete target is more valuable than vague “production readiness” work because topology, packaging, and safety constraints depend on the platform | ✓ Good — `v1.4` can harden toward one deployable shape instead of a generic cloud story |
+| Treat shared deployment security as a first-class milestone slice rather than an implied side effect of Cloud Run | The repo explicitly calls out missing auth/authz and open internet-facing assumptions; packaging alone would not fix that | ✓ Good — `v1.4` now includes a dedicated security-hardening phase |
 
 ## Next Milestone Goals
 
 - Make the current web/API stack deployable on Cloud Run with a supported packaging and routing model
-- Replace local-only trust assumptions with explicit server-side deployment guardrails
+- Replace local-only trust assumptions with explicit server-side deployment and security guardrails
 - Leave corpus-wide search, collaboration, and broader ingestion for a later milestone after the Cloud Run path is real
 
 ## Evolution

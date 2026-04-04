@@ -10,7 +10,7 @@
   Archives: `.planning/milestones/v1.2-ROADMAP.md`, `.planning/milestones/v1.2-REQUIREMENTS.md`, `.planning/milestones/v1.2-MILESTONE-AUDIT.md`
 - ✅ **v1.3 Parse/Render Hardening** — shipped 2026-04-03
   Archives: `.planning/milestones/v1.3-ROADMAP.md`, `.planning/milestones/v1.3-REQUIREMENTS.md`, `.planning/milestones/v1.3-MILESTONE-AUDIT.md`
-- 🚧 **v1.4 GCP Cloud Run Deployment Hardening** — Phases 17-20 planned on 2026-04-04
+- 🚧 **v1.4 GCP Cloud Run Deployment Hardening** — Phases 17-21 planned on 2026-04-04
 
 ## Current State
 
@@ -24,18 +24,19 @@
 - `v1.1` added paper-local search, corpus navigation, and multi-paper acceptance proof.
 - `v1.2` hardened export, runtime, and baseline MathJax rendering for supported local dashboards.
 - `v1.3` reduced residual parser gaps, hardened exported MathJax runtime behavior, and published a named parse/render acceptance proof.
-- `v1.4` targets the first supported shared deployment path on Google Cloud Run, with server hardening, packaging, persistence, and operator proof.
+- `v1.4` targets the first supported shared deployment path on Google Cloud Run, with server hardening, explicit security controls, packaging, persistence, and operator proof.
 
 ## Phases
 
 **Phase Numbering:**
-- Integer phases (17, 18, 19, 20): Planned milestone work
+- Integer phases (17, 18, 19, 20, 21): Planned milestone work
 - Decimal phases (17.1, 17.2): Urgent insertions (marked with INSERTED)
 
 - [ ] **Phase 17: Server Deployment Boundary Hardening** - Make the current API safe and operable enough to run in a shared Cloud Run environment.
 - [ ] **Phase 18: Cloud Run Packaging & Topology** - Package PaperParser as a supported Cloud Run service with a deliberate same-origin web/API deployment shape and explicit access model.
-- [ ] **Phase 19: GCP Persistence & Operator Runbook** - Define the supported GCP store strategy and document how operators deploy, configure, upgrade, and roll back it.
-- [ ] **Phase 20: Cloud Run Acceptance Gate** - Prove the Cloud Run path end to end from container artifact through runtime behavior and deployment smoke checks.
+- [ ] **Phase 19: Shared Deployment Security Hardening** - Add the explicit authentication and ingress protections required so the Cloud Run path is actually safe for internet-facing or shared use.
+- [ ] **Phase 20: GCP Persistence & Operator Runbook** - Define the supported GCP store strategy and document how operators deploy, configure, upgrade, and roll back it.
+- [ ] **Phase 21: Cloud Run Acceptance Gate** - Prove the Cloud Run path end to end from container artifact through runtime behavior and deployment smoke checks.
 
 ## Phase Details
 
@@ -51,29 +52,38 @@
 ### Phase 18: Cloud Run Packaging & Topology
 **Goal**: Give the repo one supported Cloud Run deployment artifact and one explicit browser/runtime topology.
 **Depends on**: Phase 17
-**Requirements**: DEPLOY-01, DEPLOY-02, ACCESS-01
+**Requirements**: DEPLOY-01, DEPLOY-02
 **Success Criteria** (what must be TRUE):
   1. The repo ships a supported Cloud Run deployment artifact with documented runtime configuration.
   2. The deployed dashboard and API work together through one supported same-origin topology rather than undocumented split-origin behavior.
-  3. Ingress and endpoint exposure match the documented shared-deployment access model.
+  3. The packaging and topology choices leave a clean handoff into the explicit security/access phase rather than baking in implicit public defaults.
 
-### Phase 19: GCP Persistence & Operator Runbook
-**Goal**: Make the deployed store strategy and operator workflow explicit enough that the Cloud Run path is supportable.
+### Phase 19: Shared Deployment Security Hardening
+**Goal**: Make the Cloud Run path explicitly secure for shared deployment rather than assuming packaging and ingress defaults are enough.
 **Depends on**: Phase 18
+**Requirements**: ACCESS-01, AUTH-01, AUTH-02
+**Success Criteria** (what must be TRUE):
+  1. The deployed service requires authenticated or otherwise explicitly bounded access to the supported shared endpoints instead of anonymous open-by-default access.
+  2. The documented ingress path and the actual reachable endpoints match, with no accidental raw-service exposure outside the supported model.
+  3. Security behavior is operator-visible and testable rather than hidden in ad hoc console settings.
+
+### Phase 20: GCP Persistence & Operator Runbook
+**Goal**: Make the deployed store strategy and operator workflow explicit enough that the Cloud Run path is supportable.
+**Depends on**: Phase 19
 **Requirements**: STORE-01, OPS-02
 **Success Criteria** (what must be TRUE):
   1. The deployed service has one supported GCP persistence strategy compatible with the current bundle/store contract.
   2. Repo docs cover deploy, configure, upgrade, and rollback steps without hidden workstation knowledge.
   3. The runbook names the required GCP resources, env/config surface, and persistence expectations clearly enough for repeatable operator use.
 
-### Phase 20: Cloud Run Acceptance Gate
+### Phase 21: Cloud Run Acceptance Gate
 **Goal**: Make the supported Cloud Run path reproducible and provable instead of “container seems to run.”
-**Depends on**: Phase 19
+**Depends on**: Phase 20
 **Requirements**: REL-03, REL-04
 **Success Criteria** (what must be TRUE):
-  1. Verification covers container packaging, runtime config, same-origin serving, and bounded deployed ingestion behavior.
+  1. Verification covers container packaging, runtime config, same-origin serving, security/access behavior, and bounded deployed ingestion behavior.
   2. The repo publishes one named Cloud Run deployment proof or smoke workflow.
-  3. The milestone proof is reproducible from repo docs and catches the main deployment regressions introduced in phases 17-19.
+  3. The milestone proof is reproducible from repo docs and catches the main deployment regressions introduced in phases 17-20.
 
 ## Progress
 
@@ -83,4 +93,4 @@
 | v1.1 Search, Hardening & Corpus | Phases 6-9 | Complete | 2026-04-03 |
 | v1.2 Dashboard, Export & Math Rendering Hardening | Phases 10-13 | Complete | 2026-04-03 |
 | v1.3 Parse/Render Hardening | Phases 14-16 | Complete | 2026-04-03 |
-| v1.4 GCP Cloud Run Deployment Hardening | Phases 17-20 | Planned | - |
+| v1.4 GCP Cloud Run Deployment Hardening | Phases 17-21 | Planned | - |

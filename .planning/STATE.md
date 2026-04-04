@@ -7,9 +7,9 @@ stopped_at: v1.4 roadmap approved; ready to plan phase 17
 last_updated: "2026-04-04T00:00:00Z"
 last_activity: 2026-04-04
 progress:
-  total_phases: 4
+  total_phases: 5
   completed_phases: 0
-  total_plans: 4
+  total_plans: 5
   completed_plans: 0
   percent: 0
 ---
@@ -28,7 +28,7 @@ See: .planning/PROJECT.md (updated 2026-04-04)
 Phase: 17. Server Deployment Boundary Hardening
 Plan: -
 Status: Roadmap approved; planning is next
-Last activity: 2026-04-04 — Approved the four-phase `v1.4` roadmap covering deployment boundary hardening, Cloud Run packaging/topology, persistence/runbook, and acceptance proof.
+Last activity: 2026-04-04 — Expanded `v1.4` to include a dedicated shared-deployment security-hardening phase so the milestone directly addresses the repo’s internet-facing blockers.
 
 Progress: [----------] 0%
 
@@ -93,6 +93,7 @@ Decisions are logged in PROJECT.md. The milestone established:
 - Phase 16 established `npm run test:acceptance:v1.3` as the reproducible milestone proof for parser and render hardening.
 - Exported dashboard MathJax readiness now waits for `startup.promise`, and static exports must carry `assets/sre/` as part of the supported browser contract.
 - `v1.4` targets Google Cloud Run specifically as the first supported shared deployment path.
+- `v1.4` now includes a dedicated security phase because Cloud Run packaging alone would not resolve the repo’s missing auth/authz and ingress-hardening gaps.
 
 ### Pending Todos
 
