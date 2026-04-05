@@ -52,22 +52,22 @@
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| GCP-01 | Phase ? | Pending |
-| GCP-02 | Phase ? | Pending |
-| GCP-03 | Phase ? | Pending |
-| PIPE-01 | Phase ? | Pending |
-| PIPE-02 | Phase ? | Pending |
-| PIPE-03 | Phase ? | Pending |
-| PIPE-04 | Phase ? | Pending |
-| REL-05 | Phase ? | Pending |
-| REL-06 | Phase ? | Pending |
-| OPS-03 | Phase ? | Pending |
+| GCP-01 | Phase 23 | Pending |
+| GCP-02 | Phase 23 | Pending |
+| GCP-03 | Phase 25 | Pending |
+| PIPE-01 | Phase 24 | Pending |
+| PIPE-02 | Phase 24 | Pending |
+| PIPE-03 | Phase 25 | Pending |
+| PIPE-04 | Phase 25 | Pending |
+| REL-05 | Phase 26 | Pending |
+| REL-06 | Phase 26 | Pending |
+| OPS-03 | Phase 26 | Pending |
 
 **Coverage:**
 - v1 requirements: 10 total
-- Mapped to phases: 0
-- Unmapped: 10 ⚠️
+- Mapped to phases: 10
+- Unmapped: 0 ✓
 
 ---
 *Requirements defined: 2026-04-05*
-*Last updated: 2026-04-05 after initial definition draft*
+*Last updated: 2026-04-06 after roadmap approval*
