@@ -3,8 +3,8 @@ gsd_state_version: 1.0
 milestone: v1.5
 milestone_name: GCP Deployment & CI/CD
 status: roadmap_approved
-stopped_at: roadmap approved; phase 23 planning is next
-last_updated: "2026-04-06T09:15:00Z"
+stopped_at: phase 23 discussion complete; planning is next
+last_updated: "2026-04-06T09:40:00Z"
 last_activity: 2026-04-06
 progress:
   total_phases: 4
@@ -21,14 +21,14 @@ progress:
 See: .planning/PROJECT.md (updated 2026-04-05)
 
 **Core value:** A mathematician can feed in a TeX paper and get a trustworthy dependency artifact that makes the logical structure of the paper easier to navigate.
-**Current focus:** Planning `Phase 23: GCP Bootstrap & First Live Deployment`
+**Current focus:** Phase 23 discussion complete; ready to plan `GCP Bootstrap & First Live Deployment`
 
 ## Current Position
 
 Phase: 23. GCP Bootstrap & First Live Deployment
 Plan: -
 Status: Roadmap approved; phase planning is next
-Last activity: 2026-04-06 — Approved the `v1.5` roadmap and mapped 10 requirements across phases 23-26.
+Last activity: 2026-04-06 — Locked Phase 23 bootstrap automation, long-lived service, and no-source-host decisions in context.
 
 Progress: [----------] 0%
 
@@ -108,11 +108,13 @@ Decisions are logged in PROJECT.md. The milestone established:
 - Phase 22 established `docs/project_wiki.md` as a start-here entry page for navigating the repo and docs.
 - `v1.4` is archived and `v1.5` picks up the next bottleneck: real GCP deployment execution plus CI/CD on the shipped Cloud Run contract.
 - `v1.5` is now scoped as four phases: live bootstrap, CI validation/image release, secretless CD/source integration, and live smoke/rollback/operator proof.
+- Phase 23 should use checked-in bootstrap automation where practical, target one long-lived service, and avoid source-host dependency.
 
 ### Roadmap Evolution
 
 - `v1.5` opened for GCP deployment execution and CI/CD
 - Roadmap approved with phases 23-26
+- Phase 23 discussion completed with decisions `1A 2A 3A`
 
 ### Pending Todos
 
@@ -128,5 +130,5 @@ Decisions are logged in PROJECT.md. The milestone established:
 ## Session Continuity
 
 Last session: 2026-04-06 CEST
-Stopped at: `v1.5` roadmap approved; next step is `$gsd-plan-phase 23`
+Stopped at: `v1.5` Phase 23 context captured; next step is `$gsd-plan-phase 23`
 Resume file: .planning/ROADMAP.md
