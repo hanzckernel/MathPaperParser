@@ -1,97 +1,117 @@
-# Feature Research: PaperParser v1.4
+# Feature Research: PaperParser v1.5
 
-**Milestone:** `v1.4 GCP Cloud Run Deployment Hardening`
+**Milestone:** `v1.5 GCP Deployment & CI/CD`
 **Status:** Complete
-**Date:** 2026-04-04
+**Date:** 2026-04-05
 **Confidence:** HIGH
 
-## Category: Cloud Run Packaging
+## Category: Live GCP Deployment
 
 ### Table stakes
 
-- A checked-in deployment artifact for Cloud Run, not just manual local commands
-- One documented deploy command or workflow that produces a runnable service revision
-- Explicit runtime configuration for port, store path, region, and service account
+- first real deployment of the existing Cloud Run service shape
+- explicit GCP project, region, Artifact Registry, runtime service account, and store bucket setup
+- one reproducible repo-backed deploy path that operators can run without hidden local state
 
 ### Differentiators
 
-- Repeatable infra/deploy config, such as Terraform or committed service YAML
-- Tagged or immutable image references for rollback-friendly deployment
+- one bootstrap script or declarative setup path for first-time environment creation
+- immutable image/version naming aligned with deploy and rollback history
 
 ### Anti-features
 
-- “Just run `gcloud` by hand” as the only deployment story
-- A deployment process that depends on unpublished local machine state
+- “deployment support” that still stops at local smoke tests
+- operator docs that assume the environment already exists
 
-## Category: Topology and Access
+## Category: CI Validation
 
 ### Table stakes
 
-- A supported same-origin web/API topology for the browser dashboard
-- A defined access model for shared deployment: authenticated internal users, or explicit public access with compensating controls
-- Clear ingress expectations for Cloud Run and any load-balancer layer
+- automated typecheck and acceptance coverage before deploy
+- deterministic build step for the production image
+- explicit failure behavior that blocks rollout on broken validation
 
 ### Differentiators
 
-- Identity-Aware Proxy for trusted-user access without adding full product auth yet
-- Optional custom domain and load-balancer path once the base topology works
+- split fast CI from slower release gates
+- path filters or matrix strategy to keep validation cost reasonable
 
 ### Anti-features
 
-- Split-origin web/API deployment without an explicit CORS contract
-- Public `run.app` exposure that bypasses intended load-balancer or auth controls
+- deploy-on-push without the existing acceptance bundle
+- CI that only lints or typechecks but never proves the deploy contract
 
-## Category: API Safety
+## Category: CD To Cloud Run
 
 ### Table stakes
 
-- Remove or restrict JSON `inputPath` ingestion for deployed environments
-- Add bounded request and upload handling
-- Add explicit health and readiness endpoints
-- Emit structured logs for operator debugging
+- publish image to Artifact Registry
+- deploy the exact published image to Cloud Run
+- preserve the existing access, ingress, and mounted-store contract
+- capture live service URL / revision info for smoke and rollback
 
 ### Differentiators
 
-- Environment-aware runtime modes that keep localhost ergonomics while hardening deployed mode
-- Safer upload lifecycle and explicit operator-visible limits
+- traffic-safe deploy controls such as `no_traffic` or staged revision promotion where needed
+- release metadata attached to deployed revisions
 
 ### Anti-features
 
-- Keeping local-only filesystem trust assumptions in the internet-facing mode
-- Using “it is behind Cloud Run” as a substitute for application-side safety
+- rebuilding different artifacts in deploy versus CI
+- pipeline flags that drift from `deploy/cloudrun/deploy.sh`
 
-## Category: Persistence and Operations
+## Category: Auth And Source Integration
 
 ### Table stakes
 
-- Define where the persistent paper store lives on GCP
-- Document deployment config, persistence, upgrade, and rollback steps
-- Add acceptance coverage that proves the Cloud Run target is actually deployable
+- secretless or otherwise explicitly bounded pipeline authentication
+- documented repository/trigger integration for the chosen CI/CD engine
+- minimal required IAM surface for build/deploy automation
 
 ### Differentiators
 
-- Infra as code for bucket/service wiring
-- Production-minded operational checks for logs, readiness, and smoke verification
+- Workload Identity Federation with repository-level claim restrictions
+- environment separation between validation and deployment principals
 
 ### Anti-features
 
-- Assuming the ephemeral container filesystem is a persistent store
-- Declaring production readiness without a runbook or rollback path
+- copying service-account JSON keys into CI secrets by default
+- leaving the source-host / trigger path implicit when the repo has no remote configured today
+
+## Category: Release Proof And Operations
+
+### Table stakes
+
+- post-deploy smoke verification against the live service
+- rollback path documented and preserved in automation
+- release/operator guidance updated for the automated path
+
+### Differentiators
+
+- revision-aware smoke output that links build SHA to deployed revision
+- separate smoke commands for local proof versus live environment proof
+
+### Anti-features
+
+- CI/CD that ends at “deploy succeeded” without live verification
+- rollback that remains manual-only while deployment becomes automated
 
 ## Research Takeaway
 
 The natural scope split is:
-1. harden the current server boundary for deployment
-2. package and route the combined web/API runtime for Cloud Run
-3. define persistence plus operator proof for the GCP path
+1. live GCP environment execution
+2. validation/build/publish automation
+3. deploy/smoke/rollback automation and docs
 
 ## Sources
 
 - Official docs:
-  - https://cloud.google.com/run/docs/authenticating/overview
-  - https://cloud.google.com/run/docs/securing/ingress
-  - https://cloud.google.com/run/docs/configuring/healthchecks
-  - https://cloud.google.com/run/docs/configuring/request-timeout
-  - https://cloud.google.com/run/docs/configuring/services/cloud-storage-volume-mounts
+  - https://cloud.google.com/build/docs/deploying-builds/deploy-cloud-run
+  - https://docs.cloud.google.com/build/docs/automating-builds/create-manage-triggers
+  - https://cloud.google.com/deploy/docs/deploy-app-run
+  - https://github.com/google-github-actions/auth
+  - https://github.com/google-github-actions/deploy-cloudrun
 - Local docs:
-  - `docs/deployment_readiness.md`
+  - `deploy/cloudrun/README.md`
+  - `deploy/cloudrun/RUNBOOK.md`
+  - `deploy/cloudrun/SMOKE.md`

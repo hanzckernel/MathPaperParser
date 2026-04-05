@@ -1,96 +1,89 @@
-# Architecture Research: PaperParser v1.4
+# Architecture Research: PaperParser v1.5
 
-**Milestone:** `v1.4 GCP Cloud Run Deployment Hardening`
+**Milestone:** `v1.5 GCP Deployment & CI/CD`
 **Status:** Complete
-**Date:** 2026-04-04
+**Date:** 2026-04-05
 **Confidence:** HIGH
 
 ## Existing Architecture to Reuse
 
-- The CLI server already exposes the paper APIs from `packages/cli/src/server.ts`
-- The React dashboard already builds as static assets in `packages/web`
-- The dashboard already supports API mode through `?api=...`
-- The current persistent store is file-backed under `.paperparser-data/`
-- The current deployment-readiness doc already enumerates the concrete blockers
+- `deploy/cloudrun/deploy.sh` already defines the supported Cloud Run runtime contract
+- `deploy/cloudrun/grant-invoker.sh` already defines the supported shared-access model
+- `deploy/cloudrun/rollback.sh` already defines the rollback primitive
+- `deploy/cloudrun/RUNBOOK.md` already names the required GCP resources
+- `npm run test:acceptance:v1.4` already proves the local deployment contract
 
 ## Recommended Integration Shape
 
-### 1. One deployed runtime, not split web and API by default
+### 1. Keep one deployment contract
 
 Recommended shape:
-- Build the React dashboard as static assets
-- Serve those assets from the same Node runtime that exposes `/api/*`
-- Keep browser traffic same-origin by default
+- CI/CD must deploy the same image and Cloud Run flags already encoded by the repo-owned deploy path
+- automation may wrap the existing scripts or re-express them declaratively, but must not drift in behavior
 
 Why:
-- The repo currently has no supported CORS deployment contract
-- Same-origin avoids inventing a second deployment problem while the service is still being hardened
+- `v1.4` already shipped the supported deployment contract
+- `v1.5` should operationalize it, not fork it
 
-### 2. Deploy through Cloud Run as a containerized service
+### 2. Separate bootstrap from repeat deploy
 
 Recommended shape:
-- Multi-stage Docker build from the monorepo
-- Final image runs the Node server and serves both static web assets and API routes
-- Container listens on the Cloud Run `PORT`
+- one bootstrap layer for project resources and IAM wiring
+- one repeatable deploy layer for image publish and service rollout
 
 Why:
-- Cloud Run expects an HTTP container
-- A committed container artifact is a stronger repo-level contract than ad hoc manual deployment
+- first-time GCP setup and repeat deploys have different failure modes
+- the milestone needs both a “first live deploy” path and a durable CI/CD path
 
-### 3. Bounded persistence bridge for the current store
+### 3. Secretless pipeline auth
 
 Recommended shape:
-- Keep the current store-path contract in application code
-- Mount a Cloud Storage bucket into the container as the deployed store path
-- Treat this as a bounded compatibility bridge, not a permanent local-disk abstraction
+- pipeline principal authenticates through Workload Identity Federation when a hosted workflow engine is used
+- permissions are scoped to image publish, deploy, and read-back verification
 
 Why:
-- It minimizes milestone churn versus a full persistence redesign
-- It supports the current file-backed bundle layout with explicit operational constraints
+- the milestone is adding hosted automation
+- long-lived credential export would regress the security posture
 
-### 4. Access and ingress boundary
+### 4. Source integration is a first-class concern
 
 Recommended shape:
-- Keep the service authenticated by default
-- If shared browser access is needed, use a deliberate ingress model rather than direct public exposure
-- Favor an external Application Load Balancer when you need load-balancer features such as IAP or future Cloud Armor controls
+- explicitly define how source changes trigger CI/CD
+- if the repo host is not yet configured, treat that setup as milestone scope rather than an external assumption
 
 Why:
-- The repo has no product-level auth yet
-- The current API cannot safely be treated as a public anonymous internet API
+- the local repo currently has no git remote
+- “full CI/CD” is not real if no source system can trigger it
 
-### 5. Operability boundary
+### 5. Live verification remains separate from local proof
 
-Add:
-- `/healthz`
-- `/readyz`
-- structured logs to stdout/stderr
-- explicit request and upload limits
+Recommended shape:
+- keep `npm run test:acceptance:v1.4` or its successor as the local contract proof
+- add a live smoke path that validates the deployed URL, health/readiness, and one real request path
 
-Do not treat:
-- Cloud Run deployment success
-as equivalent to
-- application readiness for real traffic
+Why:
+- local contract proof and live environment proof catch different regressions
 
 ## Suggested Build Order
 
-1. Harden the current server surface for deployed mode
-2. Add combined web/API serving and container packaging
-3. Wire Cloud Run runtime config and persistence
-4. Add ingress/access policy and operator docs
-5. Add acceptance proof for the GCP deployment path
+1. Lock the supported GCP bootstrap inputs and first-live-deploy procedure
+2. Add CI validation and image publishing
+3. Add automated Cloud Run rollout with secretless auth
+4. Add live smoke and rollback-aware release proof
+5. Align operator docs with the automated path
 
 ## Sources
 
-- Local code:
-  - `packages/cli/src/server.ts`
-  - `packages/cli/src/index.ts`
-  - `packages/web/src/App.tsx`
-  - `packages/web/src/lib/data-source.ts`
-- Local docs:
-  - `docs/deployment_readiness.md`
-  - `README.md`
+- Local code/docs:
+  - `deploy/cloudrun/deploy.sh`
+  - `deploy/cloudrun/grant-invoker.sh`
+  - `deploy/cloudrun/rollback.sh`
+  - `deploy/cloudrun/RUNBOOK.md`
+  - `deploy/cloudrun/SMOKE.md`
+  - `package.json`
 - Official docs:
-  - https://cloud.google.com/run/docs/quickstarts/build-and-deploy/deploy-nodejs-service
-  - https://cloud.google.com/run/docs/securing/ingress
-  - https://cloud.google.com/run/docs/configuring/services/cloud-storage-volume-mounts
+  - https://cloud.google.com/build/docs/deploying-builds/deploy-cloud-run
+  - https://docs.cloud.google.com/build/docs/automating-builds/create-manage-triggers
+  - https://cloud.google.com/deploy/docs/deploy-app-run
+  - https://github.com/google-github-actions/auth
+  - https://github.com/google-github-actions/deploy-cloudrun

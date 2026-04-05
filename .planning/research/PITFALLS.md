@@ -1,129 +1,125 @@
-# Pitfalls Research: PaperParser v1.4
+# Pitfalls Research: PaperParser v1.5
 
-**Milestone:** `v1.4 GCP Cloud Run Deployment Hardening`
+**Milestone:** `v1.5 GCP Deployment & CI/CD`
 **Status:** Complete
-**Date:** 2026-04-04
+**Date:** 2026-04-05
 **Confidence:** HIGH
 
-## Pitfall 1: Deploying the current local-only API surface unchanged
+## Pitfall 1: Automating a different deploy contract than the shipped one
 
 **What goes wrong:**
-- Remote clients can ask the server to read arbitrary filesystem paths through JSON `inputPath`
-- Upload requests can consume unbounded memory
+- CI/CD “works,” but the live service no longer matches the `v1.4` documented Cloud Run topology, access model, or store mount
 
 **Why it happens:**
-- The current API was designed for localhost tooling, not shared deployment
+- teams often rebuild deploy flags from scratch in CI instead of reusing the checked-in contract
 
 **How to avoid:**
-- Remove or gate JSON `inputPath` ingestion in deployed mode
-- Add explicit request-size and upload-size limits
+- make the pipeline consume the same deploy inputs and invariants as `deploy/cloudrun/deploy.sh`
+- regression-test the deploy contract after pipeline work lands
 
 **Warning signs:**
-- Deployed service still accepts local-path analysis over HTTP
-- No hard failure on oversized uploads
+- pipeline deploy flags diverge from the runbook
+- CI deploys a public service or omits the mounted store
 
 **Phase to address:**
-- earliest deployment-hardening phase
+- earliest CI/CD automation phase
 
 ---
 
-## Pitfall 2: Treating split web/API deployment as a free default
+## Pitfall 2: Treating source-host integration as “someone else’s problem”
 
 **What goes wrong:**
-- Browser deployment fails into CORS confusion or undocumented proxy assumptions
+- the repo gains build scripts but no real automatic trigger path
 
 **Why it happens:**
-- The current repo supports API mode, but not a documented cross-origin production contract
+- the current repo has no configured remote, so it is easy to assume CI will be wired later
 
 **How to avoid:**
-- Make same-origin the default supported topology
-- Only split origins if the milestone explicitly adds and tests that contract
+- make repository host / trigger wiring an explicit requirement
+- document the supported source-of-truth path for automated deploys
 
 **Warning signs:**
-- The Cloud Run service ships, but the dashboard only works when manually editing query params or proxy settings
+- “CI/CD” only runs by manually dispatching from one workstation
+- no documented repository connection or workflow location
 
 **Phase to address:**
-- topology/serving phase
+- environment/bootstrap phase
 
 ---
 
-## Pitfall 3: Assuming Cloud Storage mounts behave like a local POSIX disk
+## Pitfall 3: Using long-lived service-account keys in CI
 
 **What goes wrong:**
-- Latency, caching, or write expectations drift from what the mounted object-store bridge actually provides
+- deployment succeeds, but the automation path carries static credentials that are hard to rotate and easy to leak
 
 **Why it happens:**
-- The current app is filesystem-oriented, so it is tempting to pretend a mounted bucket is “just disk”
+- key JSON is the fastest path when teams first wire hosted pipelines
 
 **How to avoid:**
-- Use the mount as a bounded store bridge only
-- Keep write patterns simple and explicit
-- Document the persistence contract and limitations
+- prefer Workload Identity Federation
+- restrict claims or repository identity as tightly as the chosen CI engine supports
 
 **Warning signs:**
-- Code starts depending on local-disk semantics outside the existing bundle store flow
+- CI secrets contain service-account JSON
+- auth docs normalize key upload instead of federation
 
 **Phase to address:**
-- persistence phase
+- auth / pipeline phase
 
 ---
 
-## Pitfall 4: Exposing the wrong endpoint to the internet
+## Pitfall 4: Stopping at build-and-deploy without live smoke proof
 
 **What goes wrong:**
-- Traffic reaches the raw `run.app` service path instead of the intended ingress layer or access model
+- the pipeline turns green, but the deployed URL is broken or inaccessible
 
 **Why it happens:**
-- Cloud Run ingress defaults are easy to leave open if the operator only thinks about IAM or only thinks about the load balancer
+- local tests prove the contract, but not live service reachability, auth wiring, or rollout health
 
 **How to avoid:**
-- Define the supported ingress model explicitly
-- Restrict ingress and disable the default URL when the load balancer is the intended public entry point
+- add a live smoke path after deploy
+- capture deployed URL or revision metadata and feed it into verification
 
 **Warning signs:**
-- The service is reachable in more places than the runbook describes
+- no post-deploy `/healthz` or `/readyz` check
+- no rollback criteria tied to smoke failure
 
 **Phase to address:**
-- topology/access phase
+- release-proof phase
 
 ---
 
-## Pitfall 5: Shipping a deploy command without an operability contract
+## Pitfall 5: Adopting Cloud Deploy too early
 
 **What goes wrong:**
-- The app can be deployed, but operators cannot tell whether it is healthy, ready, or safe to roll back
+- the milestone spends time on targets, Skaffold, and promotion plumbing before the first live deploy path is even proven
 
 **Why it happens:**
-- Teams often stop at “container runs” instead of completing health, logs, and runbook work
+- Cloud Deploy is attractive as a “complete CD solution,” but it solves a broader staged-release problem than this repo has today
 
 **How to avoid:**
-- Add `/healthz` and `/readyz`
-- Emit structured logs
-- Publish rollout and rollback instructions
-- Add a deployment acceptance proof
+- keep `v1.5` focused on one real deploy path and one real automated rollout
+- defer Cloud Deploy unless multiple environments or approval gates become explicit scope
 
 **Warning signs:**
-- No documented smoke test after deploy
-- No log fields that help distinguish request failures from app failures
+- more time spent on delivery-pipeline scaffolding than on the actual first production-like deploy
 
 **Phase to address:**
-- operability and acceptance phase
+- planning/requirements
 
 ## Summary
 
-The biggest failure mode is not Cloud Run itself. It is exporting local assumptions into a shared environment:
-- local-only filesystem trust
-- implicit browser topology
-- storage semantics the platform does not actually promise
-- deployment success without operational proof
+The biggest failure mode is not GCP itself. It is pretending automation exists before the source integration, auth model, and live smoke proof are real. `v1.5` should make the hosted path concrete, secure, and reproducible before adding more release machinery.
 
 ## Sources
 
 - Official docs:
-  - https://cloud.google.com/run/docs/securing/ingress
-  - https://cloud.google.com/run/docs/authenticating/overview
-  - https://cloud.google.com/run/docs/configuring/healthchecks
-  - https://cloud.google.com/run/docs/configuring/services/cloud-storage-volume-mounts
+  - https://cloud.google.com/build/docs/deploying-builds/deploy-cloud-run
+  - https://docs.cloud.google.com/build/docs/automating-builds/create-manage-triggers
+  - https://cloud.google.com/deploy/docs/deploy-app-run
+  - https://github.com/google-github-actions/auth
+  - https://github.com/google-github-actions/deploy-cloudrun
 - Local docs:
-  - `docs/deployment_readiness.md`
-  - `packages/cli/src/server.ts`
+  - `deploy/cloudrun/deploy.sh`
+  - `deploy/cloudrun/RUNBOOK.md`
+  - `deploy/cloudrun/SMOKE.md`
