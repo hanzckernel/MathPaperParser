@@ -11,14 +11,14 @@ A mathematician can feed in a TeX paper and get a trustworthy dependency artifac
 ## Current State
 
 - **Shipped milestone:** `v1.4 GCP Cloud Run Deployment Hardening` on 2026-04-04
-- **Active milestone:** none
+- **Active milestone:** `v1.5 GCP Deployment & CI/CD`
 - **Representative acceptance paper:** `ref/papers/long_nalini/arXiv-2502.12268v2/main.tex`
 - **Accepted local corpus:** `long_nalini`, `medium_Mueller.flat.tex`, and `short_Petri.tex`
 - **Canonical output:** `manifest.json` / `graph.json` / `index.json`
 - **Additive sidecars:** `diagnostics.json` and optional `enrichment.json`
 - **Accepted workflows:** `analyze -> validate -> search -> inspect`, `export -> serve -> browse`, optional `enrich`, explainable cross-paper `related`, and `deploy -> smoke -> rollback` for the supported Cloud Run path
 - **Supported shared deployment:** Google Cloud Run with a combined same-origin dashboard/API service, authenticated direct access, a documented mounted Cloud Storage persistence bridge, and repo-owned deploy/rollback helpers
-- **Current non-blocking debt:** `long_nalini` still emits `7` unresolved references concentrated in the deferred figure-reference slice, cross-paper navigation remains intentionally paper-local, unsupported TeX beyond the current normalization set still falls back to raw source, the mounted bucket is still a low-concurrency persistence bridge rather than a high-write architecture, rate limiting and streaming upload handling remain future hardening work, CI automation for the Cloud Run path is still absent, and Nyquist validation artifacts are still missing for phases 10-16
+- **Current non-blocking debt:** `long_nalini` still emits `7` unresolved references concentrated in the deferred figure-reference slice, cross-paper navigation remains intentionally paper-local, unsupported TeX beyond the current normalization set still falls back to raw source, the mounted bucket is still a low-concurrency persistence bridge rather than a high-write architecture, a live GCP deployment has not yet been executed from this repo-owned path, CI/CD automation for Cloud Run is still absent, and Nyquist validation artifacts are still missing for phases 10-16
 
 ## Last Shipped Milestone: v1.4 GCP Cloud Run Deployment Hardening
 
@@ -30,6 +30,17 @@ A mathematician can feed in a TeX paper and get a trustworthy dependency artifac
 - Authenticated shared deployment helpers that reject public invoker grants and document the supported access model
 - A documented Cloud Storage bucket-mount persistence bridge, rollback helper, named smoke workflow, and repo-level `npm run test:acceptance:v1.4` proof
 - A wiki-style `docs/project_wiki.md` entry page linked from the root README for faster onboarding through the repo surfaces
+
+## Current Milestone: v1.5 GCP Deployment & CI/CD
+
+**Goal:** Turn the supported Cloud Run deployment path into a real GCP-hosted deployment workflow with full CI/CD support.
+
+**Target features:**
+- Execute the first repo-backed deployment onto GCP using the existing Cloud Run topology and security model
+- Provision or script the required GCP resources and deployment inputs so the environment can be recreated cleanly
+- Add CI/CD for test, build, image publish, and rollout on the supported Cloud Run path
+- Keep deployed runtime behavior aligned with the current same-origin, authenticated, mounted-store contract
+- Add operator and contributor guidance for managing the automated delivery path after deployment exists
 
 ## Requirements
 
@@ -63,13 +74,16 @@ A mathematician can feed in a TeX paper and get a trustworthy dependency artifac
 
 ### Active
 
-- [ ] Add corpus-wide search across stored papers while preserving paper boundaries and explainable attribution
-- [ ] Add collaborator-facing review and export workflows without weakening the canonical trust model
-- [ ] Add PDF or OCR-derived inputs on the same trusted bundle contract as current TeX flows
-- [ ] Deepen deployment maturity with CI-managed smoke checks, rate limiting, and streaming upload handling
+- [ ] Execute the first supported GCP deployment from this repo-owned Cloud Run path
+- [ ] Provision or script the GCP-side resources and configuration needed for repeatable deployment
+- [ ] Add CI/CD for validation, image publishing, and rollout on the supported Cloud Run target
+- [ ] Keep the deployed runtime aligned with the existing security, same-origin, and persistence contracts
 
 ### Out of Scope
 
+- Corpus-wide search until deployment execution and CI/CD are real
+- Collaborator-facing review and export workflows until hosted delivery is stable
+- PDF or OCR-derived inputs until a later milestone explicitly owns broader ingestion quality
 - Broad multi-cloud deployment support beyond the supported Cloud Run path
 - Treating agent inference as ground truth; enrichment stays separate from the canonical artifact
 - Manual graph editing as a substitute for parser quality; parser and inference quality should improve at the source instead
@@ -83,6 +97,8 @@ The repository is a TypeScript monorepo with active workspace packages in `packa
 
 `v1.2` closed the major reliability gap around local export sharing by hardening the CLI export contract, bundling MathJax with fragment normalization, and turning unsupported static runtime states into explicit product behavior instead of blank pages. `v1.3` then reduced residual parser gaps, broadened accepted-corpus render salvage, and fixed the remaining exported MathJax runtime/export-asset failures discovered during browser verification. `v1.4` completed the first supported shared deployment slice on Google Cloud Run with explicit server boundaries, authenticated access, a bounded persistence bridge, a named proof workflow, and a wiki-style entry page for project navigation.
 
+`v1.5` is not about inventing a new deployment shape. It is about operationalizing the shipped `v1.4` contract: execute the real GCP deployment, provision the required resources cleanly, and add CI/CD so the Cloud Run path becomes reproducible delivery infrastructure instead of a manual operator-only workflow.
+
 ## Constraints
 
 - **Tech Stack:** Stay within the existing TypeScript monorepo and reuse the shipped `manifest` / `graph` / `index` contract unless a future phase explicitly evolves it
@@ -94,7 +110,8 @@ The repository is a TypeScript monorepo with active workspace packages in `packa
 - **Parser/Render Trust:** Parser hardening and render compatibility should improve source fidelity without masking unsupported content as if it were fully understood
 - **Deployment Target:** The supported shared deployment target today is Google Cloud Run, not a generic multi-cloud abstraction
 - **Service Safety:** Shared deployment must not preserve local-only trust assumptions around filesystem access, unbounded uploads, or open anonymous access
-- **Milestone Discipline:** Future milestones should stay narrow instead of mixing corpus search, collaboration, broader ingestion, and deeper deployment maturity into one slice
+- **Delivery Discipline:** CI/CD must reinforce the shipped deployment contract rather than introduce a second deployment path with different assumptions
+- **Milestone Discipline:** `v1.5` stays focused on real GCP deployment execution and CI/CD rather than mixing in corpus search, collaboration, or broader ingestion
 
 ## Key Decisions
 
@@ -125,12 +142,13 @@ The repository is a TypeScript monorepo with active workspace packages in `packa
 | Keep direct Cloud Run service access authenticated and reject public invoker grants in repo-owned helpers | The supported shared path needed one explicit access model instead of a public-by-default endpoint | ✓ Good — the deploy/access scripts now preserve IAM auth and reject `allUsers` / `allAuthenticatedUsers` grants |
 | Use a mounted Cloud Storage bucket as the first persistence bridge instead of redesigning the store in the deployment milestone | The deployment slice needed a bounded supported path that stays compatible with the shipped store contract | ✓ Good — `v1.4` shipped a documented bucket-mount bridge and deferred higher-write storage redesign |
 | Add a wiki-style start page after the deployment proof rather than bloating the root README | Operators and developers needed a route through the repo that reflects shipped workflows without turning the README into a wall of text | ✓ Good — `docs/project_wiki.md` now acts as the start-here entry point |
+| Keep `v1.5` on real GCP execution and CI/CD instead of reopening product-surface scope | The next bottleneck is operationalization of the shipped Cloud Run path, not new parser or corpus features | — Pending |
 
 ## Next Milestone Goals
 
-- Decide whether the next most valuable slice is corpus-wide search, collaborator-facing review/export, broader input support, or deeper deployment maturity
-- Keep the deterministic canonical bundle and the paper-local trust model intact while expanding product capability
-- Prefer milestones that publish one named acceptance or smoke proof instead of scattering operational confidence across ad hoc commands
+- Execute the first repo-backed GCP deployment on the supported Cloud Run path
+- Add CI/CD that proves, publishes, and rolls out the same supported deployment contract
+- Keep the deterministic canonical bundle and the paper-local trust model intact while improving hosted delivery maturity
 
 ## Evolution
 
@@ -143,4 +161,4 @@ This document tracks the shipped product state plus the next-milestone starting 
 4. Keep Current State accurate enough that the next milestone starts from facts rather than memory
 
 ---
-*Last updated: 2026-04-04 after closing milestone v1.4*
+*Last updated: 2026-04-05 after starting milestone v1.5*

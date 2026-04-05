@@ -1,36 +1,36 @@
 ---
 gsd_state_version: 1.0
-milestone: v1.4
-milestone_name: GCP Cloud Run Deployment Hardening
-status: milestone_closed
-stopped_at: closed v1.4; next step is opening the next milestone
-last_updated: "2026-04-04T21:50:00Z"
-last_activity: 2026-04-04
+milestone: v1.5
+milestone_name: GCP Deployment & CI/CD
+status: defining_requirements
+stopped_at: milestone started; requirements definition is next
+last_updated: "2026-04-05T09:30:00Z"
+last_activity: 2026-04-05
 progress:
-  total_phases: 6
-  completed_phases: 6
-  total_plans: 6
-  completed_plans: 6
-  percent: 100
+  total_phases: 0
+  completed_phases: 0
+  total_plans: 0
+  completed_plans: 0
+  percent: 0
 ---
 
 # Project State
 
 ## Project Reference
 
-See: .planning/PROJECT.md (updated 2026-04-04)
+See: .planning/PROJECT.md (updated 2026-04-05)
 
 **Core value:** A mathematician can feed in a TeX paper and get a trustworthy dependency artifact that makes the logical structure of the paper easier to navigate.
-**Current focus:** No active milestone; `v1.4` is shipped and archived.
+**Current focus:** Defining requirements for `v1.5 GCP Deployment & CI/CD`
 
 ## Current Position
 
-Phase: -
+Phase: Not started (defining requirements)
 Plan: -
-Status: Milestone closed
-Last activity: 2026-04-04 — Archived `v1.4`, moved its phase artifacts under `.planning/milestones/v1.4-phases/`, and prepared the closeout commit/tag path.
+Status: Defining requirements
+Last activity: 2026-04-05 — Started `v1.5` for real GCP deployment execution and CI/CD.
 
-Progress: [██████████] 100%
+Progress: [----------] 0%
 
 ## Performance Metrics
 
@@ -106,11 +106,11 @@ Decisions are logged in PROJECT.md. The milestone established:
 - Phase 20 established a dedicated Cloud Storage bucket mount as the supported persistence bridge and published the Cloud Run operator runbook plus rollback helper.
 - Phase 21 established `npm run test:acceptance:v1.4` as the named local proof for the full Cloud Run deployment-hardening slice.
 - Phase 22 established `docs/project_wiki.md` as a start-here entry page for navigating the repo and docs.
-- `v1.4` is archived; the next workflow step is to define the next milestone rather than continue deployment work in the live roadmap.
+- `v1.4` is archived and `v1.5` picks up the next bottleneck: real GCP deployment execution plus CI/CD on the shipped Cloud Run contract.
 
 ### Roadmap Evolution
 
-- Phase 22 added and archived with the rest of `v1.4`
+- `v1.5` opened for GCP deployment execution and CI/CD
 
 ### Pending Todos
 
@@ -125,6 +125,6 @@ Decisions are logged in PROJECT.md. The milestone established:
 
 ## Session Continuity
 
-Last session: 2026-04-04 CEST
-Stopped at: `v1.4` closed; next step is `$gsd-new-milestone`
+Last session: 2026-04-05 CEST
+Stopped at: `v1.5` started; next step is research/requirements
 Resume file: .planning/ROADMAP.md
