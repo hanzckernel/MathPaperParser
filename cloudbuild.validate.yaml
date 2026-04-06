@@ -1,0 +1,15 @@
+steps:
+  - name: node:22-bookworm-slim
+    entrypoint: bash
+    args:
+      - -lc
+      - npm ci
+
+  - name: node:22-bookworm-slim
+    entrypoint: bash
+    args:
+      - -lc
+      - npm run ci:cloudbuild:fast
+
+options:
+  logging: CLOUD_LOGGING_ONLY

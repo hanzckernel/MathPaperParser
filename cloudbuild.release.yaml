@@ -1,0 +1,58 @@
+substitutions:
+  _IMAGE: paperparser
+  _LOCATION: europe-west1
+  _REF_NAME: ''
+  _REPOSITORY: paperparser
+
+steps:
+  - name: node:22-bookworm-slim
+    entrypoint: bash
+    args:
+      - -lc
+      - npm ci
+
+  - name: node:22-bookworm-slim
+    entrypoint: bash
+    args:
+      - -lc
+      - npm run ci:cloudbuild:release
+
+  - name: gcr.io/google.com/cloudsdktool/cloud-sdk:slim
+    entrypoint: bash
+    args:
+      - -lc
+      - |
+        REF_NAME="${_REF_NAME}"
+        if [ -z "$REF_NAME" ]; then
+          REF_NAME="$BRANCH_NAME"
+        fi
+        export PAPERPARSER_REF_NAME="$REF_NAME"
+        deploy/cloudrun/assert-mainline.sh
+
+  - name: gcr.io/cloud-builders/docker
+    entrypoint: bash
+    args:
+      - -lc
+      - |
+        if [ -z "$SHORT_SHA" ]; then
+          echo "SHORT_SHA must be set for release builds." >&2
+          exit 1
+        fi
+        IMAGE_URI="${_LOCATION}-docker.pkg.dev/$PROJECT_ID/${_REPOSITORY}/${_IMAGE}:$SHORT_SHA"
+        docker build -t "$IMAGE_URI" .
+        docker push "$IMAGE_URI"
+
+  - name: gcr.io/google.com/cloudsdktool/cloud-sdk:slim
+    entrypoint: bash
+    args:
+      - -lc
+      - |
+        PAPERPARSER_PROJECT="$PROJECT_ID" \
+        PAPERPARSER_REGION="${_LOCATION}" \
+        PAPERPARSER_ARTIFACT_REPOSITORY="${_REPOSITORY}" \
+        PAPERPARSER_IMAGE_NAME="${_IMAGE}" \
+        PAPERPARSER_IMAGE_TAG="$SHORT_SHA" \
+        deploy/cloudrun/resolve-image-digest.sh | tee /workspace/cloudrun-image.json
+
+options:
+  logging: CLOUD_LOGGING_ONLY

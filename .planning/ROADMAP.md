@@ -17,7 +17,7 @@
 ## Current State
 
 - Active milestone: `v1.5 GCP Deployment & CI/CD`
-- Next execution step: `$gsd-plan-phase 24`
+- Next execution step: `$gsd-plan-phase 25`
 - Phase numbering continues from 23 for this milestone.
 
 ## Milestone Summary
@@ -36,7 +36,7 @@
 - Decimal phases (23.1, 23.2): Urgent insertions (marked with INSERTED)
 
 - [x] **Phase 23: GCP Bootstrap & First Live Deployment** - Turn the `v1.4` operator contract into a real deployed Cloud Run environment on GCP.
-- [ ] **Phase 24: CI Validation & Image Release Pipeline** - Add automated validation and immutable image publishing for the supported hosted-source path.
+- [x] **Phase 24: CI Validation & Image Release Pipeline** - Add automated validation and immutable image publishing for the supported hosted-source path.
 - [ ] **Phase 25: Secretless CD & Source Integration** - Wire the supported source-host trigger path and deploy automation to GCP without long-lived key JSON.
 - [ ] **Phase 26: Live Smoke, Rollback & Operator Proof** - Prove the live hosted path end to end and document the automated release/rollback workflow.
 

@@ -17,9 +17,10 @@ Unsupported in this phase:
 The live Phase 23 deployment path is:
 
 1. `deploy/cloudrun/bootstrap.sh`
-2. `deploy/cloudrun/build-image.sh`
-3. `deploy/cloudrun/deploy.sh`
-4. `deploy/cloudrun/service-metadata.sh`
+2. `cloudbuild.validate.yaml`
+3. `cloudbuild.release.yaml`
+4. `deploy/cloudrun/deploy.sh`
+5. `deploy/cloudrun/service-metadata.sh`
 
 ## Deploy
 
@@ -48,6 +49,13 @@ deploy/cloudrun/deploy.sh
 
 The deploy helper mounts `PAPERPARSER_STORE_BUCKET` into `/var/paperparser/store`.
 The runtime service account should have `roles/storage.objectUser` on that bucket.
+
+The checked-in release pipeline is Cloud Build:
+
+- `cloudbuild.validate.yaml` runs the faster validation gate through `npm run ci:cloudbuild:fast`
+- `cloudbuild.release.yaml` runs the heavier release gate through `npm run ci:cloudbuild:release`, restricts image publishing to `main`, publishes a commit-SHA-tagged image, and surfaces the immutable digest through `deploy/cloudrun/resolve-image-digest.sh`
+
+Deploys must consume the digest-backed `imageRef`, not rebuild from source or rely on a floating tag.
 
 For live Cloud Run probes and smoke checks, use `/health` and `/ready`. The app still serves `/healthz` and `/readyz` internally for compatibility, but the supported Cloud Run operator path avoids `*z` probe paths.
 

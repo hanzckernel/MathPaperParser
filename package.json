@@ -8,6 +8,8 @@
   ],
   "scripts": {
     "build": "npm run build --workspaces --if-present",
+    "ci:cloudbuild:fast": "npm run build && npm test -- packages/cli/test/cloud-run-artifact.test.ts packages/cli/test/cloud-run-bootstrap-contract.test.ts packages/cli/test/cloud-run-security-contract.test.ts packages/cli/test/cloud-run-runbook-contract.test.ts packages/cli/test/cloud-build-pipeline-contract.test.ts",
+    "ci:cloudbuild:release": "npm run build && npm run typecheck && npm run test:acceptance:v1.4 && npm test -- packages/cli/test/cloud-build-pipeline-contract.test.ts packages/cli/test/cloud-run-bootstrap-contract.test.ts",
     "test": "vitest run --config vitest.config.ts",
     "test:acceptance:v1.2": "vitest run --config vitest.config.ts packages/cli/test/export-command.test.ts packages/web/test/data-source.test.ts packages/web/test/math-render.test.ts packages/web/test/proof-graph-render.test.ts packages/web/test/runtime-blocker-render.test.ts packages/web/test/bootstrap.test.ts packages/web/test/runtime-environment.test.ts packages/web/test/exported-dashboard-shell.test.ts packages/web/test/operator-guidance-docs.test.ts",
     "test:acceptance:v1.3": "vitest run --config vitest.config.ts packages/core/test/ingestion-pipeline.test.ts packages/core/test/gold-paper-ingestion.test.ts packages/cli/test/gold-paper-acceptance.test.ts packages/web/test/math-render.test.ts packages/web/test/proof-graph-render.test.ts packages/web/test/operator-guidance-docs.test.ts",

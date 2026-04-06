@@ -97,11 +97,12 @@ Run the API backend:
 node packages/cli/dist/index.js serve --host 127.0.0.1 --port 3000
 ```
 
-Bootstrap, build, and inspect the supported Cloud Run deployment path:
+Bootstrap, validate, publish, and inspect the supported Cloud Run deployment path:
 
 ```bash
 PAPERPARSER_PROJECT=paperparser-492322 PAPERPARSER_REGION=europe-west1 deploy/cloudrun/bootstrap.sh
-PAPERPARSER_PROJECT=paperparser-492322 PAPERPARSER_REGION=europe-west1 deploy/cloudrun/build-image.sh
+gcloud builds submit --config=cloudbuild.validate.yaml .
+gcloud builds submit --config=cloudbuild.release.yaml --substitutions=SHORT_SHA="$(git rev-parse --short HEAD)",BRANCH_NAME=main,_LOCATION=europe-west1,_REPOSITORY=paperparser,_IMAGE=paperparser .
 PAPERPARSER_PROJECT=paperparser-492322 PAPERPARSER_REGION=europe-west1 PAPERPARSER_SERVICE=paperparser deploy/cloudrun/service-metadata.sh
 ```
 
@@ -111,7 +112,7 @@ Deploy the supported shared Cloud Run service with IAM auth still enabled:
 deploy/cloudrun/deploy.sh
 ```
 
-The supported deployment path mounts a dedicated Cloud Storage bucket into `/var/paperparser/store`; use `/health` and `/ready` for Cloud Run-facing probes and see [deploy/cloudrun/RUNBOOK.md](deploy/cloudrun/RUNBOOK.md) for the full operator flow.
+The supported deployment path mounts a dedicated Cloud Storage bucket into `/var/paperparser/store`; use `/health` and `/ready` for Cloud Run-facing probes, publish commit-SHA images through the checked-in Cloud Build configs, and deploy by digest-backed `imageRef` rather than rebuilding. See [deploy/cloudrun/RUNBOOK.md](deploy/cloudrun/RUNBOOK.md) for the full operator flow.
 
 Run the MCP server on stdio:
 

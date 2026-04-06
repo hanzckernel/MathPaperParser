@@ -13,8 +13,8 @@
 
 ### Delivery Pipeline
 
-- [ ] **PIPE-01**: Maintainer gets automated CI validation for the supported hosted-source path, covering at least typecheck, build, and the named deployment acceptance bundle before deployment.
-- [ ] **PIPE-02**: Maintainer gets automated CD that publishes an immutable image to Artifact Registry and deploys that exact image to the supported Cloud Run service.
+- [x] **PIPE-01**: Maintainer gets automated CI validation for the supported hosted-source path, covering at least typecheck, build, and the named deployment acceptance bundle before deployment.
+- [x] **PIPE-02**: Maintainer gets automated CD that publishes an immutable image to Artifact Registry and hands off that exact digest-backed image identity for the supported Cloud Run deploy path.
 - [ ] **PIPE-03**: Pipeline authentication to GCP uses Workload Identity Federation or an equivalently bounded non-key path by default rather than long-lived service-account key JSON.
 - [ ] **PIPE-04**: Supported source-host or trigger wiring is documented and checked into the repo so CI/CD is reproducible instead of relying on hidden console-only setup.
 
@@ -55,8 +55,8 @@
 | GCP-01 | Phase 23 | Complete |
 | GCP-02 | Phase 23 | Complete |
 | GCP-03 | Phase 25 | Pending |
-| PIPE-01 | Phase 24 | Pending |
-| PIPE-02 | Phase 24 | Pending |
+| PIPE-01 | Phase 24 | Complete |
+| PIPE-02 | Phase 24 | Complete |
 | PIPE-03 | Phase 25 | Pending |
 | PIPE-04 | Phase 25 | Pending |
 | REL-05 | Phase 26 | Pending |
@@ -70,4 +70,4 @@
 
 ---
 *Requirements defined: 2026-04-05*
-*Last updated: 2026-04-06 after Phase 23 completion*
+*Last updated: 2026-04-06 after Phase 24 completion*

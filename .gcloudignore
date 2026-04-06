@@ -11,5 +11,6 @@
 .paperparser-data/
 .playwright-cli/
 output/
+packages/web/public/
 ref/papers/
 ref/runs/

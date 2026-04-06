@@ -18,7 +18,7 @@ A mathematician can feed in a TeX paper and get a trustworthy dependency artifac
 - **Additive sidecars:** `diagnostics.json` and optional `enrichment.json`
 - **Accepted workflows:** `analyze -> validate -> search -> inspect`, `export -> serve -> browse`, optional `enrich`, explainable cross-paper `related`, and `deploy -> smoke -> rollback` for the supported Cloud Run path
 - **Supported shared deployment:** Google Cloud Run with a combined same-origin dashboard/API service, authenticated direct access, a documented mounted Cloud Storage persistence bridge, repo-owned bootstrap/build/deploy/metadata helpers, and a verified live service in `paperparser-492322`
-- **Current non-blocking debt:** `long_nalini` still emits `7` unresolved references concentrated in the deferred figure-reference slice, cross-paper navigation remains intentionally paper-local, unsupported TeX beyond the current normalization set still falls back to raw source, the mounted bucket is still a low-concurrency persistence bridge rather than a high-write architecture, CI/CD automation for Cloud Run is still absent, the hosted smoke contract still needs pipeline wiring, and Nyquist validation artifacts are still missing for phases 10-16
+- **Current non-blocking debt:** `long_nalini` still emits `7` unresolved references concentrated in the deferred figure-reference slice, cross-paper navigation remains intentionally paper-local, unsupported TeX beyond the current normalization set still falls back to raw source, the mounted bucket is still a low-concurrency persistence bridge rather than a high-write architecture, hosted source integration and secretless Cloud Build auth are still absent, the hosted smoke contract still needs pipeline wiring, and Nyquist validation artifacts are still missing for phases 10-16
 
 ## Last Shipped Milestone: v1.4 GCP Cloud Run Deployment Hardening
 
@@ -76,7 +76,7 @@ A mathematician can feed in a TeX paper and get a trustworthy dependency artifac
 
 - [ ] Execute the first supported GCP deployment from this repo-owned Cloud Run path
 - [ ] Provision or script the GCP-side resources and configuration needed for repeatable deployment
-- [ ] Add CI/CD for validation, image publishing, and rollout on the supported Cloud Run target
+- [ ] Add hosted-source integration and secretless auth on top of the checked-in Cloud Build validation and image-release contract
 - [ ] Keep the deployed runtime aligned with the existing security, same-origin, and persistence contracts
 
 ### Out of Scope

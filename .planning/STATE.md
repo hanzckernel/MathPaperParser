@@ -2,16 +2,16 @@
 gsd_state_version: 1.0
 milestone: v1.5
 milestone_name: GCP Deployment & CI/CD
-status: phase_23_complete
-stopped_at: phase 23 complete; phase 24 planning is next
-last_updated: "2026-04-06T13:36:38Z"
+status: phase_24_complete
+stopped_at: phase 24 complete; phase 25 planning is next
+last_updated: "2026-04-06T13:48:34Z"
 last_activity: 2026-04-06
 progress:
   total_phases: 4
-  completed_phases: 1
-  total_plans: 1
-  completed_plans: 1
-  percent: 25
+  completed_phases: 2
+  total_plans: 2
+  completed_plans: 2
+  percent: 50
 ---
 
 # Project State
@@ -21,16 +21,16 @@ progress:
 See: .planning/PROJECT.md (updated 2026-04-05)
 
 **Core value:** A mathematician can feed in a TeX paper and get a trustworthy dependency artifact that makes the logical structure of the paper easier to navigate.
-**Current focus:** Phase 23 is complete; ready to plan `CI Validation & Image Release Pipeline`
+**Current focus:** Phase 24 is complete; ready to plan `Secretless CD & Source Integration`
 
 ## Current Position
 
-Phase: 24. CI Validation & Image Release Pipeline
+Phase: 25. Secretless CD & Source Integration
 Plan: -
-Status: Phase 23 complete; phase planning is next
-Last activity: 2026-04-06 — Executed the first live GCP deployment from repo-owned helpers, added bootstrap/build/metadata scripts, fixed the long-running CLI entrypoint bug, and switched hosted probes to `/health` and `/ready` after live Cloud Run evidence.
+Status: Phase 24 complete; phase planning is next
+Last activity: 2026-04-06 — Added checked-in Cloud Build validation and release configs, split fast versus release gates, enforced mainline-only publish, surfaced digest-backed image identity, and excluded stale local generated artifacts from Cloud Build uploads.
 
-Progress: [###-------] 25%
+Progress: [#####-----] 50%
 
 ## Performance Metrics
 
@@ -110,6 +110,7 @@ Decisions are logged in PROJECT.md. The milestone established:
 - `v1.5` is now scoped as four phases: live bootstrap, CI validation/image release, secretless CD/source integration, and live smoke/rollback/operator proof.
 - Phase 23 should use checked-in bootstrap automation where practical, target one long-lived service, and avoid source-host dependency.
 - Phase 23 is now complete with a live Cloud Run deployment on `paperparser-492322`, canonical service metadata surfaced through repo-owned helpers, and a hosted probe contract that uses `/health` and `/ready` while preserving `/healthz` and `/readyz` as compatibility aliases.
+- Phase 24 is now complete with checked-in `cloudbuild.validate.yaml` and `cloudbuild.release.yaml`, explicit `ci:cloudbuild:*` gate scripts, mainline-only publish enforcement, and digest-backed Artifact Registry identity for later deploy steps.
 
 ### Roadmap Evolution
 
@@ -120,6 +121,7 @@ Decisions are logged in PROJECT.md. The milestone established:
 - Phase 25 discussion completed with decisions `1A 2A 3A`
 - Phase 26 discussion completed with decisions `1A 2A 3B`
 - Phase 23 execution completed with live revision `paperparser-00007-8fn` on 2026-04-06
+- Phase 24 execution completed with checked-in Cloud Build validation and release configs on 2026-04-06
 
 ### Pending Todos
 
@@ -131,10 +133,11 @@ Decisions are logged in PROJECT.md. The milestone established:
 - Unsupported TeX beyond the current normalization set still falls back to raw source instead of full browser-ready math rendering.
 - The supported Cloud Run store path is still a low-concurrency mounted bucket bridge rather than a high-write persistence architecture.
 - Cloud Run live smoke and future pipeline verification must use `/health` and `/ready`; the `*z` aliases remain app-level compatibility routes only.
+- The repo now has Cloud Build pipeline configs, but hosted-source trigger wiring and secretless auth still remain for Phase 25.
 - Nyquist validation artifacts are still missing for phases 10-16.
 
 ## Session Continuity
 
 Last session: 2026-04-06 CEST
-Stopped at: `v1.5` Phase 23 complete; next step is `$gsd-plan-phase 24`
+Stopped at: `v1.5` Phase 24 complete; next step is `$gsd-plan-phase 25`
 Resume file: .planning/ROADMAP.md

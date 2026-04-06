@@ -17,6 +17,8 @@ This bundle proves:
 
 After that local proof passes, use [RUNBOOK.md](RUNBOOK.md) for the live project checks:
 
+- run `cloudbuild.validate.yaml`
+- run `cloudbuild.release.yaml`
 - deploy a revision
 - open the authenticated service URL
 - verify `/health` and `/ready`

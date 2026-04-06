@@ -85,7 +85,7 @@ The app still serves `/healthz` and `/readyz` as compatibility aliases, but the 
 
 What is still missing for a stronger internet-facing deployment:
 
-- CI for the v2 monorepo deployment path
+- hosted-source trigger wiring and secretless deployment auth on top of the checked-in Cloud Build pipeline
 - deeper upload throttling and streaming safety
 - backup/logging automation beyond the initial runbook
 

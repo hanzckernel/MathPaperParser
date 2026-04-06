@@ -46,6 +46,7 @@ describe('cloud run bootstrap and live deploy contract', () => {
     expect(ignoreFile).toContain('.paperparser-data/');
     expect(ignoreFile).toContain('.playwright-cli/');
     expect(ignoreFile).toContain('output/');
+    expect(ignoreFile).toContain('packages/web/public/');
   });
 
   it('bootstrap helper enables core APIs and provisions missing registry, bucket, and runtime service account', () => {
