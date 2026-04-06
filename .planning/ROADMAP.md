@@ -17,7 +17,7 @@
 ## Current State
 
 - Active milestone: `v1.5 GCP Deployment & CI/CD`
-- Next execution step: `$gsd-plan-phase 23`
+- Next execution step: `$gsd-plan-phase 24`
 - Phase numbering continues from 23 for this milestone.
 
 ## Milestone Summary
@@ -35,7 +35,7 @@
 - Integer phases (23, 24, 25, 26): Planned milestone work
 - Decimal phases (23.1, 23.2): Urgent insertions (marked with INSERTED)
 
-- [ ] **Phase 23: GCP Bootstrap & First Live Deployment** - Turn the `v1.4` operator contract into a real deployed Cloud Run environment on GCP.
+- [x] **Phase 23: GCP Bootstrap & First Live Deployment** - Turn the `v1.4` operator contract into a real deployed Cloud Run environment on GCP.
 - [ ] **Phase 24: CI Validation & Image Release Pipeline** - Add automated validation and immutable image publishing for the supported hosted-source path.
 - [ ] **Phase 25: Secretless CD & Source Integration** - Wire the supported source-host trigger path and deploy automation to GCP without long-lived key JSON.
 - [ ] **Phase 26: Live Smoke, Rollback & Operator Proof** - Prove the live hosted path end to end and document the automated release/rollback workflow.
@@ -74,7 +74,7 @@
 **Depends on**: Phase 25
 **Requirements**: REL-05, REL-06, OPS-03
 **Success Criteria** (what must be TRUE):
-  1. Post-deploy smoke verifies the live URL, `/healthz`, `/readyz`, and one real request path.
+  1. Post-deploy smoke verifies the live URL, `/health`, `/ready`, and one real request path.
   2. Rollback stays supported through immutable revision or image references.
   3. Operator docs cover bootstrap, auth/triggers, deploy, smoke, rollback, and failure recovery for the automated GCP path.
 
@@ -87,4 +87,4 @@
 | v1.2 Dashboard, Export & Math Rendering Hardening | Phases 10-13 | Complete | 2026-04-03 |
 | v1.3 Parse/Render Hardening | Phases 14-16 | Complete | 2026-04-03 |
 | v1.4 GCP Cloud Run Deployment Hardening | Phases 17-22 | Complete | 2026-04-04 |
-| v1.5 GCP Deployment & CI/CD | Phases 23-26 | Planned | - |
+| v1.5 GCP Deployment & CI/CD | Phases 23-26 | In Progress | - |

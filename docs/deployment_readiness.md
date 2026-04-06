@@ -2,13 +2,13 @@
 
 ## Verdict
 
-As of **April 4, 2026**, PaperParser v2 alpha is ready for:
+As of **April 6, 2026**, PaperParser v2 alpha is ready for:
 
 - local development
 - internal demos
 - static dashboard exports
 - controlled self-hosting on trusted networks
-- repo-defined Cloud Run packaging trials on trusted GCP projects
+- one repo-defined authenticated Cloud Run deployment path on a trusted GCP project
 
 It is **not ready for internet-facing production deployment**.
 
@@ -62,16 +62,17 @@ This phase intentionally supports one bounded access model only:
 
 It still does **not** provide broader app-level multi-tenant auth, public anonymous access, or load-balancer/IAP fronting.
 
-### 3. The first persistence bridge is now defined, but it is intentionally limited
+### 3. The first authenticated GCP deployment path exists, but it is intentionally limited
 
 The repo now ships:
 
-- `/healthz`
-- `/readyz`
+- `/health`
+- `/ready`
 - structured request logging
 - a root `Dockerfile`
 - a combined same-origin web/API deployment path
 - a Cloud Storage bucket mount contract for `/var/paperparser/store`
+- repo-backed Cloud Run bootstrap, build, deploy, metadata, and rollback helpers
 - a repo-backed Cloud Run runbook covering deploy, access grants, upgrade, and rollback
 
 The supported persistence bridge is intentionally narrow:
@@ -79,6 +80,8 @@ The supported persistence bridge is intentionally narrow:
 - it uses Cloud Storage FUSE semantics rather than a local POSIX disk
 - it should be treated as a low-concurrency bridge for the current filesystem-backed store
 - it is not a high-write multi-instance storage design
+
+The app still serves `/healthz` and `/readyz` as compatibility aliases, but the supported Cloud Run operator path now uses `/health` and `/ready` because the live Cloud Run front end is not a reliable place to depend on `*z` probe paths.
 
 What is still missing for a stronger internet-facing deployment:
 
@@ -108,8 +111,8 @@ Before calling the API stack production-ready, the repo should have all of the f
 1. Keep deployed mode free of arbitrary remote `inputPath` reads and retain explicit request/upload limits.
 2. Add rate limiting, concurrent-upload controls, and safer streaming upload handling.
 3. Publish the supported GCP persistence and store-path strategy.
-4. Add CI that runs `build`, `test`, and `typecheck` on every change.
-5. Publish an operator runbook covering deploy, upgrades, rollback, persistence, backups, and log collection.
+4. Add CI/CD that runs validation, image publishing, and deploy on every supported change.
+5. Publish an operator runbook covering bootstrap, deploy, upgrades, rollback, persistence, backups, and log collection.
 
 ## Practical Recommendation
 

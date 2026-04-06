@@ -39,7 +39,7 @@ The user chose blocking smoke after every deploy, a bounded authenticated read-o
 
 **Selected:** `2A`
 
-**Captured decision:** Live smoke should verify `/healthz`, `/readyz`, and one authenticated read-only real request path.
+**Captured decision:** Live smoke should verify `/health`, `/ready`, and one authenticated read-only real request path. This was later confirmed by the Phase 23 live Cloud Run execution, which showed that the hosted operator contract should avoid `*z` probe paths even though the app keeps them as compatibility aliases.
 
 ### 3. Rollback policy
 **Question:** What should happen when blocking smoke fails?

@@ -62,7 +62,7 @@ describe('paperparser serve app', () => {
     });
   });
 
-  it('serves healthz and readyz routes in deployed mode', async () => {
+  it('serves health and ready aliases alongside healthz and readyz in deployed mode', async () => {
     const storePath = mkdtempSync(join(tmpdir(), 'paperparser-serve-'));
 
     const healthResponse = await handlePaperParserRequest(new Request('http://paperparser.local/healthz'), {
@@ -78,6 +78,23 @@ describe('paperparser serve app', () => {
     } as any);
     expect(readyResponse.status).toBe(200);
     await expect(readyResponse.json()).resolves.toMatchObject({
+      ok: true,
+      storePath,
+    });
+
+    const healthAliasResponse = await handlePaperParserRequest(new Request('http://paperparser.local/health'), {
+      storePath,
+      runtimeMode: 'deployed',
+    } as any);
+    expect(healthAliasResponse.status).toBe(200);
+    await expect(healthAliasResponse.json()).resolves.toMatchObject({ ok: true });
+
+    const readyAliasResponse = await handlePaperParserRequest(new Request('http://paperparser.local/ready'), {
+      storePath,
+      runtimeMode: 'deployed',
+    } as any);
+    expect(readyAliasResponse.status).toBe(200);
+    await expect(readyAliasResponse.json()).resolves.toMatchObject({
       ok: true,
       storePath,
     });

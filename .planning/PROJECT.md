@@ -17,8 +17,8 @@ A mathematician can feed in a TeX paper and get a trustworthy dependency artifac
 - **Canonical output:** `manifest.json` / `graph.json` / `index.json`
 - **Additive sidecars:** `diagnostics.json` and optional `enrichment.json`
 - **Accepted workflows:** `analyze -> validate -> search -> inspect`, `export -> serve -> browse`, optional `enrich`, explainable cross-paper `related`, and `deploy -> smoke -> rollback` for the supported Cloud Run path
-- **Supported shared deployment:** Google Cloud Run with a combined same-origin dashboard/API service, authenticated direct access, a documented mounted Cloud Storage persistence bridge, and repo-owned deploy/rollback helpers
-- **Current non-blocking debt:** `long_nalini` still emits `7` unresolved references concentrated in the deferred figure-reference slice, cross-paper navigation remains intentionally paper-local, unsupported TeX beyond the current normalization set still falls back to raw source, the mounted bucket is still a low-concurrency persistence bridge rather than a high-write architecture, a live GCP deployment has not yet been executed from this repo-owned path, CI/CD automation for Cloud Run is still absent, and Nyquist validation artifacts are still missing for phases 10-16
+- **Supported shared deployment:** Google Cloud Run with a combined same-origin dashboard/API service, authenticated direct access, a documented mounted Cloud Storage persistence bridge, repo-owned bootstrap/build/deploy/metadata helpers, and a verified live service in `paperparser-492322`
+- **Current non-blocking debt:** `long_nalini` still emits `7` unresolved references concentrated in the deferred figure-reference slice, cross-paper navigation remains intentionally paper-local, unsupported TeX beyond the current normalization set still falls back to raw source, the mounted bucket is still a low-concurrency persistence bridge rather than a high-write architecture, CI/CD automation for Cloud Run is still absent, the hosted smoke contract still needs pipeline wiring, and Nyquist validation artifacts are still missing for phases 10-16
 
 ## Last Shipped Milestone: v1.4 GCP Cloud Run Deployment Hardening
 
@@ -26,7 +26,7 @@ A mathematician can feed in a TeX paper and get a trustworthy dependency artifac
 
 **Delivered:**
 - A repo-defined multi-stage Cloud Run container artifact with same-origin dashboard/API serving and browser runtime configuration
-- Explicit deployed-mode request boundaries, bounded upload/request handling, and `/healthz` plus `/readyz` endpoints with structured logs
+- Explicit deployed-mode request boundaries, bounded upload/request handling, `/healthz` plus `/readyz` endpoints with structured logs, and hosted `/health` plus `/ready` aliases for Cloud Run-safe probes
 - Authenticated shared deployment helpers that reject public invoker grants and document the supported access model
 - A documented Cloud Storage bucket-mount persistence bridge, rollback helper, named smoke workflow, and repo-level `npm run test:acceptance:v1.4` proof
 - A wiki-style `docs/project_wiki.md` entry page linked from the root README for faster onboarding through the repo surfaces

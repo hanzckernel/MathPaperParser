@@ -23,7 +23,7 @@ Make the hosted deployment path operationally real by verifying the live service
 - **D-05:** Smoke should be tied to the automated delivery path, not left as a purely manual operator afterthought.
 
 ### Smoke Depth
-- **D-06:** Live smoke should verify `/healthz`, `/readyz`, and one authenticated read-only real request path against the deployed service.
+- **D-06:** Live smoke should verify `/health`, `/ready`, and one authenticated read-only real request path against the deployed service.
 - **D-07:** Phase 26 should avoid write-path or full-browser live smoke for now; the proof should stay bounded, repeatable, and low-risk.
 - **D-08:** The authenticated read-only request should be strong enough to prove the deployed service contract is real, not just that the container is listening.
 
@@ -84,7 +84,7 @@ Make the hosted deployment path operationally real by verifying the live service
 - `deploy/cloudrun/grant-invoker.sh` — Access-grant helper that reflects the supported authenticated access model.
 
 ### Existing code and tests
-- `packages/cli/src/server.ts` — Implements `/healthz` and `/readyz` endpoints that live smoke must verify.
+- `packages/cli/src/server.ts` — Implements `/health` and `/ready` aliases for hosted smoke, while keeping `/healthz` and `/readyz` as compatibility routes.
 - `packages/cli/test/serve-app.test.ts` — Existing local test coverage for health/readiness routes.
 - `packages/cli/test/cloud-run-runbook-contract.test.ts` — Existing rollback-helper contract test.
 - `packages/cli/test/cloud-run-security-contract.test.ts` — Access/security assumptions that live smoke must not bypass.
@@ -102,7 +102,7 @@ Make the hosted deployment path operationally real by verifying the live service
 ### Reusable Assets
 - `deploy/cloudrun/SMOKE.md` already defines the current shape of the live verification story.
 - `deploy/cloudrun/rollback.sh` already provides the supported rollback primitive Phase 26 should operationalize rather than replace.
-- `/healthz` and `/readyz` already exist in `packages/cli/src/server.ts`, so the new work is about hosted proof, not new endpoint design.
+- `/health` and `/ready` now exist in `packages/cli/src/server.ts` as the hosted probe contract, while `/healthz` and `/readyz` remain compatibility aliases; the new work is about hosted proof, not endpoint invention.
 
 ### Established Patterns
 - The repo already treats named acceptance bundles and runbook-backed verification as first-class proof artifacts.

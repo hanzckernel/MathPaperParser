@@ -7,8 +7,8 @@
 
 ### GCP Environment
 
-- [ ] **GCP-01**: Operator can bootstrap or verify the required GCP resources for the supported Cloud Run environment from repo-owned automation or docs, including Artifact Registry, runtime service account, and mounted store bucket.
-- [ ] **GCP-02**: Operator can execute the first live deployment of PaperParser to GCP Cloud Run from the repo-owned deployment path and obtain the deployed service URL and revision metadata.
+- [x] **GCP-01**: Operator can bootstrap or verify the required GCP resources for the supported Cloud Run environment from repo-owned automation or docs, including Artifact Registry, runtime service account, and mounted store bucket.
+- [x] **GCP-02**: Operator can execute the first live deployment of PaperParser to GCP Cloud Run from the repo-owned deployment path and obtain the deployed service URL and revision metadata.
 - [ ] **GCP-03**: Live deployed PaperParser preserves the shipped `v1.4` runtime contract for same-origin serving, authenticated access, and mounted-store configuration.
 
 ### Delivery Pipeline
@@ -20,7 +20,7 @@
 
 ### Release Proof And Operations
 
-- [ ] **REL-05**: Maintainer gets a post-deploy live smoke workflow that verifies the deployed service URL, `/healthz`, `/readyz`, and one real request path against the live environment.
+- [ ] **REL-05**: Maintainer gets a post-deploy live smoke workflow that verifies the deployed service URL, `/health`, `/ready`, and one real request path against the live environment, while `/healthz` and `/readyz` remain compatibility aliases.
 - [ ] **REL-06**: Maintainer can roll back the deployed Cloud Run service through the supported automated or operator path using immutable revision or image references.
 - [ ] **OPS-03**: Operator docs cover first-time bootstrap, auth/triggers, deploy, smoke, rollback, and failure recovery for the automated GCP path.
 
@@ -52,8 +52,8 @@
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| GCP-01 | Phase 23 | Pending |
-| GCP-02 | Phase 23 | Pending |
+| GCP-01 | Phase 23 | Complete |
+| GCP-02 | Phase 23 | Complete |
 | GCP-03 | Phase 25 | Pending |
 | PIPE-01 | Phase 24 | Pending |
 | PIPE-02 | Phase 24 | Pending |
@@ -70,4 +70,4 @@
 
 ---
 *Requirements defined: 2026-04-05*
-*Last updated: 2026-04-06 after roadmap approval*
+*Last updated: 2026-04-06 after Phase 23 completion*

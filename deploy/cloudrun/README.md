@@ -1,6 +1,6 @@
 # Cloud Run Shared Deployment Access
 
-PaperParser `v1.4` supports one shared Cloud Run access model:
+PaperParser supports one shared Cloud Run access model:
 
 - deploy the repo-owned container artifact
 - keep Cloud Run Invoker IAM checks enabled
@@ -14,10 +14,18 @@ Unsupported in this phase:
 - public-by-default service exposure
 - load balancers, IAP, custom domains, or disabled default URLs
 
+The live Phase 23 deployment path is:
+
+1. `deploy/cloudrun/bootstrap.sh`
+2. `deploy/cloudrun/build-image.sh`
+3. `deploy/cloudrun/deploy.sh`
+4. `deploy/cloudrun/service-metadata.sh`
+
 ## Deploy
 
 Required environment variables:
 
+- `PAPERPARSER_PROJECT`
 - `PAPERPARSER_SERVICE`
 - `PAPERPARSER_IMAGE`
 - `PAPERPARSER_REGION`
@@ -40,6 +48,8 @@ deploy/cloudrun/deploy.sh
 
 The deploy helper mounts `PAPERPARSER_STORE_BUCKET` into `/var/paperparser/store`.
 The runtime service account should have `roles/storage.objectUser` on that bucket.
+
+For live Cloud Run probes and smoke checks, use `/health` and `/ready`. The app still serves `/healthz` and `/readyz` internally for compatibility, but the supported Cloud Run operator path avoids `*z` probe paths.
 
 ## Grant Access
 

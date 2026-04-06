@@ -19,6 +19,6 @@ After that local proof passes, use [RUNBOOK.md](RUNBOOK.md) for the live project
 
 - deploy a revision
 - open the authenticated service URL
-- verify `/healthz` and `/readyz`
+- verify `/health` and `/ready`
 - verify upload/query in the deployed dashboard
 - verify rollback with `deploy/cloudrun/rollback.sh`

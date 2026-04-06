@@ -20,6 +20,18 @@ printf '%s\n' "$@" > "$FAKE_GCLOUD_LOG"
 }
 
 describe('cloud run persistence and runbook contract', () => {
+  it('documents Cloud Run-safe health and readiness probe paths', () => {
+    const runbook = readFileSync(resolve(process.cwd(), 'deploy/cloudrun/RUNBOOK.md'), 'utf8');
+    const smoke = readFileSync(resolve(process.cwd(), 'deploy/cloudrun/SMOKE.md'), 'utf8');
+
+    expect(runbook).toContain('"$SERVICE_URL/health"');
+    expect(runbook).toContain('"$SERVICE_URL/ready"');
+    expect(runbook).not.toContain('"$SERVICE_URL/healthz"');
+    expect(runbook).not.toContain('"$SERVICE_URL/readyz"');
+    expect(smoke).toContain('verify `/health` and `/ready`');
+    expect(smoke).not.toContain('verify `/healthz` and `/readyz`');
+  });
+
   it('deploy helper mounts the configured Cloud Storage bucket at the store path', () => {
     const logPath = join(mkdtempSync(join(tmpdir(), 'paperparser-gcloud-log-')), 'deploy.log');
     const fakeBinDir = writeFakeGcloud(logPath);

@@ -531,11 +531,11 @@ export async function handlePaperParserRequest(
     return oversizedResponse;
   }
 
-  if (request.method === 'GET' && url.pathname === '/healthz') {
+  if (request.method === 'GET' && (url.pathname === '/health' || url.pathname === '/healthz')) {
     return handleHealthRequest();
   }
 
-  if (request.method === 'GET' && url.pathname === '/readyz') {
+  if (request.method === 'GET' && (url.pathname === '/ready' || url.pathname === '/readyz')) {
     return handleReadyRequest(resolvedOptions);
   }
 

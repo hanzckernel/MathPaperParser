@@ -14,7 +14,7 @@ As of March 11, 2026, the repo passes:
 - `npm test`
 - `npm run typecheck`
 
-That makes the project usable for local development, static exports, internal alpha evaluation, and the repo-defined Cloud Run packaging path under active hardening. It is **not ready for internet-facing production deployment yet** because persistence, rollout/runbook, and deeper upload-throttling work are still in progress. The supported shared-deployment path now keeps Cloud Run IAM authentication enabled by default. See [docs/deployment_readiness.md](docs/deployment_readiness.md) for the current blockers and the minimum release checklist.
+That makes the project usable for local development, static exports, internal alpha evaluation, and one real authenticated Cloud Run deployment path on GCP under active CI/CD hardening. It is **not ready for internet-facing production deployment yet** because rollout automation, deeper upload-throttling, and broader operational hardening are still in progress. The supported shared-deployment path keeps Cloud Run IAM authentication enabled by default. See [docs/deployment_readiness.md](docs/deployment_readiness.md) for the current blockers and the minimum release checklist.
 
 ## Supported Inputs
 
@@ -97,10 +97,12 @@ Run the API backend:
 node packages/cli/dist/index.js serve --host 127.0.0.1 --port 3000
 ```
 
-Build the supported Cloud Run container artifact:
+Bootstrap, build, and inspect the supported Cloud Run deployment path:
 
 ```bash
-docker build -t paperparser:cloud-run .
+PAPERPARSER_PROJECT=paperparser-492322 PAPERPARSER_REGION=europe-west1 deploy/cloudrun/bootstrap.sh
+PAPERPARSER_PROJECT=paperparser-492322 PAPERPARSER_REGION=europe-west1 deploy/cloudrun/build-image.sh
+PAPERPARSER_PROJECT=paperparser-492322 PAPERPARSER_REGION=europe-west1 PAPERPARSER_SERVICE=paperparser deploy/cloudrun/service-metadata.sh
 ```
 
 Deploy the supported shared Cloud Run service with IAM auth still enabled:
@@ -109,7 +111,7 @@ Deploy the supported shared Cloud Run service with IAM auth still enabled:
 deploy/cloudrun/deploy.sh
 ```
 
-The supported `v1.4` deployment path mounts a dedicated Cloud Storage bucket into `/var/paperparser/store`; see [deploy/cloudrun/RUNBOOK.md](deploy/cloudrun/RUNBOOK.md) for the full operator flow.
+The supported deployment path mounts a dedicated Cloud Storage bucket into `/var/paperparser/store`; use `/health` and `/ready` for Cloud Run-facing probes and see [deploy/cloudrun/RUNBOOK.md](deploy/cloudrun/RUNBOOK.md) for the full operator flow.
 
 Run the MCP server on stdio:
 

@@ -26,6 +26,7 @@ import { exportStaticDashboard } from './export.js';
 import { createPaperParserRequestHandler } from './server.js';
 
 export const PAPERPARSER_CLI_NAME = 'paperparser';
+const LONG_RUNNING_COMMANDS = new Set(['serve', 'mcp']);
 
 export interface CliIo {
   stdout: (line: string) => void;
@@ -516,6 +517,14 @@ export function runCli(argv: string[], io: CliIo = defaultIo()): number {
   }
 }
 
+export function shouldExitProcess(command: string | undefined): boolean {
+  return !command || !LONG_RUNNING_COMMANDS.has(command);
+}
+
 if (import.meta.url === `file://${process.argv[1]}`) {
-  process.exit(runCli(process.argv.slice(2)));
+  const argv = process.argv.slice(2);
+  const exitCode = runCli(argv);
+  if (shouldExitProcess(argv[0])) {
+    process.exit(exitCode);
+  }
 }

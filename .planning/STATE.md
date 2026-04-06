@@ -2,16 +2,16 @@
 gsd_state_version: 1.0
 milestone: v1.5
 milestone_name: GCP Deployment & CI/CD
-status: roadmap_approved
-stopped_at: phases 25-26 discussion complete; planning is next
-last_updated: "2026-04-06T10:30:00Z"
+status: phase_23_complete
+stopped_at: phase 23 complete; phase 24 planning is next
+last_updated: "2026-04-06T13:36:38Z"
 last_activity: 2026-04-06
 progress:
   total_phases: 4
-  completed_phases: 0
-  total_plans: 0
-  completed_plans: 0
-  percent: 0
+  completed_phases: 1
+  total_plans: 1
+  completed_plans: 1
+  percent: 25
 ---
 
 # Project State
@@ -21,16 +21,16 @@ progress:
 See: .planning/PROJECT.md (updated 2026-04-05)
 
 **Core value:** A mathematician can feed in a TeX paper and get a trustworthy dependency artifact that makes the logical structure of the paper easier to navigate.
-**Current focus:** Phases 25-26 discussion complete; ready to plan `Secretless CD & Source Integration`
+**Current focus:** Phase 23 is complete; ready to plan `CI Validation & Image Release Pipeline`
 
 ## Current Position
 
-Phase: 25. Secretless CD & Source Integration
+Phase: 24. CI Validation & Image Release Pipeline
 Plan: -
-Status: Roadmap approved; phase planning is next
-Last activity: 2026-04-06 — Locked Phase 25 GitHub-triggered Cloud Build automation and Phase 26 blocking live smoke with explicit rollback metadata.
+Status: Phase 23 complete; phase planning is next
+Last activity: 2026-04-06 — Executed the first live GCP deployment from repo-owned helpers, added bootstrap/build/metadata scripts, fixed the long-running CLI entrypoint bug, and switched hosted probes to `/health` and `/ready` after live Cloud Run evidence.
 
-Progress: [----------] 0%
+Progress: [###-------] 25%
 
 ## Performance Metrics
 
@@ -109,6 +109,7 @@ Decisions are logged in PROJECT.md. The milestone established:
 - `v1.4` is archived and `v1.5` picks up the next bottleneck: real GCP deployment execution plus CI/CD on the shipped Cloud Run contract.
 - `v1.5` is now scoped as four phases: live bootstrap, CI validation/image release, secretless CD/source integration, and live smoke/rollback/operator proof.
 - Phase 23 should use checked-in bootstrap automation where practical, target one long-lived service, and avoid source-host dependency.
+- Phase 23 is now complete with a live Cloud Run deployment on `paperparser-492322`, canonical service metadata surfaced through repo-owned helpers, and a hosted probe contract that uses `/health` and `/ready` while preserving `/healthz` and `/readyz` as compatibility aliases.
 
 ### Roadmap Evolution
 
@@ -118,6 +119,7 @@ Decisions are logged in PROJECT.md. The milestone established:
 - Phase 24 discussion completed with decisions `0B 1B 2C 3A 4A`
 - Phase 25 discussion completed with decisions `1A 2A 3A`
 - Phase 26 discussion completed with decisions `1A 2A 3B`
+- Phase 23 execution completed with live revision `paperparser-00007-8fn` on 2026-04-06
 
 ### Pending Todos
 
@@ -128,10 +130,11 @@ Decisions are logged in PROJECT.md. The milestone established:
 - `long_nalini` still emits `7` explicit unresolved references, primarily in the deferred figure-reference slice.
 - Unsupported TeX beyond the current normalization set still falls back to raw source instead of full browser-ready math rendering.
 - The supported Cloud Run store path is still a low-concurrency mounted bucket bridge rather than a high-write persistence architecture.
+- Cloud Run live smoke and future pipeline verification must use `/health` and `/ready`; the `*z` aliases remain app-level compatibility routes only.
 - Nyquist validation artifacts are still missing for phases 10-16.
 
 ## Session Continuity
 
 Last session: 2026-04-06 CEST
-Stopped at: `v1.5` Phases 25 and 26 context captured; next step is `$gsd-plan-phase 25`
+Stopped at: `v1.5` Phase 23 complete; next step is `$gsd-plan-phase 24`
 Resume file: .planning/ROADMAP.md
