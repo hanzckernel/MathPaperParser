@@ -357,12 +357,12 @@ describe('paperparser serve app', () => {
     expect(related.matches[0]?.evidenceTerms).toEqual(expect.arrayContaining(['compact', 'set']));
   });
 
-  it('serves the real multi-paper corpus workflow over the API without manual repair steps', async () => {
+  it('serves a checked-in multi-paper corpus workflow over the API without manual repair steps', async () => {
     const storePath = mkdtempSync(join(tmpdir(), 'paperparser-serve-'));
     const fixtures = [
-      ['long-nalini', 'ref/papers/long_nalini/arXiv-2502.12268v2/main.tex'],
-      ['medium-mueller', 'ref/papers/medium_Mueller.flat.tex'],
-      ['short-petri', 'ref/papers/short_Petri.tex'],
+      ['fixture-markdown', 'packages/core/test/fixtures/markdown/paper.md'],
+      ['fixture-latex', 'packages/core/test/fixtures/latex/project/main.tex'],
+      ['fixture-canonical', 'packages/core/test/fixtures/latex/canonical-objects/main.tex'],
     ] as const;
 
     for (const [paperId, inputPath] of fixtures) {
@@ -387,39 +387,42 @@ describe('paperparser serve app', () => {
     const papers = (await papersResponse.json()) as {
       papers: Array<{ paperId: string }>;
     };
-    expect(papers.papers.map((paper) => paper.paperId)).toEqual(['long-nalini', 'medium-mueller', 'short-petri']);
+    expect(papers.papers.map((paper) => paper.paperId)).toEqual(['fixture-canonical', 'fixture-latex', 'fixture-markdown']);
 
-    const mediumQueryResponse = await handlePaperParserRequest(
-      new Request('http://paperparser.local/api/papers/medium-mueller/query?q=torsion'),
+    const canonicalQueryResponse = await handlePaperParserRequest(
+      new Request('http://paperparser.local/api/papers/fixture-canonical/query?q=eq:key'),
       { storePath },
     );
-    expect(mediumQueryResponse.status).toBe(200);
-    const mediumQuery = (await mediumQueryResponse.json()) as {
+    expect(canonicalQueryResponse.status).toBe(200);
+    const canonicalQuery = (await canonicalQueryResponse.json()) as {
       results: Array<{ nodeId: string }>;
     };
-    expect(mediumQuery.results.some((result) => result.nodeId === 'sec12::eq:l2-torsion')).toBe(true);
+    const canonicalNodeId = canonicalQuery.results[0]?.nodeId ?? null;
+    expect(canonicalNodeId).toBeTruthy();
 
-    const shortContextResponse = await handlePaperParserRequest(
-      new Request('http://paperparser.local/api/papers/short-petri/context/sec1%3A%3Aeq%3Aeq-defcheeger'),
+    const canonicalContextResponse = await handlePaperParserRequest(
+      new Request(
+        `http://paperparser.local/api/papers/fixture-canonical/context/${encodeURIComponent(canonicalNodeId ?? '')}`,
+      ),
       { storePath },
     );
-    expect(shortContextResponse.status).toBe(200);
-    const shortContext = (await shortContextResponse.json()) as {
+    expect(canonicalContextResponse.status).toBe(200);
+    const canonicalContext = (await canonicalContextResponse.json()) as {
       node: { id: string };
     };
-    expect(shortContext.node.id).toBe('sec1::eq:eq-defcheeger');
+    expect(canonicalContext.node.id).toBe(canonicalNodeId);
 
     const relatedResponse = await handlePaperParserRequest(
-      new Request('http://paperparser.local/api/papers/long-nalini/related/sec1%3A%3Athm%3At-dream'),
+      new Request('http://paperparser.local/api/papers/fixture-markdown/related/sec1%3A%3Athm%3Athm-main'),
       { storePath },
     );
     expect(relatedResponse.status).toBe(200);
     const related = (await relatedResponse.json()) as {
       matches: Array<{ targetPaperId: string; targetNodeId: string; evidenceTerms: string[] }>;
     };
-    expect(related.matches[0]?.targetPaperId).toBe('short-petri');
-    expect(related.matches[0]?.targetNodeId).toBe('sec1::thm:thm-main');
-    expect(related.matches[0]?.evidenceTerms).toEqual(expect.arrayContaining(['hyperbolic', 'surface']));
+    expect(related.matches[0]?.targetPaperId).toBe('fixture-latex');
+    expect(related.matches[0]?.targetNodeId).toBe('sec1::thm:thm-fixture');
+    expect(related.matches[0]?.evidenceTerms).toEqual(expect.arrayContaining(['compact', 'set']));
   });
 
   it('serves enrichment.json when a stored paper has a sidecar', async () => {

@@ -90,6 +90,9 @@ describe('cloud run bootstrap and live deploy contract', () => {
       'projects add-iam-policy-binding paperparser-492322 --member=serviceAccount:paperparser-cloudbuild@paperparser-492322.iam.gserviceaccount.com --role=roles/run.admin',
     );
     expect(invocation).toContain(
+      'projects add-iam-policy-binding paperparser-492322 --member=serviceAccount:paperparser-cloudbuild@paperparser-492322.iam.gserviceaccount.com --role=roles/logging.logWriter',
+    );
+    expect(invocation).toContain(
       'iam service-accounts add-iam-policy-binding paperparser-runtime@paperparser-492322.iam.gserviceaccount.com --project=paperparser-492322 --member=serviceAccount:paperparser-cloudbuild@paperparser-492322.iam.gserviceaccount.com --role=roles/iam.serviceAccountUser',
     );
     expect(invocation).toContain(

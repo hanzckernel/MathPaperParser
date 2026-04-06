@@ -65,6 +65,10 @@ gcloud projects add-iam-policy-binding "${PAPERPARSER_PROJECT}" \
   --member="serviceAccount:${BUILD_SERVICE_ACCOUNT}" \
   --role="roles/run.admin" >/dev/null
 
+gcloud projects add-iam-policy-binding "${PAPERPARSER_PROJECT}" \
+  --member="serviceAccount:${BUILD_SERVICE_ACCOUNT}" \
+  --role="roles/logging.logWriter" >/dev/null
+
 gcloud iam service-accounts add-iam-policy-binding "${RUNTIME_SERVICE_ACCOUNT}" \
   --project="${PAPERPARSER_PROJECT}" \
   --member="serviceAccount:${BUILD_SERVICE_ACCOUNT}" \
