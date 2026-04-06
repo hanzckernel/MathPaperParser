@@ -59,6 +59,8 @@ describe('cloud build pipeline contract', () => {
     expect(releaseConfig).toContain('docker push');
     expect(releaseConfig).toContain('$SHORT_SHA');
     expect(releaseConfig).toContain('deploy/cloudrun/resolve-image-digest.sh');
+    expect(releaseConfig).toContain('deploy/cloudrun/deploy-from-image-ref.sh');
+    expect(releaseConfig).toContain('deploy/cloudrun/release-metadata.sh');
   });
 
   it('rejects release publishing outside the configured mainline ref', () => {
@@ -136,7 +138,50 @@ describe('cloud build pipeline contract', () => {
 
     expect(runbook).toContain('cloudbuild.validate.yaml');
     expect(runbook).toContain('cloudbuild.release.yaml');
+    expect(runbook).toContain('deploy/cloudrun/sync-github-trigger.sh');
+    expect(runbook).toContain('GitHub');
     expect(runbook).toContain('deploy/cloudrun/resolve-image-digest.sh');
     expect(readme).toContain('cloudbuild.release.yaml');
+    expect(readme).toContain('GitHub');
+  });
+
+  it('syncs a GitHub mainline trigger under a bounded Cloud Build service account', () => {
+    const logPath = join(mkdtempSync(join(tmpdir(), 'paperparser-gcloud-log-')), 'trigger.log');
+    const stdoutPath = join(mkdtempSync(join(tmpdir(), 'paperparser-gcloud-out-')), 'stdout.txt');
+    const fakeBinDir = writeFakeGcloud(logPath, stdoutPath);
+    const result = spawnSync('bash', [resolve(process.cwd(), 'deploy/cloudrun/sync-github-trigger.sh')], {
+      encoding: 'utf8',
+      env: {
+        ...process.env,
+        PATH: `${fakeBinDir}:${process.env.PATH ?? ''}`,
+        FAKE_GCLOUD_LOG: logPath,
+        FAKE_GCLOUD_STDOUT: stdoutPath,
+        PAPERPARSER_PROJECT: 'paperparser-492322',
+        PAPERPARSER_TRIGGER_REGION: 'global',
+        PAPERPARSER_TRIGGER_NAME: 'paperparser-main',
+        PAPERPARSER_GITHUB_OWNER: 'hanzckernel',
+        PAPERPARSER_GITHUB_REPO: 'MathPaperParser',
+        PAPERPARSER_BUILD_SERVICE_ACCOUNT:
+          'paperparser-cloudbuild@paperparser-492322.iam.gserviceaccount.com',
+        PAPERPARSER_REGION: 'europe-west1',
+        PAPERPARSER_SERVICE: 'paperparser',
+        PAPERPARSER_RUNTIME_SERVICE_ACCOUNT:
+          'paperparser-runtime@paperparser-492322.iam.gserviceaccount.com',
+        PAPERPARSER_STORE_BUCKET: 'paperparser-store-paperparser-492322',
+      },
+    });
+
+    expect(result.status).toBe(0);
+    const invocation = readFileSync(logPath, 'utf8');
+    expect(invocation).toContain('builds triggers list --project paperparser-492322 --region global');
+    expect(invocation).toContain('builds triggers create github');
+    expect(invocation).toContain('--name paperparser-main');
+    expect(invocation).toContain('--repo-owner hanzckernel');
+    expect(invocation).toContain('--repo-name MathPaperParser');
+    expect(invocation).toContain('--branch-pattern ^main$');
+    expect(invocation).toContain('--build-config cloudbuild.release.yaml');
+    expect(invocation).toContain(
+      '--service-account projects/paperparser-492322/serviceAccounts/paperparser-cloudbuild@paperparser-492322.iam.gserviceaccount.com',
+    );
   });
 });

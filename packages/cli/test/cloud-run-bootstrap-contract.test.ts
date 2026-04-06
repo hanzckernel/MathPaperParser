@@ -49,7 +49,7 @@ describe('cloud run bootstrap and live deploy contract', () => {
     expect(ignoreFile).toContain('packages/web/public/');
   });
 
-  it('bootstrap helper enables core APIs and provisions missing registry, bucket, and runtime service account', () => {
+  it('bootstrap helper enables core APIs and provisions missing registry, bucket, runtime service account, and bounded Cloud Build service account', () => {
     const logPath = join(mkdtempSync(join(tmpdir(), 'paperparser-gcloud-log-')), 'bootstrap.log');
     const stdoutPath = join(mkdtempSync(join(tmpdir(), 'paperparser-gcloud-out-')), 'stdout.txt');
     const fakeBinDir = writeFakeGcloud(logPath, stdoutPath);
@@ -65,6 +65,8 @@ describe('cloud run bootstrap and live deploy contract', () => {
         PAPERPARSER_PROJECT: 'paperparser-492322',
         PAPERPARSER_REGION: 'europe-west1',
         PAPERPARSER_ARTIFACT_REPOSITORY: 'paperparser',
+        PAPERPARSER_BUILD_SERVICE_ACCOUNT:
+          'paperparser-cloudbuild@paperparser-492322.iam.gserviceaccount.com',
         PAPERPARSER_RUNTIME_SERVICE_ACCOUNT:
           'paperparser-runtime@paperparser-492322.iam.gserviceaccount.com',
         PAPERPARSER_STORE_BUCKET: 'paperparser-store-paperparser-492322',
@@ -79,7 +81,17 @@ describe('cloud run bootstrap and live deploy contract', () => {
     expect(invocation).toContain(
       'artifacts repositories create paperparser --project=paperparser-492322 --repository-format=docker --location=europe-west1',
     );
+    expect(invocation).toContain('iam service-accounts create paperparser-cloudbuild');
     expect(invocation).toContain('iam service-accounts create paperparser-runtime');
+    expect(invocation).toContain(
+      'projects add-iam-policy-binding paperparser-492322 --member=serviceAccount:paperparser-cloudbuild@paperparser-492322.iam.gserviceaccount.com --role=roles/artifactregistry.writer',
+    );
+    expect(invocation).toContain(
+      'projects add-iam-policy-binding paperparser-492322 --member=serviceAccount:paperparser-cloudbuild@paperparser-492322.iam.gserviceaccount.com --role=roles/run.admin',
+    );
+    expect(invocation).toContain(
+      'iam service-accounts add-iam-policy-binding paperparser-runtime@paperparser-492322.iam.gserviceaccount.com --project=paperparser-492322 --member=serviceAccount:paperparser-cloudbuild@paperparser-492322.iam.gserviceaccount.com --role=roles/iam.serviceAccountUser',
+    );
     expect(invocation).toContain(
       'storage buckets create gs://paperparser-store-paperparser-492322 --project=paperparser-492322 --location=europe-west1 --uniform-bucket-level-access',
     );
@@ -87,6 +99,9 @@ describe('cloud run bootstrap and live deploy contract', () => {
       'storage buckets add-iam-policy-binding gs://paperparser-store-paperparser-492322 --member=serviceAccount:paperparser-runtime@paperparser-492322.iam.gserviceaccount.com --role=roles/storage.objectUser',
     );
     expect(result.stdout).toContain('PAPERPARSER_PROJECT=paperparser-492322');
+    expect(result.stdout).toContain(
+      'PAPERPARSER_BUILD_SERVICE_ACCOUNT=paperparser-cloudbuild@paperparser-492322.iam.gserviceaccount.com',
+    );
     expect(result.stdout).toContain(
       'PAPERPARSER_IMAGE=europe-west1-docker.pkg.dev/paperparser-492322/paperparser/paperparser:',
     );
@@ -159,5 +174,49 @@ describe('cloud run bootstrap and live deploy contract', () => {
     );
     expect(result.stdout).toContain('paperparser-00042-xyz');
     expect(result.stdout).toContain('https://paperparser-abc-ew.a.run.app');
+  });
+
+  it('deploy-from-image-ref helper deploys the exact digest-backed image identity', () => {
+    const logPath = join(mkdtempSync(join(tmpdir(), 'paperparser-gcloud-log-')), 'deploy-from-ref.log');
+    const stdoutPath = join(mkdtempSync(join(tmpdir(), 'paperparser-gcloud-out-')), 'stdout.txt');
+    const fakeBinDir = writeFakeGcloud(logPath, stdoutPath);
+    const jsonPath = join(mkdtempSync(join(tmpdir(), 'paperparser-image-json-')), 'cloudrun-image.json');
+    writeFileSync(
+      jsonPath,
+      JSON.stringify(
+        {
+          imageTag: 'europe-west1-docker.pkg.dev/paperparser-492322/paperparser/paperparser:deadbeef',
+          imageDigest: 'sha256:abc123',
+          imageRef:
+            'europe-west1-docker.pkg.dev/paperparser-492322/paperparser/paperparser@sha256:abc123',
+        },
+        null,
+        2,
+      ),
+      'utf8',
+    );
+
+    const result = spawnSync('bash', [resolve(process.cwd(), 'deploy/cloudrun/deploy-from-image-ref.sh')], {
+      encoding: 'utf8',
+      env: {
+        ...process.env,
+        PATH: `${fakeBinDir}:${process.env.PATH ?? ''}`,
+        FAKE_GCLOUD_LOG: logPath,
+        FAKE_GCLOUD_STDOUT: stdoutPath,
+        PAPERPARSER_IMAGE_JSON: jsonPath,
+        PAPERPARSER_PROJECT: 'paperparser-492322',
+        PAPERPARSER_REGION: 'europe-west1',
+        PAPERPARSER_SERVICE: 'paperparser',
+        PAPERPARSER_RUNTIME_SERVICE_ACCOUNT:
+          'paperparser-runtime@paperparser-492322.iam.gserviceaccount.com',
+        PAPERPARSER_STORE_BUCKET: 'paperparser-store-paperparser-492322',
+      },
+    });
+
+    expect(result.status).toBe(0);
+    const invocation = readFileSync(logPath, 'utf8');
+    expect(invocation).toContain(
+      'run deploy paperparser --project paperparser-492322 --image europe-west1-docker.pkg.dev/paperparser-492322/paperparser/paperparser@sha256:abc123 --region europe-west1',
+    );
   });
 });

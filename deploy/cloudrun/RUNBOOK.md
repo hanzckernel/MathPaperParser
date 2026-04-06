@@ -1,12 +1,14 @@
 # Cloud Run Operator Runbook
 
-## Supported `v1.5` Phase 23 Topology
+## Supported `v1.5` Hosted Topology
 
 - one long-lived Cloud Run service
 - direct authenticated Cloud Run URL
 - Cloud Storage bucket mounted at `/var/paperparser/store`
 - explicit `roles/run.invoker` grants for named principals only
-- repo-owned bootstrap, build, deploy, and metadata helpers
+- GitHub as the hosted source of truth on `main`
+- a dedicated Cloud Build deploy service account
+- repo-owned bootstrap, trigger, build, deploy, and metadata helpers
 
 The first live deployment was verified on **April 6, 2026** against:
 
@@ -20,7 +22,7 @@ The first live deployment was verified on **April 6, 2026** against:
 
 - `gcloud` authenticated for the target project
 - Cloud Run, Artifact Registry, Cloud Build, and Cloud Storage APIs available in the project
-- permission to create or verify the runtime service account, Artifact Registry repository, and mounted store bucket
+- permission to create or verify the runtime service account, the Cloud Build deploy service account, Artifact Registry repository, mounted store bucket, and Cloud Build trigger
 
 ## 1. Bootstrap Or Verify GCP Resources
 
@@ -29,15 +31,28 @@ export PAPERPARSER_PROJECT=paperparser-492322
 export PAPERPARSER_REGION=europe-west1
 export PAPERPARSER_SERVICE=paperparser
 export PAPERPARSER_ARTIFACT_REPOSITORY=paperparser
+export PAPERPARSER_BUILD_SERVICE_ACCOUNT=paperparser-cloudbuild@paperparser-492322.iam.gserviceaccount.com
 export PAPERPARSER_RUNTIME_SERVICE_ACCOUNT=paperparser-runtime@paperparser-492322.iam.gserviceaccount.com
 export PAPERPARSER_STORE_BUCKET=paperparser-store-paperparser-492322
 
 deploy/cloudrun/bootstrap.sh
 ```
 
-The helper enables required APIs, creates missing resources where practical, ensures the runtime service account can write to the mounted bucket, and prints the canonical environment values for the deploy path.
+The helper enables required APIs, creates missing resources where practical, ensures the runtime service account can write to the mounted bucket, grants the dedicated Cloud Build service account the bounded roles needed to publish and deploy, and prints the canonical environment values for the hosted path.
 
-## 2. Validate The Repo-Owned Pipeline Gates
+## 2. Sync The GitHub `main` Trigger
+
+```bash
+export PAPERPARSER_TRIGGER_REGION=global
+export PAPERPARSER_GITHUB_OWNER=hanzckernel
+export PAPERPARSER_GITHUB_REPO=MathPaperParser
+
+deploy/cloudrun/sync-github-trigger.sh
+```
+
+This helper creates or updates the Cloud Build GitHub trigger for `main`, points it at `cloudbuild.release.yaml`, and runs it under the dedicated `paperparser-cloudbuild@...` service account instead of key JSON or the legacy default path.
+
+## 3. Validate The Repo-Owned Pipeline Gates
 
 ```bash
 gcloud builds submit --config=cloudbuild.validate.yaml .
@@ -45,15 +60,15 @@ gcloud builds submit --config=cloudbuild.validate.yaml .
 
 The fast Cloud Build gate installs dependencies, runs `npm run ci:cloudbuild:fast`, and fails before any release publish step.
 
-## 3. Build And Publish The Release Image
+## 4. Build, Publish, And Deploy The Release Image
 
 ```bash
 gcloud builds submit \
   --config=cloudbuild.release.yaml \
-  --substitutions=SHORT_SHA="$(git rev-parse --short HEAD)",BRANCH_NAME=main,_LOCATION=europe-west1,_REPOSITORY=paperparser,_IMAGE=paperparser .
+  --substitutions=SHORT_SHA="$(git rev-parse --short HEAD)",BRANCH_NAME=main,_LOCATION=europe-west1,_REPOSITORY=paperparser,_IMAGE=paperparser,_SERVICE=paperparser,_RUNTIME_SERVICE_ACCOUNT=paperparser-runtime@paperparser-492322.iam.gserviceaccount.com,_STORE_BUCKET=paperparser-store-paperparser-492322 .
 ```
 
-The release Cloud Build config runs `npm run ci:cloudbuild:release`, enforces mainline-only image publishing, tags the image with `$SHORT_SHA`, pushes it to Artifact Registry, and emits `cloudrun-image.json` with the canonical digest-backed image identity.
+The release Cloud Build config runs `npm run ci:cloudbuild:release`, enforces mainline-only image publishing, tags the image with `$SHORT_SHA`, pushes it to Artifact Registry, resolves `cloudrun-image.json`, deploys from the exact digest-backed image via `deploy/cloudrun/deploy-from-image-ref.sh`, and emits `cloudrun-release.json` with the deployed revision and image identity.
 
 You can resolve the published digest again later from the repo-owned helper:
 
@@ -64,7 +79,9 @@ deploy/cloudrun/resolve-image-digest.sh
 
 Use the returned `imageRef` value for later deploy steps instead of rebuilding or relying on a floating tag.
 
-## 4. Deploy
+If you prefer hosted automation over manual submission, push the validated commit to GitHub `main`. The synced Cloud Build trigger runs the same `cloudbuild.release.yaml` contract automatically.
+
+## 5. Deploy Manually From A Resolved Digest
 
 ```bash
 deploy/cloudrun/deploy.sh
@@ -79,7 +96,9 @@ Required variables before deploy:
 - `PAPERPARSER_RUNTIME_SERVICE_ACCOUNT`
 - `PAPERPARSER_STORE_BUCKET`
 
-## 5. Grant Invoker Access
+Manual deploy remains available for recovery or controlled roll-forward, but the supported hosted path is now GitHub `main` -> Cloud Build -> Cloud Run.
+
+## 6. Grant Invoker Access
 
 ```bash
 PAPERPARSER_MEMBER='user:alice@example.com' deploy/cloudrun/grant-invoker.sh
@@ -87,7 +106,7 @@ PAPERPARSER_MEMBER='user:alice@example.com' deploy/cloudrun/grant-invoker.sh
 
 Repeat for each named user or service account that should access the service.
 
-## 6. Fetch Service Metadata
+## 7. Fetch Service Metadata
 
 ```bash
 deploy/cloudrun/service-metadata.sh
@@ -95,7 +114,9 @@ deploy/cloudrun/service-metadata.sh
 
 The helper returns the deployed service name, canonical service URL, latest ready revision, and runtime service account.
 
-## 7. Verify
+The hosted release path also writes `cloudrun-release.json` through `deploy/cloudrun/release-metadata.sh`, which combines the exact image digest with the deployed revision for later smoke and rollback steps.
+
+## 8. Verify
 
 Fetch the authenticated service URL and identity token:
 
@@ -114,7 +135,7 @@ Then verify:
 
 Use `/health` and `/ready` for Cloud Run probes and live smoke. The app still serves `/healthz` and `/readyz` locally for backward compatibility, but Cloud Run-facing operator checks should avoid `*z` probe paths.
 
-## 8. Upgrade
+## 9. Upgrade
 
 Re-run the release Cloud Build config so the heavier gate passes and a new immutable image is published. Then set `PAPERPARSER_IMAGE` to the returned digest-backed `imageRef` and rerun:
 
@@ -124,7 +145,7 @@ deploy/cloudrun/deploy.sh
 
 Cloud Run will create a new revision.
 
-## 9. Roll Back
+## 10. Roll Back
 
 List revisions:
 

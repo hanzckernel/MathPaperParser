@@ -14,12 +14,12 @@ Unsupported in this phase:
 - public-by-default service exposure
 - load balancers, IAP, custom domains, or disabled default URLs
 
-The live Phase 23 deployment path is:
+The live hosted deployment path is:
 
 1. `deploy/cloudrun/bootstrap.sh`
-2. `cloudbuild.validate.yaml`
-3. `cloudbuild.release.yaml`
-4. `deploy/cloudrun/deploy.sh`
+2. `deploy/cloudrun/sync-github-trigger.sh`
+3. `cloudbuild.validate.yaml`
+4. `cloudbuild.release.yaml`
 5. `deploy/cloudrun/service-metadata.sh`
 
 ## Deploy
@@ -50,10 +50,12 @@ deploy/cloudrun/deploy.sh
 The deploy helper mounts `PAPERPARSER_STORE_BUCKET` into `/var/paperparser/store`.
 The runtime service account should have `roles/storage.objectUser` on that bucket.
 
-The checked-in release pipeline is Cloud Build:
+The checked-in hosted pipeline is GitHub -> Cloud Build -> Cloud Run:
 
 - `cloudbuild.validate.yaml` runs the faster validation gate through `npm run ci:cloudbuild:fast`
-- `cloudbuild.release.yaml` runs the heavier release gate through `npm run ci:cloudbuild:release`, restricts image publishing to `main`, publishes a commit-SHA-tagged image, and surfaces the immutable digest through `deploy/cloudrun/resolve-image-digest.sh`
+- `deploy/cloudrun/sync-github-trigger.sh` creates or updates the GitHub `main` trigger for the repo-owned release contract
+- `cloudbuild.release.yaml` runs the heavier release gate through `npm run ci:cloudbuild:release`, restricts image publishing to `main`, publishes a commit-SHA-tagged image, resolves the immutable digest through `deploy/cloudrun/resolve-image-digest.sh`, and deploys from that exact digest through `deploy/cloudrun/deploy-from-image-ref.sh`
+- the trigger/build runs under a dedicated user-specified Cloud Build service account rather than service-account key JSON
 
 Deploys must consume the digest-backed `imageRef`, not rebuild from source or rely on a floating tag.
 

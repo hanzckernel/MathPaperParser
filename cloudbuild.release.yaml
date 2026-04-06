@@ -3,6 +3,9 @@ substitutions:
   _LOCATION: europe-west1
   _REF_NAME: ''
   _REPOSITORY: paperparser
+  _RUNTIME_SERVICE_ACCOUNT: ''
+  _SERVICE: paperparser
+  _STORE_BUCKET: ''
 
 steps:
   - name: node:22-bookworm-slim
@@ -53,6 +56,30 @@ steps:
         PAPERPARSER_IMAGE_NAME="${_IMAGE}" \
         PAPERPARSER_IMAGE_TAG="$SHORT_SHA" \
         deploy/cloudrun/resolve-image-digest.sh | tee /workspace/cloudrun-image.json
+
+  - name: gcr.io/google.com/cloudsdktool/cloud-sdk:slim
+    entrypoint: bash
+    args:
+      - -lc
+      - |
+        PAPERPARSER_IMAGE_JSON=/workspace/cloudrun-image.json \
+        PAPERPARSER_PROJECT="$PROJECT_ID" \
+        PAPERPARSER_REGION="${_LOCATION}" \
+        PAPERPARSER_SERVICE="${_SERVICE}" \
+        PAPERPARSER_RUNTIME_SERVICE_ACCOUNT="${_RUNTIME_SERVICE_ACCOUNT}" \
+        PAPERPARSER_STORE_BUCKET="${_STORE_BUCKET}" \
+        deploy/cloudrun/deploy-from-image-ref.sh
+
+  - name: gcr.io/google.com/cloudsdktool/cloud-sdk:slim
+    entrypoint: bash
+    args:
+      - -lc
+      - |
+        PAPERPARSER_IMAGE_JSON=/workspace/cloudrun-image.json \
+        PAPERPARSER_PROJECT="$PROJECT_ID" \
+        PAPERPARSER_REGION="${_LOCATION}" \
+        PAPERPARSER_SERVICE="${_SERVICE}" \
+        deploy/cloudrun/release-metadata.sh | tee /workspace/cloudrun-release.json
 
 options:
   logging: CLOUD_LOGGING_ONLY
