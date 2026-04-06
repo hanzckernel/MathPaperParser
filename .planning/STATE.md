@@ -3,8 +3,8 @@ gsd_state_version: 1.0
 milestone: v1.5
 milestone_name: GCP Deployment & CI/CD
 status: roadmap_approved
-stopped_at: phase 24 discussion complete; planning is next
-last_updated: "2026-04-06T10:05:00Z"
+stopped_at: phases 25-26 discussion complete; planning is next
+last_updated: "2026-04-06T10:30:00Z"
 last_activity: 2026-04-06
 progress:
   total_phases: 4
@@ -21,14 +21,14 @@ progress:
 See: .planning/PROJECT.md (updated 2026-04-05)
 
 **Core value:** A mathematician can feed in a TeX paper and get a trustworthy dependency artifact that makes the logical structure of the paper easier to navigate.
-**Current focus:** Phase 24 discussion complete; ready to plan `CI Validation & Image Release Pipeline`
+**Current focus:** Phases 25-26 discussion complete; ready to plan `Secretless CD & Source Integration`
 
 ## Current Position
 
-Phase: 24. CI Validation & Image Release Pipeline
+Phase: 25. Secretless CD & Source Integration
 Plan: -
 Status: Roadmap approved; phase planning is next
-Last activity: 2026-04-06 — Locked Phase 24 Cloud Build-first pipeline, split validation gates, digest-backed image identity, mainline-only publish, and folded stale-artifact freshness checks.
+Last activity: 2026-04-06 — Locked Phase 25 GitHub-triggered Cloud Build automation and Phase 26 blocking live smoke with explicit rollback metadata.
 
 Progress: [----------] 0%
 
@@ -116,6 +116,8 @@ Decisions are logged in PROJECT.md. The milestone established:
 - Roadmap approved with phases 23-26
 - Phase 23 discussion completed with decisions `1A 2A 3A`
 - Phase 24 discussion completed with decisions `0B 1B 2C 3A 4A`
+- Phase 25 discussion completed with decisions `1A 2A 3A`
+- Phase 26 discussion completed with decisions `1A 2A 3B`
 
 ### Pending Todos
 
@@ -131,5 +133,5 @@ Decisions are logged in PROJECT.md. The milestone established:
 ## Session Continuity
 
 Last session: 2026-04-06 CEST
-Stopped at: `v1.5` Phase 24 context captured; next step is `$gsd-plan-phase 24`
+Stopped at: `v1.5` Phases 25 and 26 context captured; next step is `$gsd-plan-phase 25`
 Resume file: .planning/ROADMAP.md
