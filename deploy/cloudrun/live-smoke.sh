@@ -16,18 +16,14 @@ read_json_field() {
     return 0
   fi
 
-  python3 - "$file_path" "$field_name" <<'PY'
-import json
-import sys
+  sed -n "s/.*\"${field_name}\":[[:space:]]*\"\([^\"]*\)\".*/\1/p" "${file_path}" | head -n 1
+}
 
-path, field = sys.argv[1], sys.argv[2]
-with open(path, "r", encoding="utf-8") as handle:
-    data = json.load(handle)
-value = data.get(field, "")
-if value is None:
-    value = ""
-print(value)
-PY
+json_escape() {
+  local value="${1//\\/\\\\}"
+  value="${value//\"/\\\"}"
+  value="${value//$'\n'/\\n}"
+  printf '%s' "${value}"
 }
 
 IMAGE_REF="$(read_json_field "${RELEASE_JSON}" "imageRef")"
@@ -35,11 +31,11 @@ if [[ -z "${IMAGE_REF}" ]]; then
   IMAGE_REF="$(read_json_field "${IMAGE_JSON}" "imageRef")"
 fi
 
-IFS=$'\t' read -r SERVICE_URL CURRENT_REVISION <<< "$(
+IFS=',' read -r SERVICE_URL CURRENT_REVISION <<< "$(
   gcloud run services describe "${PAPERPARSER_SERVICE}" \
     --project="${PAPERPARSER_PROJECT}" \
     --region="${PAPERPARSER_REGION}" \
-    --format='value(status.url,status.latestReadyRevisionName)'
+    --format='csv[no-heading](status.url,status.latestReadyRevisionName)'
 )"
 
 if [[ -z "${SERVICE_URL}" || -z "${CURRENT_REVISION}" ]]; then
@@ -104,21 +100,17 @@ export PAPERPARSER_SMOKE_READY_BODY="${READY_BODY}"
 export PAPERPARSER_SMOKE_PAPERS_BODY="${PAPERS_BODY}"
 export PAPERPARSER_SMOKE_ROLLBACK_COMMAND="${ROLLBACK_COMMAND}"
 
-python3 <<'PY'
-import json
-import os
-
-payload = {
-    "serviceUrl": os.environ["PAPERPARSER_SMOKE_SERVICE_URL"],
-    "currentRevision": os.environ["PAPERPARSER_SMOKE_CURRENT_REVISION"],
-    "previousRevision": os.environ["PAPERPARSER_SMOKE_PREVIOUS_REVISION"],
-    "imageRef": os.environ["PAPERPARSER_SMOKE_IMAGE_REF"],
-    "checks": {
-        "health": json.loads(os.environ["PAPERPARSER_SMOKE_HEALTH_BODY"]),
-        "ready": json.loads(os.environ["PAPERPARSER_SMOKE_READY_BODY"]),
-        "papers": json.loads(os.environ["PAPERPARSER_SMOKE_PAPERS_BODY"]),
-    },
-    "rollbackCommand": os.environ["PAPERPARSER_SMOKE_ROLLBACK_COMMAND"],
+cat <<EOF
+{
+  "serviceUrl": "$(json_escape "${PAPERPARSER_SMOKE_SERVICE_URL}")",
+  "currentRevision": "$(json_escape "${PAPERPARSER_SMOKE_CURRENT_REVISION}")",
+  "previousRevision": "$(json_escape "${PAPERPARSER_SMOKE_PREVIOUS_REVISION}")",
+  "imageRef": "$(json_escape "${PAPERPARSER_SMOKE_IMAGE_REF}")",
+  "checks": {
+    "health": ${PAPERPARSER_SMOKE_HEALTH_BODY},
+    "ready": ${PAPERPARSER_SMOKE_READY_BODY},
+    "papers": ${PAPERPARSER_SMOKE_PAPERS_BODY}
+  },
+  "rollbackCommand": "$(json_escape "${PAPERPARSER_SMOKE_ROLLBACK_COMMAND}")"
 }
-print(json.dumps(payload, indent=2))
-PY
+EOF

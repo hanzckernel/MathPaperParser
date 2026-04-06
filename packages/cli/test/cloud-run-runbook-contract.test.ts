@@ -118,6 +118,9 @@ describe('cloud run persistence and runbook contract', () => {
   });
 
   it('runs authenticated live smoke and emits rollback guidance for the previous revision', () => {
+    const smokeScript = readFileSync(resolve(process.cwd(), 'deploy/cloudrun/live-smoke.sh'), 'utf8');
+    expect(smokeScript).not.toContain('python3');
+
     const fakeBinDir = mkdtempSync(join(tmpdir(), 'paperparser-smoke-bin-'));
     const gcloudLogPath = join(mkdtempSync(join(tmpdir(), 'paperparser-gcloud-log-')), 'smoke-gcloud.log');
     const curlLogPath = join(mkdtempSync(join(tmpdir(), 'paperparser-curl-log-')), 'smoke-curl.log');
@@ -130,7 +133,7 @@ describe('cloud run persistence and runbook contract', () => {
 printf '%s\n' "$*" >> "$FAKE_GCLOUD_LOG"
 case "$*" in
   *"run services describe paperparser"*)
-    printf '%s\t%s\n' "https://paperparser.example.run.app" "paperparser-00008-new"
+    printf '%s,%s\n' "https://paperparser.example.run.app" "paperparser-00008-new"
     ;;
   *"auth print-identity-token"*)
     printf '%s\n' "fake-token"
