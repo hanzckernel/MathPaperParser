@@ -2,9 +2,9 @@
 gsd_state_version: 1.0
 milestone: v1.5
 milestone_name: GCP Deployment & CI/CD
-status: phase_24_complete
-stopped_at: phase 27 added; phase 25 planning is next
-last_updated: "2026-04-06T20:07:00Z"
+status: phase_27_discussed
+stopped_at: phase 27 discussion complete; planning is next
+last_updated: "2026-04-06T21:38:51Z"
 last_activity: 2026-04-06
 progress:
   total_phases: 5
@@ -21,14 +21,14 @@ progress:
 See: .planning/PROJECT.md (updated 2026-04-05)
 
 **Core value:** A mathematician can feed in a TeX paper and get a trustworthy dependency artifact that makes the logical structure of the paper easier to navigate.
-**Current focus:** Phase 27 was added; Phase 25 planning is next
+**Current focus:** Phase 27 drag-and-drop upload context is now locked; planning is next
 
 ## Current Position
 
-Phase: 25. Secretless CD & Source Integration
+Phase: 27. Drag-and-Drop TeX Upload
 Plan: -
-Status: Phase 24 complete; phase planning is next
-Last activity: 2026-04-06 — Added Phase 27 for drag-and-drop TeX upload support at the end of the current milestone and adjusted the roadmap/state scope to 5 total phases.
+Status: Discussion complete; phase planning is next
+Last activity: 2026-04-06 — Locked Phase 27 to a dedicated API-mode drop zone, `.tex`-only drag payloads, immediate upload, and explicit drag-active feedback.
 
 Progress: [####------] 40%
 
@@ -111,6 +111,7 @@ Decisions are logged in PROJECT.md. The milestone established:
 - Phase 23 should use checked-in bootstrap automation where practical, target one long-lived service, and avoid source-host dependency.
 - Phase 23 is now complete with a live Cloud Run deployment on `paperparser-492322`, canonical service metadata surfaced through repo-owned helpers, and a hosted probe contract that uses `/health` and `/ready` while preserving `/healthz` and `/readyz` as compatibility aliases.
 - Phase 24 is now complete with checked-in `cloudbuild.validate.yaml` and `cloudbuild.release.yaml`, explicit `ci:cloudbuild:*` gate scripts, mainline-only publish enforcement, and digest-backed Artifact Registry identity for later deploy steps.
+- Phase 27 will add drag-and-drop only inside the existing API upload controls, accept `.tex` drops only, upload immediately, and reuse the current inline status area with drag-active highlighting.
 
 ### Roadmap Evolution
 
@@ -123,6 +124,7 @@ Decisions are logged in PROJECT.md. The milestone established:
 - Phase 23 execution completed with live revision `paperparser-00007-8fn` on 2026-04-06
 - Phase 24 execution completed with checked-in Cloud Build validation and release configs on 2026-04-06
 - Phase 27 added: add one drag and drop function of tex file to the current support scope
+- Phase 27 discussion completed with decisions `1A 2A 3A 4A`
 
 ### Pending Todos
 
@@ -140,5 +142,5 @@ Decisions are logged in PROJECT.md. The milestone established:
 ## Session Continuity
 
 Last session: 2026-04-06 CEST
-Stopped at: `v1.5` Phase 27 added; next step is `$gsd-plan-phase 25`
+Stopped at: `v1.5` Phase 27 discussion complete; next step for this slice is `$gsd-plan-phase 27`
 Resume file: .planning/ROADMAP.md
