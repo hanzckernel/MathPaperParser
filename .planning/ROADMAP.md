@@ -12,7 +12,7 @@
   Archives: `.planning/milestones/v1.3-ROADMAP.md`, `.planning/milestones/v1.3-REQUIREMENTS.md`, `.planning/milestones/v1.3-MILESTONE-AUDIT.md`
 - ✅ **v1.4 GCP Cloud Run Deployment Hardening** — shipped 2026-04-04
   Archives: `.planning/milestones/v1.4-ROADMAP.md`, `.planning/milestones/v1.4-REQUIREMENTS.md`, `.planning/milestones/v1.4-MILESTONE-AUDIT.md`, `.planning/milestones/v1.4-phases/`
-- 🚧 **v1.5 GCP Deployment & CI/CD** — Phases 23-26 planned on 2026-04-06
+- 🚧 **v1.5 GCP Deployment & CI/CD** — Phases 23-27 planned on 2026-04-06
 
 ## Current State
 
@@ -32,13 +32,14 @@
 ## Phases
 
 **Phase Numbering:**
-- Integer phases (23, 24, 25, 26): Planned milestone work
+- Integer phases (23, 24, 25, 26, 27): Planned milestone work
 - Decimal phases (23.1, 23.2): Urgent insertions (marked with INSERTED)
 
 - [x] **Phase 23: GCP Bootstrap & First Live Deployment** - Turn the `v1.4` operator contract into a real deployed Cloud Run environment on GCP.
 - [x] **Phase 24: CI Validation & Image Release Pipeline** - Add automated validation and immutable image publishing for the supported hosted-source path.
 - [ ] **Phase 25: Secretless CD & Source Integration** - Wire the supported source-host trigger path and deploy automation to GCP without long-lived key JSON.
 - [ ] **Phase 26: Live Smoke, Rollback & Operator Proof** - Prove the live hosted path end to end and document the automated release/rollback workflow.
+- [ ] **Phase 27: add one drag and drop function of tex file to the current support scope** - [To be planned]
 
 ## Phase Details
 
@@ -87,4 +88,14 @@
 | v1.2 Dashboard, Export & Math Rendering Hardening | Phases 10-13 | Complete | 2026-04-03 |
 | v1.3 Parse/Render Hardening | Phases 14-16 | Complete | 2026-04-03 |
 | v1.4 GCP Cloud Run Deployment Hardening | Phases 17-22 | Complete | 2026-04-04 |
-| v1.5 GCP Deployment & CI/CD | Phases 23-26 | In Progress | - |
+| v1.5 GCP Deployment & CI/CD | Phases 23-27 | In Progress | - |
+
+### Phase 27: add one drag and drop function of tex file to the current support scope
+
+**Goal:** [To be planned]
+**Requirements**: TBD
+**Depends on:** Phase 26
+**Plans:** 0 plans
+
+Plans:
+- [ ] TBD (run /gsd:plan-phase 27 to break down)

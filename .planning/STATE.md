@@ -3,15 +3,15 @@ gsd_state_version: 1.0
 milestone: v1.5
 milestone_name: GCP Deployment & CI/CD
 status: phase_24_complete
-stopped_at: phase 24 complete; phase 25 planning is next
-last_updated: "2026-04-06T13:48:34Z"
+stopped_at: phase 27 added; phase 25 planning is next
+last_updated: "2026-04-06T20:07:00Z"
 last_activity: 2026-04-06
 progress:
-  total_phases: 4
+  total_phases: 5
   completed_phases: 2
   total_plans: 2
   completed_plans: 2
-  percent: 50
+  percent: 40
 ---
 
 # Project State
@@ -21,16 +21,16 @@ progress:
 See: .planning/PROJECT.md (updated 2026-04-05)
 
 **Core value:** A mathematician can feed in a TeX paper and get a trustworthy dependency artifact that makes the logical structure of the paper easier to navigate.
-**Current focus:** Phase 24 is complete; ready to plan `Secretless CD & Source Integration`
+**Current focus:** Phase 27 was added; Phase 25 planning is next
 
 ## Current Position
 
 Phase: 25. Secretless CD & Source Integration
 Plan: -
 Status: Phase 24 complete; phase planning is next
-Last activity: 2026-04-06 — Added checked-in Cloud Build validation and release configs, split fast versus release gates, enforced mainline-only publish, surfaced digest-backed image identity, and excluded stale local generated artifacts from Cloud Build uploads.
+Last activity: 2026-04-06 — Added Phase 27 for drag-and-drop TeX upload support at the end of the current milestone and adjusted the roadmap/state scope to 5 total phases.
 
-Progress: [#####-----] 50%
+Progress: [####------] 40%
 
 ## Performance Metrics
 
@@ -122,6 +122,7 @@ Decisions are logged in PROJECT.md. The milestone established:
 - Phase 26 discussion completed with decisions `1A 2A 3B`
 - Phase 23 execution completed with live revision `paperparser-00007-8fn` on 2026-04-06
 - Phase 24 execution completed with checked-in Cloud Build validation and release configs on 2026-04-06
+- Phase 27 added: add one drag and drop function of tex file to the current support scope
 
 ### Pending Todos
 
@@ -139,5 +140,5 @@ Decisions are logged in PROJECT.md. The milestone established:
 ## Session Continuity
 
 Last session: 2026-04-06 CEST
-Stopped at: `v1.5` Phase 24 complete; next step is `$gsd-plan-phase 25`
+Stopped at: `v1.5` Phase 27 added; next step is `$gsd-plan-phase 25`
 Resume file: .planning/ROADMAP.md
