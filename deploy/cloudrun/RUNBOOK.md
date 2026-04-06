@@ -76,10 +76,10 @@ The fast Cloud Build gate installs dependencies, runs `npm run ci:cloudbuild:fas
 ```bash
 gcloud builds submit \
   --config=cloudbuild.release.yaml \
-  --substitutions=SHORT_SHA="$(git rev-parse --short HEAD)",BRANCH_NAME=main,_LOCATION=europe-west1,_REPOSITORY=paperparser,_IMAGE=paperparser,_SERVICE=paperparser,_RUNTIME_SERVICE_ACCOUNT=paperparser-runtime@paperparser-492322.iam.gserviceaccount.com,_STORE_BUCKET=paperparser-store-paperparser-492322 .
+  --substitutions=SHORT_SHA="$(git rev-parse --short HEAD)",BRANCH_NAME=main,_LOCATION=europe-west1,_REPOSITORY=paperparser,_IMAGE=paperparser,_SERVICE=paperparser,_RUNTIME_SERVICE_ACCOUNT=paperparser-runtime@paperparser-492322.iam.gserviceaccount.com,_BUILD_SERVICE_ACCOUNT=paperparser-cloudbuild@paperparser-492322.iam.gserviceaccount.com,_STORE_BUCKET=paperparser-store-paperparser-492322 .
 ```
 
-The release Cloud Build config runs `npm run ci:cloudbuild:release`, enforces mainline-only image publishing, tags the image with `$SHORT_SHA`, pushes it to Artifact Registry, resolves `cloudrun-image.json`, deploys from the exact digest-backed image via `deploy/cloudrun/deploy-from-image-ref.sh`, and emits `cloudrun-release.json` with the deployed revision and image identity.
+The release Cloud Build config runs `npm run ci:cloudbuild:release`, enforces mainline-only image publishing, tags the image with `$SHORT_SHA`, pushes it to Artifact Registry, resolves `cloudrun-image.json`, deploys from the exact digest-backed image via `deploy/cloudrun/deploy-from-image-ref.sh`, emits `cloudrun-release.json` with the deployed revision and image identity, and then blocks on `deploy/cloudrun/live-smoke.sh`.
 
 You can resolve the published digest again later from the repo-owned helper:
 
@@ -92,7 +92,17 @@ Use the returned `imageRef` value for later deploy steps instead of rebuilding o
 
 If you prefer hosted automation over manual submission, push the validated commit to GitHub `main`. The synced Cloud Build trigger runs the same `cloudbuild.release.yaml` contract automatically.
 
-## 6. Deploy Manually From A Resolved Digest
+## 6. Hosted Release Smoke Artifact
+
+Every hosted release writes:
+
+- `cloudrun-image.json` for the immutable Artifact Registry digest
+- `cloudrun-release.json` for the deployed revision and image identity
+- `cloudrun-smoke.json` for the blocking authenticated live smoke proof
+
+The hosted smoke step runs `deploy/cloudrun/live-smoke.sh` after deploy, verifies `/health`, `/ready`, and `/api/papers` against the authenticated Cloud Run URL, and fails the release if any of those checks fail.
+
+## 7. Deploy Manually From A Resolved Digest
 
 ```bash
 deploy/cloudrun/deploy.sh
@@ -109,7 +119,7 @@ Required variables before deploy:
 
 Manual deploy remains available for recovery or controlled roll-forward, but the supported hosted path is now GitHub `main` -> Cloud Build -> Cloud Run.
 
-## 7. Grant Invoker Access
+## 8. Grant Invoker Access
 
 ```bash
 PAPERPARSER_MEMBER='user:alice@example.com' deploy/cloudrun/grant-invoker.sh
@@ -117,7 +127,7 @@ PAPERPARSER_MEMBER='user:alice@example.com' deploy/cloudrun/grant-invoker.sh
 
 Repeat for each named user or service account that should access the service.
 
-## 8. Fetch Service Metadata
+## 9. Fetch Service Metadata
 
 ```bash
 deploy/cloudrun/service-metadata.sh
@@ -127,7 +137,7 @@ The helper returns the deployed service name, canonical service URL, latest read
 
 The hosted release path also writes `cloudrun-release.json` through `deploy/cloudrun/release-metadata.sh`, which combines the exact image digest with the deployed revision for later smoke and rollback steps.
 
-## 9. Verify
+## 10. Verify
 
 Fetch the authenticated service URL and identity token:
 
@@ -142,11 +152,12 @@ Then verify:
 - open the authenticated service URL in a browser
 - `curl -H "Authorization: Bearer $TOKEN" "$SERVICE_URL/health"`
 - `curl -H "Authorization: Bearer $TOKEN" "$SERVICE_URL/ready"`
-- upload a small paper through the dashboard or API and confirm data appears in the mounted store
+- `curl -H "Authorization: Bearer $TOKEN" "$SERVICE_URL/api/papers"`
+- confirm `cloudrun-smoke.json` captured the deployed `serviceUrl`, `currentRevision`, `imageRef`, and rollback guidance
 
 Use `/health` and `/ready` for Cloud Run probes and live smoke. The app still serves `/healthz` and `/readyz` locally for backward compatibility, but Cloud Run-facing operator checks should avoid `*z` probe paths.
 
-## 10. Upgrade
+## 11. Upgrade
 
 Re-run the release Cloud Build config so the heavier gate passes and a new immutable image is published. Then set `PAPERPARSER_IMAGE` to the returned digest-backed `imageRef` and rerun:
 
@@ -156,7 +167,7 @@ deploy/cloudrun/deploy.sh
 
 Cloud Run will create a new revision.
 
-## 11. Roll Back
+## 12. Roll Back
 
 List revisions:
 
@@ -169,6 +180,19 @@ Route all traffic back to a prior revision:
 ```bash
 PAPERPARSER_REVISION='paperparser-00012-abc' deploy/cloudrun/rollback.sh
 ```
+
+When hosted smoke fails, use the `previousRevision` and `rollbackCommand` fields from `cloudrun-smoke.json` directly instead of guessing from the console.
+
+## 13. Failure Recovery
+
+- smoke fails after deploy:
+  rerun `deploy/cloudrun/live-smoke.sh` locally against the same service to confirm whether the failure is reproducible
+- smoke confirms the bad revision:
+  execute the `rollbackCommand` emitted in `cloudrun-smoke.json`
+- after rollback:
+  run `deploy/cloudrun/service-metadata.sh` and authenticated `curl` checks on `/health`, `/ready`, and `/api/papers`
+- before redeploying:
+  fix the pipeline or app issue on `main`, then let the hosted trigger produce a new immutable image and revision
 
 ## Operational Limits
 

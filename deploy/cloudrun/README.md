@@ -56,8 +56,9 @@ The checked-in hosted pipeline is GitHub -> Cloud Build -> Cloud Run:
 - `deploy/cloudrun/connect-github-repo.sh` prints the one-time Cloud Build GitHub connection URL for the project
 - `cloudbuild.validate.yaml` runs the faster validation gate through `npm run ci:cloudbuild:fast`
 - `deploy/cloudrun/sync-github-trigger.sh` creates or updates the GitHub `main` trigger for the repo-owned release contract
-- `cloudbuild.release.yaml` runs the heavier release gate through `npm run ci:cloudbuild:release`, restricts image publishing to `main`, publishes a commit-SHA-tagged image, resolves the immutable digest through `deploy/cloudrun/resolve-image-digest.sh`, and deploys from that exact digest through `deploy/cloudrun/deploy-from-image-ref.sh`
+- `cloudbuild.release.yaml` runs the heavier release gate through `npm run ci:cloudbuild:release`, restricts image publishing to `main`, publishes a commit-SHA-tagged image, resolves the immutable digest through `deploy/cloudrun/resolve-image-digest.sh`, deploys from that exact digest through `deploy/cloudrun/deploy-from-image-ref.sh`, and blocks on `deploy/cloudrun/live-smoke.sh`
 - the trigger/build runs under a dedicated user-specified Cloud Build service account rather than service-account key JSON
+- hosted releases emit `cloudrun-release.json` and `cloudrun-smoke.json` so revision/image identity and rollback guidance stay explicit
 
 Deploys must consume the digest-backed `imageRef`, not rebuild from source or rely on a floating tag.
 

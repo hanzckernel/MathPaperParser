@@ -1,4 +1,5 @@
 substitutions:
+  _BUILD_SERVICE_ACCOUNT: ''
   _IMAGE: paperparser
   _LOCATION: europe-west1
   _REF_NAME: ''
@@ -67,6 +68,7 @@ steps:
         PAPERPARSER_REGION="${_LOCATION}" \
         PAPERPARSER_SERVICE="${_SERVICE}" \
         PAPERPARSER_RUNTIME_SERVICE_ACCOUNT="${_RUNTIME_SERVICE_ACCOUNT}" \
+        PAPERPARSER_BUILD_SERVICE_ACCOUNT="${_BUILD_SERVICE_ACCOUNT}" \
         PAPERPARSER_STORE_BUCKET="${_STORE_BUCKET}" \
         deploy/cloudrun/deploy-from-image-ref.sh
 
@@ -80,6 +82,19 @@ steps:
         PAPERPARSER_REGION="${_LOCATION}" \
         PAPERPARSER_SERVICE="${_SERVICE}" \
         deploy/cloudrun/release-metadata.sh | tee /workspace/cloudrun-release.json
+
+  - name: gcr.io/google.com/cloudsdktool/cloud-sdk:slim
+    entrypoint: bash
+    args:
+      - -lc
+      - |
+        set -euo pipefail
+        PAPERPARSER_IMAGE_JSON=/workspace/cloudrun-image.json \
+        PAPERPARSER_RELEASE_JSON=/workspace/cloudrun-release.json \
+        PAPERPARSER_PROJECT="$PROJECT_ID" \
+        PAPERPARSER_REGION="${_LOCATION}" \
+        PAPERPARSER_SERVICE="${_SERVICE}" \
+        deploy/cloudrun/live-smoke.sh | tee /workspace/cloudrun-smoke.json
 
 options:
   logging: CLOUD_LOGGING_ONLY

@@ -15,12 +15,20 @@ This bundle proves:
 - authenticated shared-access helpers
 - the mounted-bucket persistence bridge and rollback helper
 
-After that local proof passes, use [RUNBOOK.md](RUNBOOK.md) for the live project checks:
+After that local proof passes, the hosted release path writes `cloudrun-smoke.json` by running `deploy/cloudrun/live-smoke.sh` after deploy.
+
+That live smoke contract proves:
+
+- the deployed service URL is still authenticated and reachable
+- `/health` and `/ready` both report an operational service
+- `/api/papers` answers as a real read-only API path against the mounted store
+- the deployed revision and immutable image identity are captured together with explicit rollback guidance
+
+In other words, the hosted release must verify `/health` and `/ready`, then confirm the authenticated `GET /api/papers` smoke path before the release is considered good.
+
+Use [RUNBOOK.md](RUNBOOK.md) for the full operator workflow:
 
 - run `cloudbuild.validate.yaml`
 - run `cloudbuild.release.yaml`
-- deploy a revision
-- open the authenticated service URL
-- verify `/health` and `/ready`
-- verify upload/query in the deployed dashboard
-- verify rollback with `deploy/cloudrun/rollback.sh`
+- confirm `cloudrun-smoke.json`
+- verify rollback with `deploy/cloudrun/rollback.sh` when smoke surfaces a bad revision

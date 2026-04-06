@@ -8,6 +8,7 @@ set -euo pipefail
 : "${PAPERPARSER_STORE_BUCKET:?Set PAPERPARSER_STORE_BUCKET to the dedicated Cloud Storage bucket name.}"
 
 PROJECT="${PAPERPARSER_PROJECT:-}"
+BUILD_SERVICE_ACCOUNT="${PAPERPARSER_BUILD_SERVICE_ACCOUNT:-}"
 STORE_PATH="${PAPERPARSER_STORE_PATH:-/var/paperparser/store}"
 MEMORY="${PAPERPARSER_MEMORY:-1Gi}"
 CPU="${PAPERPARSER_CPU:-1}"
@@ -47,4 +48,19 @@ else
     --add-volume "name=paperparser-store,type=cloud-storage,bucket=$PAPERPARSER_STORE_BUCKET" \
     --add-volume-mount "volume=paperparser-store,mount-path=/var/paperparser/store" \
     --set-env-vars "PAPERPARSER_RUNTIME_MODE=deployed,PAPERPARSER_WEB_DIST=/app/packages/web/dist,PAPERPARSER_STORE_PATH=$STORE_PATH"
+fi
+
+if [[ -n "${BUILD_SERVICE_ACCOUNT}" ]]; then
+  if [[ -n "${PROJECT}" ]]; then
+    gcloud run services add-iam-policy-binding "$PAPERPARSER_SERVICE" \
+      --project "$PROJECT" \
+      --region "$PAPERPARSER_REGION" \
+      --member "serviceAccount:${BUILD_SERVICE_ACCOUNT}" \
+      --role "roles/run.invoker" >/dev/null
+  else
+    gcloud run services add-iam-policy-binding "$PAPERPARSER_SERVICE" \
+      --region "$PAPERPARSER_REGION" \
+      --member "serviceAccount:${BUILD_SERVICE_ACCOUNT}" \
+      --role "roles/run.invoker" >/dev/null
+  fi
 fi

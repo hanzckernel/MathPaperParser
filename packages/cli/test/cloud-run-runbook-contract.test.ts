@@ -19,6 +19,12 @@ printf '%s\n' "$@" > "$FAKE_GCLOUD_LOG"
   return binDir;
 }
 
+function writeFakeCommand(binDir: string, name: string, body: string): void {
+  const fakePath = join(binDir, name);
+  writeFileSync(fakePath, body, 'utf8');
+  chmodSync(fakePath, 0o755);
+}
+
 describe('cloud run persistence and runbook contract', () => {
   it('documents Cloud Run-safe health and readiness probe paths', () => {
     const runbook = readFileSync(resolve(process.cwd(), 'deploy/cloudrun/RUNBOOK.md'), 'utf8');
@@ -26,9 +32,14 @@ describe('cloud run persistence and runbook contract', () => {
 
     expect(runbook).toContain('"$SERVICE_URL/health"');
     expect(runbook).toContain('"$SERVICE_URL/ready"');
+    expect(runbook).toContain('deploy/cloudrun/live-smoke.sh');
+    expect(runbook).toContain('cloudrun-smoke.json');
+    expect(runbook).toContain('Failure Recovery');
     expect(runbook).not.toContain('"$SERVICE_URL/healthz"');
     expect(runbook).not.toContain('"$SERVICE_URL/readyz"');
     expect(smoke).toContain('verify `/health` and `/ready`');
+    expect(smoke).toContain('deploy/cloudrun/live-smoke.sh');
+    expect(smoke).toContain('cloudrun-smoke.json');
     expect(smoke).not.toContain('verify `/healthz` and `/readyz`');
   });
 
@@ -55,6 +66,36 @@ describe('cloud run persistence and runbook contract', () => {
     expect(invocation).toContain('mount-path=/var/paperparser/store');
   });
 
+  it('deploy helper can grant the Cloud Build deploy service account invoker access for blocking smoke', () => {
+    const logPath = join(mkdtempSync(join(tmpdir(), 'paperparser-gcloud-log-')), 'deploy.log');
+    const fakeBinDir = writeFakeGcloud(logPath);
+    const result = spawnSync('bash', [resolve(process.cwd(), 'deploy/cloudrun/deploy.sh')], {
+      encoding: 'utf8',
+      env: {
+        ...process.env,
+        PATH: `${fakeBinDir}:${process.env.PATH ?? ''}`,
+        FAKE_GCLOUD_LOG: logPath,
+        PAPERPARSER_PROJECT: 'paperparser-492322',
+        PAPERPARSER_SERVICE: 'paperparser',
+        PAPERPARSER_IMAGE: 'us-central1-docker.pkg.dev/demo/paperparser:latest',
+        PAPERPARSER_REGION: 'europe-west1',
+        PAPERPARSER_RUNTIME_SERVICE_ACCOUNT: 'paperparser-runner@example.iam.gserviceaccount.com',
+        PAPERPARSER_STORE_BUCKET: 'paperparser-store',
+        PAPERPARSER_BUILD_SERVICE_ACCOUNT:
+          'paperparser-cloudbuild@paperparser-492322.iam.gserviceaccount.com',
+      },
+    });
+
+    expect(result.status).toBe(0);
+    const invocation = readFileSync(logPath, 'utf8');
+    expect(invocation).toContain('add-iam-policy-binding');
+    expect(invocation).toContain('paperparser');
+    expect(invocation).toContain('--member');
+    expect(invocation).toContain('serviceAccount:paperparser-cloudbuild@paperparser-492322.iam.gserviceaccount.com');
+    expect(invocation).toContain('--role');
+    expect(invocation).toContain('roles/run.invoker');
+  });
+
   it('rollback helper uses deterministic revision traffic routing', () => {
     const logPath = join(mkdtempSync(join(tmpdir(), 'paperparser-gcloud-log-')), 'rollback.log');
     const fakeBinDir = writeFakeGcloud(logPath);
@@ -74,5 +115,90 @@ describe('cloud run persistence and runbook contract', () => {
     const invocation = readFileSync(logPath, 'utf8');
     expect(invocation).toContain('update-traffic');
     expect(invocation).toContain('--to-revisions=paperparser-00012-abc=100');
+  });
+
+  it('runs authenticated live smoke and emits rollback guidance for the previous revision', () => {
+    const fakeBinDir = mkdtempSync(join(tmpdir(), 'paperparser-smoke-bin-'));
+    const gcloudLogPath = join(mkdtempSync(join(tmpdir(), 'paperparser-gcloud-log-')), 'smoke-gcloud.log');
+    const curlLogPath = join(mkdtempSync(join(tmpdir(), 'paperparser-curl-log-')), 'smoke-curl.log');
+    const imageJsonPath = join(mkdtempSync(join(tmpdir(), 'paperparser-smoke-json-')), 'cloudrun-image.json');
+
+    writeFakeCommand(
+      fakeBinDir,
+      'gcloud',
+      `#!/bin/sh
+printf '%s\n' "$*" >> "$FAKE_GCLOUD_LOG"
+case "$*" in
+  *"run services describe paperparser"*)
+    printf '%s\t%s\n' "https://paperparser.example.run.app" "paperparser-00008-new"
+    ;;
+  *"auth print-identity-token"*)
+    printf '%s\n' "fake-token"
+    ;;
+  *"run revisions list"*)
+    printf '%s\n' "paperparser-00008-new"
+    printf '%s\n' "paperparser-00007-old"
+    ;;
+  *)
+    exit 0
+    ;;
+esac
+`,
+    );
+    writeFakeCommand(
+      fakeBinDir,
+      'curl',
+      `#!/bin/sh
+printf '%s\n' "$*" >> "$FAKE_CURL_LOG"
+case "$*" in
+  *"/health"*)
+    printf '%s\n' '{"ok":true}'
+    ;;
+  *"/ready"*)
+    printf '%s\n' '{"ok":true,"runtimeMode":"deployed"}'
+    ;;
+  *"/api/papers"*)
+    printf '%s\n' '{"papers":[]}'
+    ;;
+  *)
+    printf '%s\n' '{"error":"unexpected"}' >&2
+    exit 1
+    ;;
+esac
+`,
+    );
+    writeFileSync(imageJsonPath, JSON.stringify({ imageRef: 'repo@sha256:abc123' }), 'utf8');
+
+    const result = spawnSync('bash', [resolve(process.cwd(), 'deploy/cloudrun/live-smoke.sh')], {
+      encoding: 'utf8',
+      env: {
+        ...process.env,
+        PATH: `${fakeBinDir}:${process.env.PATH ?? ''}`,
+        FAKE_GCLOUD_LOG: gcloudLogPath,
+        FAKE_CURL_LOG: curlLogPath,
+        PAPERPARSER_PROJECT: 'paperparser-492322',
+        PAPERPARSER_REGION: 'europe-west1',
+        PAPERPARSER_SERVICE: 'paperparser',
+        PAPERPARSER_IMAGE_JSON: imageJsonPath,
+      },
+    });
+
+    expect(result.status).toBe(0);
+    const gcloudInvocation = readFileSync(gcloudLogPath, 'utf8');
+    expect(gcloudInvocation).toContain('run services describe paperparser');
+    expect(gcloudInvocation).toContain('auth print-identity-token');
+    expect(gcloudInvocation).toContain('run revisions list --project paperparser-492322 --service paperparser --region europe-west1');
+
+    const curlInvocation = readFileSync(curlLogPath, 'utf8');
+    expect(curlInvocation).toContain('Authorization: Bearer fake-token');
+    expect(curlInvocation).toContain('https://paperparser.example.run.app/health');
+    expect(curlInvocation).toContain('https://paperparser.example.run.app/ready');
+    expect(curlInvocation).toContain('https://paperparser.example.run.app/api/papers');
+
+    expect(result.stdout).toContain('"serviceUrl": "https://paperparser.example.run.app"');
+    expect(result.stdout).toContain('"currentRevision": "paperparser-00008-new"');
+    expect(result.stdout).toContain('"previousRevision": "paperparser-00007-old"');
+    expect(result.stdout).toContain('"imageRef": "repo@sha256:abc123"');
+    expect(result.stdout).toContain("PAPERPARSER_REVISION='paperparser-00007-old' deploy/cloudrun/rollback.sh");
   });
 });

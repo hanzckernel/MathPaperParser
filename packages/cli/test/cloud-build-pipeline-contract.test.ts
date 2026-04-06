@@ -63,6 +63,8 @@ describe('cloud build pipeline contract', () => {
     expect(releaseConfig).toContain('deploy/cloudrun/resolve-image-digest.sh');
     expect(releaseConfig).toContain('deploy/cloudrun/deploy-from-image-ref.sh');
     expect(releaseConfig).toContain('deploy/cloudrun/release-metadata.sh');
+    expect(releaseConfig).toContain('deploy/cloudrun/live-smoke.sh');
+    expect(releaseConfig).toContain('/workspace/cloudrun-smoke.json');
   });
 
   it('rejects release publishing outside the configured mainline ref', () => {
