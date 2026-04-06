@@ -3,8 +3,8 @@ gsd_state_version: 1.0
 milestone: v1.5
 milestone_name: GCP Deployment & CI/CD
 status: roadmap_approved
-stopped_at: phase 23 discussion complete; planning is next
-last_updated: "2026-04-06T09:40:00Z"
+stopped_at: phase 24 discussion complete; planning is next
+last_updated: "2026-04-06T10:05:00Z"
 last_activity: 2026-04-06
 progress:
   total_phases: 4
@@ -21,14 +21,14 @@ progress:
 See: .planning/PROJECT.md (updated 2026-04-05)
 
 **Core value:** A mathematician can feed in a TeX paper and get a trustworthy dependency artifact that makes the logical structure of the paper easier to navigate.
-**Current focus:** Phase 23 discussion complete; ready to plan `GCP Bootstrap & First Live Deployment`
+**Current focus:** Phase 24 discussion complete; ready to plan `CI Validation & Image Release Pipeline`
 
 ## Current Position
 
-Phase: 23. GCP Bootstrap & First Live Deployment
+Phase: 24. CI Validation & Image Release Pipeline
 Plan: -
 Status: Roadmap approved; phase planning is next
-Last activity: 2026-04-06 — Locked Phase 23 bootstrap automation, long-lived service, and no-source-host decisions in context.
+Last activity: 2026-04-06 — Locked Phase 24 Cloud Build-first pipeline, split validation gates, digest-backed image identity, mainline-only publish, and folded stale-artifact freshness checks.
 
 Progress: [----------] 0%
 
@@ -115,6 +115,7 @@ Decisions are logged in PROJECT.md. The milestone established:
 - `v1.5` opened for GCP deployment execution and CI/CD
 - Roadmap approved with phases 23-26
 - Phase 23 discussion completed with decisions `1A 2A 3A`
+- Phase 24 discussion completed with decisions `0B 1B 2C 3A 4A`
 
 ### Pending Todos
 
@@ -130,5 +131,5 @@ Decisions are logged in PROJECT.md. The milestone established:
 ## Session Continuity
 
 Last session: 2026-04-06 CEST
-Stopped at: `v1.5` Phase 23 context captured; next step is `$gsd-plan-phase 23`
+Stopped at: `v1.5` Phase 24 context captured; next step is `$gsd-plan-phase 24`
 Resume file: .planning/ROADMAP.md
