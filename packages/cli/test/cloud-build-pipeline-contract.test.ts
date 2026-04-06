@@ -58,6 +58,8 @@ describe('cloud build pipeline contract', () => {
     expect(releaseConfig).toContain('docker build');
     expect(releaseConfig).toContain('docker push');
     expect(releaseConfig).toContain('$SHORT_SHA');
+    expect(releaseConfig).toContain('docker build -t "$$IMAGE_URI" .');
+    expect(releaseConfig).toContain('docker push "$$IMAGE_URI"');
     expect(releaseConfig).toContain('deploy/cloudrun/resolve-image-digest.sh');
     expect(releaseConfig).toContain('deploy/cloudrun/deploy-from-image-ref.sh');
     expect(releaseConfig).toContain('deploy/cloudrun/release-metadata.sh');
@@ -138,11 +140,37 @@ describe('cloud build pipeline contract', () => {
 
     expect(runbook).toContain('cloudbuild.validate.yaml');
     expect(runbook).toContain('cloudbuild.release.yaml');
+    expect(runbook).toContain('deploy/cloudrun/connect-github-repo.sh');
     expect(runbook).toContain('deploy/cloudrun/sync-github-trigger.sh');
     expect(runbook).toContain('GitHub');
     expect(runbook).toContain('deploy/cloudrun/resolve-image-digest.sh');
     expect(readme).toContain('cloudbuild.release.yaml');
     expect(readme).toContain('GitHub');
+  });
+
+  it('prints the one-time Cloud Build GitHub connect URL for the project', () => {
+    const logPath = join(mkdtempSync(join(tmpdir(), 'paperparser-gcloud-log-')), 'connect.log');
+    const stdoutPath = join(mkdtempSync(join(tmpdir(), 'paperparser-gcloud-out-')), 'stdout.txt');
+    writeFileSync(stdoutPath, '652654562529\n', 'utf8');
+    const fakeBinDir = writeFakeGcloud(logPath, stdoutPath);
+    const result = spawnSync('bash', [resolve(process.cwd(), 'deploy/cloudrun/connect-github-repo.sh')], {
+      encoding: 'utf8',
+      env: {
+        ...process.env,
+        PATH: `${fakeBinDir}:${process.env.PATH ?? ''}`,
+        FAKE_GCLOUD_LOG: logPath,
+        FAKE_GCLOUD_STDOUT: stdoutPath,
+        PAPERPARSER_PROJECT: 'paperparser-492322',
+        PAPERPARSER_TRIGGER_REGION: 'global',
+      },
+    });
+
+    expect(result.status).toBe(0);
+    const invocation = readFileSync(logPath, 'utf8');
+    expect(invocation).toContain('projects describe paperparser-492322 --format=value(projectNumber)');
+    expect(result.stdout).toContain(
+      'https://console.cloud.google.com/cloud-build/triggers;region=global/connect?project=652654562529',
+    );
   });
 
   it('syncs a GitHub mainline trigger under a bounded Cloud Build service account', () => {

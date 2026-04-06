@@ -40,7 +40,18 @@ deploy/cloudrun/bootstrap.sh
 
 The helper enables required APIs, creates missing resources where practical, ensures the runtime service account can write to the mounted bucket, grants the dedicated Cloud Build service account the bounded roles needed to publish and deploy, and prints the canonical environment values for the hosted path.
 
-## 2. Sync The GitHub `main` Trigger
+## 2. Connect The GitHub Repository To Cloud Build
+
+On the first setup only, complete the repository connection flow:
+
+```bash
+export PAPERPARSER_TRIGGER_REGION=global
+deploy/cloudrun/connect-github-repo.sh
+```
+
+Open the printed URL, authenticate with GitHub, and connect `hanzckernel/MathPaperParser` to Cloud Build. This one-time browser step is required before trigger sync can succeed.
+
+## 3. Sync The GitHub `main` Trigger
 
 ```bash
 export PAPERPARSER_TRIGGER_REGION=global
@@ -52,7 +63,7 @@ deploy/cloudrun/sync-github-trigger.sh
 
 This helper creates or updates the Cloud Build GitHub trigger for `main`, points it at `cloudbuild.release.yaml`, and runs it under the dedicated `paperparser-cloudbuild@...` service account instead of key JSON or the legacy default path.
 
-## 3. Validate The Repo-Owned Pipeline Gates
+## 4. Validate The Repo-Owned Pipeline Gates
 
 ```bash
 gcloud builds submit --config=cloudbuild.validate.yaml .
@@ -60,7 +71,7 @@ gcloud builds submit --config=cloudbuild.validate.yaml .
 
 The fast Cloud Build gate installs dependencies, runs `npm run ci:cloudbuild:fast`, and fails before any release publish step.
 
-## 4. Build, Publish, And Deploy The Release Image
+## 5. Build, Publish, And Deploy The Release Image
 
 ```bash
 gcloud builds submit \
@@ -81,7 +92,7 @@ Use the returned `imageRef` value for later deploy steps instead of rebuilding o
 
 If you prefer hosted automation over manual submission, push the validated commit to GitHub `main`. The synced Cloud Build trigger runs the same `cloudbuild.release.yaml` contract automatically.
 
-## 5. Deploy Manually From A Resolved Digest
+## 6. Deploy Manually From A Resolved Digest
 
 ```bash
 deploy/cloudrun/deploy.sh
@@ -98,7 +109,7 @@ Required variables before deploy:
 
 Manual deploy remains available for recovery or controlled roll-forward, but the supported hosted path is now GitHub `main` -> Cloud Build -> Cloud Run.
 
-## 6. Grant Invoker Access
+## 7. Grant Invoker Access
 
 ```bash
 PAPERPARSER_MEMBER='user:alice@example.com' deploy/cloudrun/grant-invoker.sh
@@ -106,7 +117,7 @@ PAPERPARSER_MEMBER='user:alice@example.com' deploy/cloudrun/grant-invoker.sh
 
 Repeat for each named user or service account that should access the service.
 
-## 7. Fetch Service Metadata
+## 8. Fetch Service Metadata
 
 ```bash
 deploy/cloudrun/service-metadata.sh
@@ -116,7 +127,7 @@ The helper returns the deployed service name, canonical service URL, latest read
 
 The hosted release path also writes `cloudrun-release.json` through `deploy/cloudrun/release-metadata.sh`, which combines the exact image digest with the deployed revision for later smoke and rollback steps.
 
-## 8. Verify
+## 9. Verify
 
 Fetch the authenticated service URL and identity token:
 
@@ -135,7 +146,7 @@ Then verify:
 
 Use `/health` and `/ready` for Cloud Run probes and live smoke. The app still serves `/healthz` and `/readyz` locally for backward compatibility, but Cloud Run-facing operator checks should avoid `*z` probe paths.
 
-## 9. Upgrade
+## 10. Upgrade
 
 Re-run the release Cloud Build config so the heavier gate passes and a new immutable image is published. Then set `PAPERPARSER_IMAGE` to the returned digest-backed `imageRef` and rerun:
 
@@ -145,7 +156,7 @@ deploy/cloudrun/deploy.sh
 
 Cloud Run will create a new revision.
 
-## 10. Roll Back
+## 11. Roll Back
 
 List revisions:
 

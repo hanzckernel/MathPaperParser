@@ -42,8 +42,8 @@ steps:
           exit 1
         fi
         IMAGE_URI="${_LOCATION}-docker.pkg.dev/$PROJECT_ID/${_REPOSITORY}/${_IMAGE}:$SHORT_SHA"
-        docker build -t "$IMAGE_URI" .
-        docker push "$IMAGE_URI"
+        docker build -t "$$IMAGE_URI" .
+        docker push "$$IMAGE_URI"
 
   - name: gcr.io/google.com/cloudsdktool/cloud-sdk:slim
     entrypoint: bash

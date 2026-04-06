@@ -17,10 +17,11 @@ Unsupported in this phase:
 The live hosted deployment path is:
 
 1. `deploy/cloudrun/bootstrap.sh`
-2. `deploy/cloudrun/sync-github-trigger.sh`
-3. `cloudbuild.validate.yaml`
-4. `cloudbuild.release.yaml`
-5. `deploy/cloudrun/service-metadata.sh`
+2. `deploy/cloudrun/connect-github-repo.sh`
+3. `deploy/cloudrun/sync-github-trigger.sh`
+4. `cloudbuild.validate.yaml`
+5. `cloudbuild.release.yaml`
+6. `deploy/cloudrun/service-metadata.sh`
 
 ## Deploy
 
@@ -52,6 +53,7 @@ The runtime service account should have `roles/storage.objectUser` on that bucke
 
 The checked-in hosted pipeline is GitHub -> Cloud Build -> Cloud Run:
 
+- `deploy/cloudrun/connect-github-repo.sh` prints the one-time Cloud Build GitHub connection URL for the project
 - `cloudbuild.validate.yaml` runs the faster validation gate through `npm run ci:cloudbuild:fast`
 - `deploy/cloudrun/sync-github-trigger.sh` creates or updates the GitHub `main` trigger for the repo-owned release contract
 - `cloudbuild.release.yaml` runs the heavier release gate through `npm run ci:cloudbuild:release`, restricts image publishing to `main`, publishes a commit-SHA-tagged image, resolves the immutable digest through `deploy/cloudrun/resolve-image-digest.sh`, and deploys from that exact digest through `deploy/cloudrun/deploy-from-image-ref.sh`
