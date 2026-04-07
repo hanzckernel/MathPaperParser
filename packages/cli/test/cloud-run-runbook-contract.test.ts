@@ -240,6 +240,9 @@ esac
       `#!/bin/sh
 printf '%s\n' "$*" >> "$FAKE_CURL_LOG"
 case "$*" in
+  *"http://metadata/computeMetadata/v1/instance/service-accounts/default/identity"*)
+    printf '%s\n' "metadata-token"
+    ;;
   *"metadata.google.internal/computeMetadata/v1/instance/service-accounts/default/identity"*)
     printf '%s\n' "metadata-token"
     ;;
@@ -277,7 +280,7 @@ esac
 
     expect(result.status).toBe(0);
     const curlInvocation = readFileSync(curlLogPath, 'utf8');
-    expect(curlInvocation).toContain('metadata.google.internal/computeMetadata/v1/instance/service-accounts/default/identity');
+    expect(curlInvocation).toContain('http://metadata/computeMetadata/v1/instance/service-accounts/default/identity');
     expect(curlInvocation).toContain('Authorization: Bearer metadata-token');
     expect(result.stdout).toContain('"currentRevision": "paperparser-00009-new"');
     expect(result.stdout).toContain('"previousRevision": "paperparser-00008-old"');

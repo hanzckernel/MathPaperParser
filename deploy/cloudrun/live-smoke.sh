@@ -44,14 +44,30 @@ if [[ -z "${SERVICE_URL}" || -z "${CURRENT_REVISION}" ]]; then
 fi
 
 get_identity_token() {
+  local token=""
+  local metadata_url=""
+
   if token="$(gcloud auth print-identity-token 2>/dev/null)" && [[ -n "${token}" ]]; then
     printf '%s' "${token}"
     return 0
   fi
 
-  curl -fsS \
-    -H 'Metadata-Flavor: Google' \
+  for metadata_url in \
+    "http://metadata/computeMetadata/v1/instance/service-accounts/default/identity?audience=${SERVICE_URL}" \
     "http://metadata.google.internal/computeMetadata/v1/instance/service-accounts/default/identity?audience=${SERVICE_URL}"
+  do
+    if token="$(
+      curl -fsS \
+        -H 'Metadata-Flavor: Google' \
+        "${metadata_url}" 2>/dev/null
+    )" && [[ -n "${token}" ]]; then
+      printf '%s' "${token}"
+      return 0
+    fi
+  done
+
+  echo "Unable to obtain an identity token for hosted smoke." >&2
+  return 1
 }
 
 TOKEN="$(get_identity_token)"
