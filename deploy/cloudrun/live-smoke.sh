@@ -43,7 +43,18 @@ if [[ -z "${SERVICE_URL}" || -z "${CURRENT_REVISION}" ]]; then
   exit 1
 fi
 
-TOKEN="$(gcloud auth print-identity-token)"
+get_identity_token() {
+  if token="$(gcloud auth print-identity-token 2>/dev/null)" && [[ -n "${token}" ]]; then
+    printf '%s' "${token}"
+    return 0
+  fi
+
+  curl -fsS \
+    -H 'Metadata-Flavor: Google' \
+    "http://metadata.google.internal/computeMetadata/v1/instance/service-accounts/default/identity?audience=${SERVICE_URL}"
+}
+
+TOKEN="$(get_identity_token)"
 AUTH_HEADER="Authorization: Bearer ${TOKEN}"
 
 HEALTH_BODY="$(

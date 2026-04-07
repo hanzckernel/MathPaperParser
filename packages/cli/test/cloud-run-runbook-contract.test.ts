@@ -204,4 +204,82 @@ esac
     expect(result.stdout).toContain('"imageRef": "repo@sha256:abc123"');
     expect(result.stdout).toContain("PAPERPARSER_REVISION='paperparser-00007-old' deploy/cloudrun/rollback.sh");
   });
+
+  it('falls back to metadata identity tokens when gcloud cannot mint one in hosted smoke', () => {
+    const fakeBinDir = mkdtempSync(join(tmpdir(), 'paperparser-smoke-bin-'));
+    const gcloudLogPath = join(mkdtempSync(join(tmpdir(), 'paperparser-gcloud-log-')), 'smoke-gcloud.log');
+    const curlLogPath = join(mkdtempSync(join(tmpdir(), 'paperparser-curl-log-')), 'smoke-curl.log');
+    const imageJsonPath = join(mkdtempSync(join(tmpdir(), 'paperparser-smoke-json-')), 'cloudrun-image.json');
+
+    writeFakeCommand(
+      fakeBinDir,
+      'gcloud',
+      `#!/bin/sh
+printf '%s\n' "$*" >> "$FAKE_GCLOUD_LOG"
+case "$*" in
+  *"run services describe paperparser"*)
+    printf '%s,%s\n' "https://paperparser.example.run.app" "paperparser-00009-new"
+    ;;
+  *"auth print-identity-token"*)
+    printf '%s\n' "ERROR: no identity token from gcloud" >&2
+    exit 1
+    ;;
+  *"run revisions list"*)
+    printf '%s\n' "paperparser-00009-new"
+    printf '%s\n' "paperparser-00008-old"
+    ;;
+  *)
+    exit 0
+    ;;
+esac
+`,
+    );
+    writeFakeCommand(
+      fakeBinDir,
+      'curl',
+      `#!/bin/sh
+printf '%s\n' "$*" >> "$FAKE_CURL_LOG"
+case "$*" in
+  *"metadata.google.internal/computeMetadata/v1/instance/service-accounts/default/identity"*)
+    printf '%s\n' "metadata-token"
+    ;;
+  *"/health"*)
+    printf '%s\n' '{"ok":true}'
+    ;;
+  *"/ready"*)
+    printf '%s\n' '{"ok":true,"runtimeMode":"deployed"}'
+    ;;
+  *"/api/papers"*)
+    printf '%s\n' '{"papers":[]}'
+    ;;
+  *)
+    printf '%s\n' '{"error":"unexpected"}' >&2
+    exit 1
+    ;;
+esac
+`,
+    );
+    writeFileSync(imageJsonPath, JSON.stringify({ imageRef: 'repo@sha256:def456' }), 'utf8');
+
+    const result = spawnSync('bash', [resolve(process.cwd(), 'deploy/cloudrun/live-smoke.sh')], {
+      encoding: 'utf8',
+      env: {
+        ...process.env,
+        PATH: `${fakeBinDir}:${process.env.PATH ?? ''}`,
+        FAKE_GCLOUD_LOG: gcloudLogPath,
+        FAKE_CURL_LOG: curlLogPath,
+        PAPERPARSER_PROJECT: 'paperparser-492322',
+        PAPERPARSER_REGION: 'europe-west1',
+        PAPERPARSER_SERVICE: 'paperparser',
+        PAPERPARSER_IMAGE_JSON: imageJsonPath,
+      },
+    });
+
+    expect(result.status).toBe(0);
+    const curlInvocation = readFileSync(curlLogPath, 'utf8');
+    expect(curlInvocation).toContain('metadata.google.internal/computeMetadata/v1/instance/service-accounts/default/identity');
+    expect(curlInvocation).toContain('Authorization: Bearer metadata-token');
+    expect(result.stdout).toContain('"currentRevision": "paperparser-00009-new"');
+    expect(result.stdout).toContain('"previousRevision": "paperparser-00008-old"');
+  });
 });
