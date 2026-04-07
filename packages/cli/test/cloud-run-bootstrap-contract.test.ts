@@ -42,6 +42,7 @@ describe('cloud run bootstrap and live deploy contract', () => {
     const ignoreFile = readFileSync(resolve(process.cwd(), '.gcloudignore'), 'utf8');
 
     expect(ignoreFile).toContain('.git');
+    expect(ignoreFile).toContain('.gcloud/');
     expect(ignoreFile).toContain('.npm-cache/');
     expect(ignoreFile).toContain('.paperparser-data/');
     expect(ignoreFile).toContain('.playwright-cli/');
@@ -94,6 +95,9 @@ describe('cloud run bootstrap and live deploy contract', () => {
     );
     expect(invocation).toContain(
       'iam service-accounts add-iam-policy-binding paperparser-runtime@paperparser-492322.iam.gserviceaccount.com --project=paperparser-492322 --member=serviceAccount:paperparser-cloudbuild@paperparser-492322.iam.gserviceaccount.com --role=roles/iam.serviceAccountUser',
+    );
+    expect(invocation).toContain(
+      'iam service-accounts add-iam-policy-binding paperparser-cloudbuild@paperparser-492322.iam.gserviceaccount.com --project=paperparser-492322 --member=serviceAccount:paperparser-cloudbuild@paperparser-492322.iam.gserviceaccount.com --role=roles/iam.serviceAccountOpenIdTokenCreator',
     );
     expect(invocation).toContain(
       'storage buckets create gs://paperparser-store-paperparser-492322 --project=paperparser-492322 --location=europe-west1 --uniform-bucket-level-access',

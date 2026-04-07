@@ -24,6 +24,8 @@ The first live deployment was verified on **April 6, 2026** against:
 - Cloud Run, Artifact Registry, Cloud Build, and Cloud Storage APIs available in the project
 - permission to create or verify the runtime service account, the Cloud Build deploy service account, Artifact Registry repository, mounted store bucket, and Cloud Build trigger
 
+The repo-local helper `deploy/cloudrun/gcloud.sh` and the Cloud Run shell helpers default `CLOUDSDK_CONFIG` to `.gcloud/` at the repo root, which avoids sandbox friction around `~/.config/gcloud`.
+
 ## 1. Bootstrap Or Verify GCP Resources
 
 ```bash
@@ -66,7 +68,7 @@ This helper creates or updates the Cloud Build GitHub trigger for `main`, points
 ## 4. Validate The Repo-Owned Pipeline Gates
 
 ```bash
-gcloud builds submit --config=cloudbuild.validate.yaml .
+deploy/cloudrun/gcloud.sh builds submit --config=cloudbuild.validate.yaml .
 ```
 
 The fast Cloud Build gate installs dependencies, runs `npm run ci:cloudbuild:fast`, and fails before any release publish step.
@@ -74,7 +76,7 @@ The fast Cloud Build gate installs dependencies, runs `npm run ci:cloudbuild:fas
 ## 5. Build, Publish, And Deploy The Release Image
 
 ```bash
-gcloud builds submit \
+deploy/cloudrun/gcloud.sh builds submit \
   --config=cloudbuild.release.yaml \
   --substitutions=SHORT_SHA="$(git rev-parse --short HEAD)",BRANCH_NAME=main,_LOCATION=europe-west1,_REPOSITORY=paperparser,_IMAGE=paperparser,_SERVICE=paperparser,_RUNTIME_SERVICE_ACCOUNT=paperparser-runtime@paperparser-492322.iam.gserviceaccount.com,_BUILD_SERVICE_ACCOUNT=paperparser-cloudbuild@paperparser-492322.iam.gserviceaccount.com,_STORE_BUCKET=paperparser-store-paperparser-492322 .
 ```
@@ -143,7 +145,7 @@ Fetch the authenticated service URL and identity token:
 
 ```bash
 SERVICE_URL="$(deploy/cloudrun/service-metadata.sh | node -e "let data=''; process.stdin.on('data', (chunk) => data += chunk); process.stdin.on('end', () => console.log(JSON.parse(data).status.url));")"
-TOKEN="$(gcloud auth print-identity-token)"
+TOKEN="$(deploy/cloudrun/gcloud.sh auth print-identity-token)"
 echo "$SERVICE_URL"
 ```
 
@@ -172,7 +174,7 @@ Cloud Run will create a new revision.
 List revisions:
 
 ```bash
-gcloud run revisions list --project "$PAPERPARSER_PROJECT" --service "$PAPERPARSER_SERVICE" --region "$PAPERPARSER_REGION"
+deploy/cloudrun/gcloud.sh run revisions list --project "$PAPERPARSER_PROJECT" --service "$PAPERPARSER_SERVICE" --region "$PAPERPARSER_REGION"
 ```
 
 Route all traffic back to a prior revision:

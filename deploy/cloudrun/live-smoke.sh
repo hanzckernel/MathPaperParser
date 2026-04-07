@@ -1,6 +1,8 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
+source "$(dirname "$0")/gcloud-env.sh"
+
 : "${PAPERPARSER_PROJECT:?Set PAPERPARSER_PROJECT to the Google Cloud project ID.}"
 : "${PAPERPARSER_REGION:?Set PAPERPARSER_REGION to the Cloud Run region.}"
 : "${PAPERPARSER_SERVICE:?Set PAPERPARSER_SERVICE to the Cloud Run service name.}"
@@ -26,13 +28,19 @@ json_escape() {
   printf '%s' "${value}"
 }
 
+json_contains_true() {
+  local body="$1"
+  local field_name="$2"
+  printf '%s' "${body}" | grep -Eq "\"${field_name}\"[[:space:]]*:[[:space:]]*true"
+}
+
 IMAGE_REF="$(read_json_field "${RELEASE_JSON}" "imageRef")"
 if [[ -z "${IMAGE_REF}" ]]; then
   IMAGE_REF="$(read_json_field "${IMAGE_JSON}" "imageRef")"
 fi
 
 IFS=',' read -r SERVICE_URL CURRENT_REVISION <<< "$(
-  gcloud run services describe "${PAPERPARSER_SERVICE}" \
+  gcloud_cmd run services describe "${PAPERPARSER_SERVICE}" \
     --project="${PAPERPARSER_PROJECT}" \
     --region="${PAPERPARSER_REGION}" \
     --format='csv[no-heading](status.url,status.latestReadyRevisionName)'
@@ -47,7 +55,7 @@ get_identity_token() {
   local token=""
   local metadata_url=""
 
-  if token="$(gcloud auth print-identity-token 2>/dev/null)" && [[ -n "${token}" ]]; then
+  if token="$(gcloud_cmd auth print-identity-token 2>/dev/null)" && [[ -n "${token}" ]]; then
     printf '%s' "${token}"
     return 0
   fi
@@ -89,12 +97,12 @@ PAPERS_BODY="$(
     "${SERVICE_URL}/api/papers"
 )"
 
-if [[ "${HEALTH_BODY}" != *'"ok":true'* ]]; then
+if ! json_contains_true "${HEALTH_BODY}" "ok"; then
   echo "Smoke failed: /health did not return ok=true." >&2
   exit 1
 fi
 
-if [[ "${READY_BODY}" != *'"ok":true'* ]]; then
+if ! json_contains_true "${READY_BODY}" "ok"; then
   echo "Smoke failed: /ready did not return ok=true." >&2
   exit 1
 fi
@@ -105,7 +113,7 @@ if [[ "${PAPERS_BODY}" != *'"papers"'* ]]; then
 fi
 
 PREVIOUS_REVISION="$(
-  gcloud run revisions list \
+  gcloud_cmd run revisions list \
     --project "${PAPERPARSER_PROJECT}" \
     --service "${PAPERPARSER_SERVICE}" \
     --region "${PAPERPARSER_REGION}" \

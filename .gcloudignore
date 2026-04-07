@@ -6,6 +6,7 @@
 # Keep Cloud Build uploads aligned with source control, but exclude large
 # local runtime state that should never be part of a deploy context.
 .planning/
+.gcloud/
 .claude/
 .npm-cache/
 .paperparser-data/

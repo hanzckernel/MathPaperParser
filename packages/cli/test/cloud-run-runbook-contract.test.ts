@@ -30,6 +30,8 @@ describe('cloud run persistence and runbook contract', () => {
     const runbook = readFileSync(resolve(process.cwd(), 'deploy/cloudrun/RUNBOOK.md'), 'utf8');
     const smoke = readFileSync(resolve(process.cwd(), 'deploy/cloudrun/SMOKE.md'), 'utf8');
 
+    expect(runbook).toContain('deploy/cloudrun/gcloud.sh builds submit --config=cloudbuild.validate.yaml .');
+    expect(runbook).toContain('deploy/cloudrun/gcloud.sh auth print-identity-token');
     expect(runbook).toContain('"$SERVICE_URL/health"');
     expect(runbook).toContain('"$SERVICE_URL/ready"');
     expect(runbook).toContain('deploy/cloudrun/live-smoke.sh');
@@ -284,5 +286,83 @@ esac
     expect(curlInvocation).toContain('Authorization: Bearer metadata-token');
     expect(result.stdout).toContain('"currentRevision": "paperparser-00009-new"');
     expect(result.stdout).toContain('"previousRevision": "paperparser-00008-old"');
+  });
+
+  it('accepts pretty-printed health and ready JSON in hosted smoke responses', () => {
+    const fakeBinDir = mkdtempSync(join(tmpdir(), 'paperparser-smoke-bin-'));
+    const gcloudLogPath = join(mkdtempSync(join(tmpdir(), 'paperparser-gcloud-log-')), 'smoke-gcloud.log');
+    const curlLogPath = join(mkdtempSync(join(tmpdir(), 'paperparser-curl-log-')), 'smoke-curl.log');
+    const imageJsonPath = join(mkdtempSync(join(tmpdir(), 'paperparser-smoke-json-')), 'cloudrun-image.json');
+
+    writeFakeCommand(
+      fakeBinDir,
+      'gcloud',
+      `#!/bin/sh
+printf '%s\n' "$*" >> "$FAKE_GCLOUD_LOG"
+case "$*" in
+  *"run services describe paperparser"*)
+    printf '%s,%s\n' "https://paperparser.example.run.app" "paperparser-00010-new"
+    ;;
+  *"auth print-identity-token"*)
+    printf '%s\n' "fake-token"
+    ;;
+  *"run revisions list"*)
+    printf '%s\n' "paperparser-00010-new"
+    printf '%s\n' "paperparser-00009-old"
+    ;;
+  *)
+    exit 0
+    ;;
+esac
+`,
+    );
+    writeFakeCommand(
+      fakeBinDir,
+      'curl',
+      `#!/bin/sh
+printf '%s\n' "$*" >> "$FAKE_CURL_LOG"
+case "$*" in
+  *"/health"*)
+    printf '%s\n' '{'
+    printf '%s\n' '  "ok": true'
+    printf '%s\n' '}'
+    ;;
+  *"/ready"*)
+    printf '%s\n' '{'
+    printf '%s\n' '  "ok": true,'
+    printf '%s\n' '  "runtimeMode": "deployed"'
+    printf '%s\n' '}'
+    ;;
+  *"/api/papers"*)
+    printf '%s\n' '{'
+    printf '%s\n' '  "papers": []'
+    printf '%s\n' '}'
+    ;;
+  *)
+    printf '%s\n' '{"error":"unexpected"}' >&2
+    exit 1
+    ;;
+esac
+`,
+    );
+    writeFileSync(imageJsonPath, JSON.stringify({ imageRef: 'repo@sha256:jkl012' }), 'utf8');
+
+    const result = spawnSync('bash', [resolve(process.cwd(), 'deploy/cloudrun/live-smoke.sh')], {
+      encoding: 'utf8',
+      env: {
+        ...process.env,
+        PATH: `${fakeBinDir}:${process.env.PATH ?? ''}`,
+        FAKE_GCLOUD_LOG: gcloudLogPath,
+        FAKE_CURL_LOG: curlLogPath,
+        PAPERPARSER_PROJECT: 'paperparser-492322',
+        PAPERPARSER_REGION: 'europe-west1',
+        PAPERPARSER_SERVICE: 'paperparser',
+        PAPERPARSER_IMAGE_JSON: imageJsonPath,
+      },
+    });
+
+    expect(result.status).toBe(0);
+    expect(result.stdout).toContain('"currentRevision": "paperparser-00010-new"');
+    expect(result.stdout).toContain('"previousRevision": "paperparser-00009-old"');
   });
 });
